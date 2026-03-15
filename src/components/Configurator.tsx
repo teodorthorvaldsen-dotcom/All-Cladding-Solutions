@@ -274,32 +274,9 @@ export function Configurator() {
             >
               Add to cart
             </button>
-            <button
-              type="button"
-              onClick={handleRequestQuote}
-              disabled={loading || !!error || !pricing}
-              className="mt-3 w-full rounded-xl border border-gray-300 bg-white px-5 py-3.5 text-[15px] font-medium text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Request final quote (single configuration)
-            </button>
           </div>
         </div>
       </div>
-
-      <section className="mt-20 border-t border-gray-200/80 pt-16" aria-labelledby="have-plans-heading">
-        <h2 id="have-plans-heading" className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-          Have Plans Instead?
-        </h2>
-        <p className="mt-2 text-[15px] text-gray-500">
-          Upload your drawings for a full fabrication review and optimized panel layout.
-        </p>
-        <Link
-          href="/consultation"
-          className="mt-8 inline-flex items-center rounded-xl bg-gray-900 px-6 py-4 text-[15px] font-medium text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-        >
-          Upload Plans for Fabrication Review
-        </Link>
-      </section>
 
       <section className="mt-20 border-t border-gray-200/80 pt-16" aria-labelledby="material-composition-heading">
         <h2 id="material-composition-heading" className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
