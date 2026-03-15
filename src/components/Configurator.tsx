@@ -6,7 +6,6 @@ import {
   allWidths,
   colors,
   finishes,
-  MIN_ORDER_VALUE,
   thicknesses,
   type ColorId,
   type ThicknessId,
@@ -268,23 +267,13 @@ export function Configurator() {
               error={error}
             />
             <div className="rounded-xl border border-gray-200/80 bg-gray-50/80 px-4 py-3 text-[13px] text-gray-700" role="note">
-              <p className="font-medium text-gray-800">Dimension guidelines</p>
-              <p className="mt-0.5">Width 12–62 in, length 12–190 in (15 ft 10 in). You can clear the fields and type your own numbers.</p>
+              <p className="font-medium text-gray-800">Dimensions</p>
+              <p className="mt-0.5">Width: 12–62 in. Length: 12–190 in (15 ft 10 in). Enter your dimensions in the fields above.</p>
             </div>
-            {pricing && pricing.total < MIN_ORDER_VALUE && (
-              <p className="rounded-xl bg-amber-50/80 px-4 py-3 text-[13px] text-amber-800" role="alert">
-                Minimum order amount is ${MIN_ORDER_VALUE}. Please increase quantity.
-              </p>
-            )}
             <button
               type="button"
               onClick={handleAddToCart}
-              disabled={
-                loading ||
-                !!error ||
-                !pricing ||
-                (pricing != null && pricing.total < MIN_ORDER_VALUE)
-              }
+              disabled={loading || !!error || !pricing}
               className="w-full rounded-xl bg-gray-900 px-5 py-4 text-[15px] font-medium text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Add to cart
@@ -292,12 +281,7 @@ export function Configurator() {
             <button
               type="button"
               onClick={handleRequestQuote}
-              disabled={
-                loading ||
-                !!error ||
-                !pricing ||
-                (pricing != null && pricing.total < MIN_ORDER_VALUE)
-              }
+              disabled={loading || !!error || !pricing}
               className="mt-3 w-full rounded-xl border border-gray-300 bg-white px-5 py-3.5 text-[15px] font-medium text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Request final quote (single configuration)
