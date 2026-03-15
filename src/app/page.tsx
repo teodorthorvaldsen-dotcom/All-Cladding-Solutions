@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { projects } from "@/data/projects";
 
 const TRUST_ITEMS = [
   {
@@ -158,48 +157,6 @@ export default function HomePage() {
                 </p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Our Work */}
-      <section
-        className="border-t border-gray-200/50 bg-gray-50/40 py-28 lg:py-32"
-        aria-labelledby="our-work-heading"
-      >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 id="our-work-heading" className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-            Our Work
-          </h2>
-          <p className="mt-2 text-[15px] text-gray-500">
-            Metal wall panels and ACM panels in commercial and architectural applications.
-          </p>
-          <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {projects.map((project) => (
-              <Link
-                key={project.slug}
-                href="/projects"
-                className="group block overflow-hidden rounded-2xl border border-gray-200/70 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1.5 hover:border-gray-300/80 hover:shadow-[0_16px_48px_rgba(0,0,0,0.1)] focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-              >
-                <div className="relative aspect-[16/10] overflow-hidden bg-gray-100 flex flex-col items-center justify-center px-6 text-center">
-                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-gray-800">
-                    {project.title}
-                  </h3>
-                  <p className="mt-1 text-sm text-gray-500">{project.location}</p>
-                  <p className="mt-2 text-xs text-gray-400 line-clamp-2 max-w-[85%]">
-                    {project.description}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-          <div className="mt-10 text-center">
-            <Link
-              href="/projects"
-              className="inline-block text-[14px] font-medium text-gray-900 hover:underline focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-inset rounded"
-            >
-              View our work →
-            </Link>
           </div>
         </div>
       </section>
