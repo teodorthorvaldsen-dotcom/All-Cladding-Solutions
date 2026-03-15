@@ -78,26 +78,6 @@ export default function HomePage() {
             <p className="mt-6 animate-hero-fade-in text-lg text-white/90 md:text-xl [animation-delay:0.15s]">
               Fire-rated ACM panels. Configure online or submit drawings for consultation. Nationwide.
             </p>
-            <div className="mt-8 flex animate-hero-fade-in flex-wrap justify-center gap-4 [animation-delay:0.3s]">
-              <Link
-                href="/products/acm-panels"
-                className="rounded-lg bg-white px-6 py-3.5 text-sm font-medium text-gray-900 transition hover:bg-white/95 focus:outline-none focus:ring-2 focus:ring-white/80 focus:ring-offset-2 focus:ring-offset-transparent"
-              >
-                ACM Panels
-              </Link>
-              <Link
-                href="/custom-shop-drawings"
-                className="rounded-lg border border-white/70 bg-white/10 px-6 py-3.5 text-sm font-medium text-white backdrop-blur-sm transition hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-transparent"
-              >
-                Custom Shop Drawings
-              </Link>
-              <Link
-                href="/projects"
-                className="rounded-lg border border-white/60 px-6 py-3.5 text-sm font-medium text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-transparent"
-              >
-                Our Work
-              </Link>
-            </div>
           </div>
         </div>
       </section>
