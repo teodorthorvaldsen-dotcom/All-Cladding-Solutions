@@ -181,16 +181,14 @@ export default function HomePage() {
                 href="/projects"
                 className="group block overflow-hidden rounded-2xl border border-gray-200/70 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1.5 hover:border-gray-300/80 hover:shadow-[0_16px_48px_rgba(0,0,0,0.1)] focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
               >
-                <div className="relative aspect-[16/10] overflow-hidden bg-[#1a1a1b]">
-                  <div
-                    className="absolute inset-0 bg-cover bg-center transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-                    style={{ backgroundImage: `url(/images/projects/${project.slug}.jpg)` }}
-                    aria-hidden
-                  />
-                  <div
-                    className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"
-                    aria-hidden
-                  />
+                <div className="relative aspect-[16/10] overflow-hidden bg-gray-100 flex flex-col items-center justify-center px-6 text-center">
+                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-gray-800">
+                    {project.title}
+                  </h3>
+                  <p className="mt-1 text-sm text-gray-500">{project.location}</p>
+                  <p className="mt-2 text-xs text-gray-400 line-clamp-2 max-w-[85%]">
+                    {project.description}
+                  </p>
                 </div>
               </Link>
             ))}
