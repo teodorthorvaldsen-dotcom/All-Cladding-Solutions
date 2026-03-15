@@ -160,58 +160,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Consultation */}
-      <section className="border-t border-gray-200/50 py-20 lg:py-24">
-        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-            Request a consultation
-          </h2>
-          <p className="mt-4 text-[15px] text-gray-500">
-            Submit drawings or specifications for ACM panels. Our team will review and respond.
-          </p>
-          <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <Link
-              href="/consultation"
-              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-8 py-3.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-            >
-              General consultation
-            </Link>
-            <Link
-              href="/custom-shop-drawings"
-              className="inline-flex items-center justify-center rounded-lg bg-gray-900 px-8 py-3.5 text-sm font-medium text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-            >
-              Custom shop drawings
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Quote CTA */}
-      <section className="border-t border-gray-200/50 bg-gray-50/50 py-24 lg:py-28">
-        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-            Get a quote
-          </h2>
-          <p className="mt-4 text-[15px] text-gray-500">
-            Configure ACM panels for an instant estimate, or submit drawings for consultation.
-          </p>
-          <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <Link
-              href="/products/acm-panels"
-              className="inline-flex items-center justify-center rounded-lg bg-gray-900 px-8 py-3.5 text-sm font-medium text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-            >
-              ACM panel estimate
-            </Link>
-            <Link
-              href="/custom-shop-drawings"
-              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-8 py-3.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-            >
-              Custom shop drawings
-            </Link>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
