@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-const BUSINESS_EMAIL = "info@claddingsolutions.com";
-const BUSINESS_PHONE = "(555) 123-4567";
+const BUSINESS_EMAIL = "allcladdingsolutions@gmail.com";
+const BUSINESS_PHONE = "+1 (706) 464-7953";
 const SERVICE_AREA = "Nationwide shipping across the United States";
 
 export default function ContactPage() {
