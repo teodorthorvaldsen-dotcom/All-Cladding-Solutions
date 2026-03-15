@@ -267,6 +267,10 @@ export function Configurator() {
               loading={loading}
               error={error}
             />
+            <div className="rounded-xl border border-gray-200/80 bg-gray-50/80 px-4 py-3 text-[13px] text-gray-700" role="note">
+              <p className="font-medium text-gray-800">Dimension guidelines</p>
+              <p className="mt-0.5">Width 12–62 in, length 12–190 in (15 ft 10 in). You can clear the fields and type your own numbers.</p>
+            </div>
             {pricing && pricing.total < MIN_ORDER_VALUE && (
               <p className="rounded-xl bg-amber-50/80 px-4 py-3 text-[13px] text-amber-800" role="alert">
                 Minimum order amount is ${MIN_ORDER_VALUE}. Please increase quantity.

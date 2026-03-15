@@ -17,8 +17,8 @@ export const standardWidths = [
 
 export const allWidths = standardWidths;
 
-/** Custom width range (in). Upon request. */
-export const CUSTOM_WIDTH_MIN_IN = 24;
+/** Custom width range (in). */
+export const CUSTOM_WIDTH_MIN_IN = 12;
 export const CUSTOM_WIDTH_MAX_IN = 62;
 
 /** Max length (in) by thickness for Alfrex FR. 4 mm: 15 ft 10 in. */

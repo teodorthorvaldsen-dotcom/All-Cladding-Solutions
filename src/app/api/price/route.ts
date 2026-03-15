@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     if (!isStandardWidth && !isCustomWidthInRange) {
       return NextResponse.json(
         {
-          error: `Invalid width. Use 50" or 62", or a custom width between ${CUSTOM_WIDTH_MIN_IN} and ${CUSTOM_WIDTH_MAX_IN} in.`,
+          error: `Invalid width. Width must be between ${CUSTOM_WIDTH_MIN_IN} and ${CUSTOM_WIDTH_MAX_IN} in.`,
         },
         { status: 400 }
       );

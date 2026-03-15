@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import {
   CUSTOM_WIDTH_MAX_IN,
+  CUSTOM_WIDTH_MIN_IN,
   maxLengthByThicknessMm,
   MIN_LENGTH_IN,
 } from "@/data/acm";
@@ -25,35 +27,54 @@ function getMaxLengthIn(thicknessId: ThicknessId): number {
 }
 
 function clampWidth(val: number): number {
-  const n = Math.round(Number(val)) || MIN_LENGTH_IN;
-  return Math.min(CUSTOM_WIDTH_MAX_IN, Math.max(MIN_LENGTH_IN, n));
+  const n = Math.round(Number(val));
+  if (Number.isNaN(n) || n < CUSTOM_WIDTH_MIN_IN) return CUSTOM_WIDTH_MIN_IN;
+  return Math.min(CUSTOM_WIDTH_MAX_IN, Math.max(CUSTOM_WIDTH_MIN_IN, n));
 }
 
 export function SizePicker({ value, onChange, thicknessId }: SizePickerProps) {
   const maxLength = getMaxLengthIn(thicknessId);
+  const [widthStr, setWidthStr] = useState(() => String(value.widthIn));
+  const [lengthStr, setLengthStr] = useState(() => String(value.lengthIn));
 
-  const clampLength = (val: number): number =>
-    Math.min(maxLength, Math.max(MIN_LENGTH_IN, Math.round(Number(val)) || MIN_LENGTH_IN));
+  const clampLength = (val: number): number => {
+    const n = Math.round(Number(val));
+    if (Number.isNaN(n) || n < MIN_LENGTH_IN) return MIN_LENGTH_IN;
+    return Math.min(maxLength, Math.max(MIN_LENGTH_IN, n));
+  };
 
-  const setWidth = (widthIn: number) => {
+  const handleWidthChange = (raw: string) => {
+    setWidthStr(raw);
+    const num = Number(raw);
+    if (raw === "" || Number.isNaN(num)) {
+      onChange({
+        widthId: "custom",
+        widthIn: CUSTOM_WIDTH_MIN_IN,
+        lengthIn: clampLength(value.lengthIn),
+      });
+      return;
+    }
     onChange({
       widthId: "custom",
-      widthIn: clampWidth(widthIn),
+      widthIn: clampWidth(num),
       lengthIn: clampLength(value.lengthIn),
     });
   };
 
-  const setLength = (lengthIn: number) => {
-    onChange({
-      ...value,
-      lengthIn: clampLength(lengthIn),
-    });
+  const handleLengthChange = (raw: string) => {
+    setLengthStr(raw);
+    const num = Number(raw);
+    if (raw === "" || Number.isNaN(num)) {
+      onChange({ ...value, lengthIn: MIN_LENGTH_IN });
+      return;
+    }
+    onChange({ ...value, lengthIn: clampLength(num) });
   };
 
   return (
     <div>
       <label className="block text-sm font-medium text-gray-900">Size</label>
-      <p className="mt-0.5 text-xs text-gray-500">Width and length in inches. Max width 62 in, max length {Math.floor(maxLength / 12)} ft {maxLength % 12} in.</p>
+      <p className="mt-0.5 text-xs text-gray-500">Width and length in inches. You can clear the fields and type your own dimensions.</p>
       <div className="mt-3 space-y-4" role="group" aria-label="Panel width and length">
         <div>
           <label htmlFor="width-input" className="block text-xs font-medium text-gray-700">
@@ -63,10 +84,11 @@ export function SizePicker({ value, onChange, thicknessId }: SizePickerProps) {
             id="width-input"
             type="number"
             inputMode="numeric"
-            min={MIN_LENGTH_IN}
+            min={CUSTOM_WIDTH_MIN_IN}
             max={CUSTOM_WIDTH_MAX_IN}
-            value={value.widthIn}
-            onChange={(e) => setWidth(Number(e.target.value) || 0)}
+            value={widthStr}
+            onChange={(e) => handleWidthChange(e.target.value)}
+            onBlur={() => setWidthStr(String(value.widthIn))}
             className="mt-1.5 block h-11 w-28 rounded-xl border border-gray-200 px-3 text-[15px] focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
             aria-label="Width in inches"
           />
@@ -81,8 +103,9 @@ export function SizePicker({ value, onChange, thicknessId }: SizePickerProps) {
             inputMode="numeric"
             min={MIN_LENGTH_IN}
             max={maxLength}
-            value={value.lengthIn}
-            onChange={(e) => setLength(Number(e.target.value) || 0)}
+            value={lengthStr}
+            onChange={(e) => handleLengthChange(e.target.value)}
+            onBlur={() => setLengthStr(String(value.lengthIn))}
             className="mt-1.5 block h-11 w-28 rounded-xl border border-gray-200 px-3 text-[15px] focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
             aria-label="Length in inches"
           />
