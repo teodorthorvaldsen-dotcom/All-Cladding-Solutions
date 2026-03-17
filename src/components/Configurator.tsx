@@ -132,25 +132,57 @@ export function Configurator() {
         const height = rect.height || 260;
 
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+        scene.background = new THREE.Color(0xf5f7fb);
+
+        const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
+        camera.position.set(0, 1.2, 4);
+        camera.lookAt(0, 0.5, 0);
+
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(width, height);
+        renderer.setPixelRatio(window.devicePixelRatio || 1);
         target.appendChild(renderer.domElement);
 
+        const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambient);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(3, 4, 5);
+        scene.add(dirLight);
+
+        // Side wall (building) behind panels
+        const wallGeom = new THREE.BoxGeometry(4, 2.5, 0.2);
+        const wallMat = new THREE.MeshPhongMaterial({ color: 0xe2e8f0 });
+        const wall = new THREE.Mesh(wallGeom, wallMat);
+        wall.position.set(0, 1.1, -0.3);
+        scene.add(wall);
+
+        // Scale panel size from inches (clamped to configurator bounds)
+        const clampedWidthIn = Math.max(MIN_WIDTH_IN, Math.min(MAX_WIDTH_IN, size.widthIn));
+        const clampedLengthIn = Math.max(MIN_LENGTH_IN, Math.min(MAX_LENGTH_IN, size.lengthIn));
+        const baseWidthIn = 48;
+        const baseLengthIn = 48;
+        const basePanelWidth = 1.5;
+        const basePanelHeight = 1;
+
+        const panelWidth = basePanelWidth * (clampedWidthIn / baseWidthIn);
+        const panelHeight = basePanelHeight * (clampedLengthIn / baseLengthIn);
+
         const panelsData = [
-          { w: 1.5, h: 1, x: 0, y: 0, z: 0 },
-          { w: 1.5, h: 1, x: 1.6, y: 0, z: 0 },
+          { w: panelWidth, h: panelHeight, x: -panelWidth * 0.6, y: 1.0, z: 0 },
+          { w: panelWidth, h: panelHeight, x: panelWidth * 0.6, y: 1.0, z: 0 },
         ];
 
         panelsData.forEach((p) => {
-          const geometry = new THREE.BoxGeometry(p.w, p.h, 0.05);
-          const material = new THREE.MeshBasicMaterial({ color: new THREE.Color(color.hex) });
+          const geometry = new THREE.BoxGeometry(p.w, p.h, 0.06);
+          const material = new THREE.MeshPhongMaterial({
+            color: new THREE.Color(color.hex),
+            shininess: 80,
+            specular: 0xdddddd,
+          });
           const panel = new THREE.Mesh(geometry, material);
           panel.position.set(p.x, p.y, p.z);
           scene.add(panel);
         });
-
-        camera.position.z = 3;
 
         const animate = () => {
           frameId = window.requestAnimationFrame(animate);
@@ -170,7 +202,7 @@ export function Configurator() {
         projectExampleRef.current.innerHTML = "";
       }
     };
-  }, [color.hex]);
+  }, [color.hex, size.widthIn, size.lengthIn]);
 
   const color = colors.find((c) => c.id === colorId)!;
   const selectedWidth = allWidths.find((w) => w.id === size.widthId);
