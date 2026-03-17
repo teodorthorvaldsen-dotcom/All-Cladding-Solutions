@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   allWidths,
@@ -32,6 +32,140 @@ const MIN_WIDTH_IN = 12;
 const MAX_WIDTH_IN = 62;
 const MIN_LENGTH_IN = 12;
 const MAX_LENGTH_IN = 190;
+
+type PanelStateMap = Record<string, string>;
+
+interface ProjectExampleProps {
+  activeHex: string;
+}
+
+function ProjectExampleMahwahFord({ activeHex }: ProjectExampleProps) {
+  const materials: Record<
+    string,
+    {
+      name: string;
+      color: string;
+    }
+  > = {
+    default: { name: "Default", color: "#e5e7eb" },
+    current: { name: "Current Color", color: activeHex },
+    micaGrey: { name: "Mica Grey", color: "#6b7280" },
+    marineAluminum: { name: "Marine Aluminum", color: "#bfc5c9" },
+    black: { name: "Black", color: "#111827" },
+  };
+
+  const [activeMaterial, setActiveMaterial] = useState<string>("current");
+  const [panelState, setPanelState] = useState<PanelStateMap>({});
+  const [hovered, setHovered] = useState<string | null>(null);
+
+  const panels = [
+    // ROW 1
+    { id: "ACM1-R1-C1", x: 80, y: 80 },
+    { id: "ACM1-R1-C2", x: 180, y: 70 },
+    { id: "ACM2-R1-C3", x: 280, y: 65 },
+    { id: "ACM2-R1-C4", x: 380, y: 70 },
+    { id: "ACM2-R1-C5", x: 480, y: 80 },
+    // ROW 2
+    { id: "ACM1-R2-C1", x: 80, y: 150 },
+    { id: "ACM1-R2-C2", x: 180, y: 140 },
+    { id: "ACM2-R2-C3", x: 280, y: 135 },
+    { id: "ACM2-R2-C4", x: 380, y: 140 },
+    { id: "ACM2-R2-C5", x: 480, y: 150 },
+    // ROW 3
+    { id: "ACM1-R3-C1", x: 80, y: 220 },
+    { id: "ACM1-R3-C2", x: 180, y: 210 },
+    { id: "ACM2-R3-C3", x: 280, y: 205 },
+    { id: "ACM2-R3-C4", x: 380, y: 210 },
+    { id: "ACM2-R3-C5", x: 480, y: 220 },
+  ];
+
+  const PANEL_WIDTH = 100;
+  const PANEL_HEIGHT = 70;
+
+  const handleClick = (id: string) => {
+    setPanelState((prev) => ({
+      ...prev,
+      [id]: activeMaterial,
+    }));
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap gap-2">
+        {Object.entries(materials).map(([key, mat]) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => setActiveMaterial(key)}
+            className={`flex items-center gap-2 rounded-xl border px-3 py-1.5 text-[11px] ${
+              activeMaterial === key ? "border-gray-900 bg-gray-50" : "border-gray-300 bg-white"
+            }`}
+          >
+            <span
+              className="h-4 w-4 rounded"
+              style={{ backgroundColor: mat.color }}
+            />
+            <span>{mat.name}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="overflow-auto rounded-2xl border border-gray-200/80 bg-white p-3 shadow-inner">
+        <svg viewBox="0 0 650 320" className="h-auto w-full">
+          {/* Background shop drawing */}
+          <image
+            href="/module-3-ford.png"
+            x="0"
+            y="0"
+            width="650"
+            height="320"
+            preserveAspectRatio="xMidYMid meet"
+            opacity="0.32"
+          />
+
+          {panels.map((p) => {
+            const materialKey = panelState[p.id] ?? "current";
+            const fill = materials[materialKey]?.color ?? materials.default.color;
+
+            return (
+              <g key={p.id}>
+                <polygon
+                  points={`${p.x},${p.y} ${p.x + PANEL_WIDTH},${p.y - 10} ${p.x + PANEL_WIDTH},${p.y +
+                    PANEL_HEIGHT} ${p.x},${p.y + PANEL_HEIGHT + 10}`}
+                  fill={fill}
+                  stroke="#111827"
+                  strokeWidth="1"
+                  onClick={() => handleClick(p.id)}
+                  onMouseEnter={() => setHovered(p.id)}
+                  onMouseLeave={() => setHovered(null)}
+                  style={{ cursor: "pointer" }}
+                />
+                {hovered === p.id && (
+                  <text
+                    x={p.x + 10}
+                    y={p.y - 12}
+                    fontSize="10"
+                    fill="#111827"
+                    className="select-none"
+                  >
+                    {p.id}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+
+      <div className="rounded-xl bg-gray-50 p-3 text-[11px] font-mono text-gray-700">
+        <p className="mb-1 font-semibold">Configuration Output</p>
+        <pre className="whitespace-pre-wrap break-words">
+          {JSON.stringify(panelState, null, 2)}
+        </pre>
+      </div>
+    </div>
+  );
+}
 
 export interface PriceResult {
   areaFt2: number;
@@ -114,97 +248,6 @@ export function Configurator() {
     return () => clearTimeout(t);
   }, [size, thicknessId, colorId, quantity, panelType, fetchPrice]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const container = projectExampleRef.current;
-    if (!container) return;
-
-    let frameId: number | null = null;
-
-    import("three")
-      .then((THREE) => {
-        if (!projectExampleRef.current) return;
-        const target = projectExampleRef.current;
-        target.innerHTML = "";
-
-        const rect = target.getBoundingClientRect();
-        const width = rect.width || 400;
-        const height = rect.height || 260;
-
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xf5f7fb);
-
-        const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
-        camera.position.set(0, 1.2, 4);
-        camera.lookAt(0, 0.5, 0);
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(width, height);
-        renderer.setPixelRatio(window.devicePixelRatio || 1);
-        target.appendChild(renderer.domElement);
-
-        const ambient = new THREE.AmbientLight(0xffffff, 0.7);
-        scene.add(ambient);
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        dirLight.position.set(3, 4, 5);
-        scene.add(dirLight);
-
-        // Side wall (building) behind panels using shop drawing texture
-        const wallTexture = new THREE.TextureLoader().load("/module-3-ford.png");
-        const wallGeom = new THREE.PlaneGeometry(5, 3);
-        const wallMat = new THREE.MeshPhongMaterial({ map: wallTexture, toneMapped: false });
-        const wall = new THREE.Mesh(wallGeom, wallMat);
-        wall.position.set(0, 1.3, -0.5);
-        scene.add(wall);
-
-        // Scale panel size from inches (clamped to configurator bounds)
-        const clampedWidthIn = Math.max(MIN_WIDTH_IN, Math.min(MAX_WIDTH_IN, size.widthIn));
-        const clampedLengthIn = Math.max(MIN_LENGTH_IN, Math.min(MAX_LENGTH_IN, size.lengthIn));
-        const baseWidthIn = 48;
-        const baseLengthIn = 48;
-        const basePanelWidth = 1.5;
-        const basePanelHeight = 1;
-
-        const panelWidth = basePanelWidth * (clampedWidthIn / baseWidthIn);
-        const panelHeight = basePanelHeight * (clampedLengthIn / baseLengthIn);
-
-        const panelsData = [
-          { w: panelWidth, h: panelHeight, x: -panelWidth * 0.6, y: 1.0, z: 0 },
-          { w: panelWidth, h: panelHeight, x: panelWidth * 0.6, y: 1.0, z: 0 },
-        ];
-
-        panelsData.forEach((p) => {
-          const geometry = new THREE.BoxGeometry(p.w, p.h, 0.06);
-          const material = new THREE.MeshPhongMaterial({
-            color: new THREE.Color(color.hex),
-            shininess: 80,
-            specular: 0xdddddd,
-          });
-          const panel = new THREE.Mesh(geometry, material);
-          panel.position.set(p.x, p.y, p.z);
-          scene.add(panel);
-        });
-
-        const animate = () => {
-          frameId = window.requestAnimationFrame(animate);
-          renderer.render(scene, camera);
-        };
-        animate();
-      })
-      .catch(() => {
-        // ignore load errors in UI
-      });
-
-    return () => {
-      if (frameId !== null) {
-        window.cancelAnimationFrame(frameId);
-      }
-      if (projectExampleRef.current) {
-        projectExampleRef.current.innerHTML = "";
-      }
-    };
-  }, [color.hex, size.widthIn, size.lengthIn]);
-
   const color = colors.find((c) => c.id === colorId)!;
   const selectedWidth = allWidths.find((w) => w.id === size.widthId);
   const widthLabel = `${size.widthIn}"`;
@@ -216,8 +259,6 @@ export function Configurator() {
     (clamp(size.widthIn, MIN_WIDTH_IN, MAX_WIDTH_IN) - MIN_WIDTH_IN) / (MAX_WIDTH_IN - MIN_WIDTH_IN || 1);
   const lengthRatio =
     (clamp(size.lengthIn, MIN_LENGTH_IN, MAX_LENGTH_IN) - MIN_LENGTH_IN) / (MAX_LENGTH_IN - MIN_LENGTH_IN || 1);
-
-  const projectExampleRef = useRef<HTMLDivElement | null>(null);
 
   const handleAddToCart = () => {
     if (!pricing) return;
@@ -427,12 +468,7 @@ export function Configurator() {
                 Project Example
               </h2>
               <div className="mt-4">
-                <div
-                  className="relative w-full overflow-hidden rounded-2xl border border-gray-200/80 bg-slate-900/5"
-                  style={{ aspectRatio: "4 / 3" }}
-                >
-                  <div ref={projectExampleRef} className="absolute inset-0" />
-                </div>
+                <ProjectExampleMahwahFord activeHex={color.hex} />
               </div>
             </section>
             <PriceSummary
