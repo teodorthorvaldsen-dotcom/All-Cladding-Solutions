@@ -102,9 +102,9 @@ function ProjectExampleMahwahFord({ activeHex }: ProjectExampleProps) {
       {/* SVG building + panels */}
       <div className="overflow-auto rounded-2xl border border-gray-200/80 bg-white p-4 shadow-inner">
         <svg viewBox="0 0 760 420" className="h-auto w-full">
-          {/* Background Ford shop drawing image */}
+          {/* Background Ford shop drawing image with red grid */}
           <image
-            href="/ford-building-main.png"
+            href="/ford-building-grid.png"
             x="0"
             y="0"
             width="760"
