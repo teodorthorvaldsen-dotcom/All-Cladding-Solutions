@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   allWidths,
@@ -114,6 +114,72 @@ export function Configurator() {
     return () => clearTimeout(t);
   }, [size, thicknessId, colorId, quantity, panelType, fetchPrice]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const container = projectExampleRef.current;
+    if (!container) return;
+
+    let frameId: number | null = null;
+
+    function initScene() {
+      // three.js is loaded from CDN and exposed on window
+      const THREE = (window as any).THREE;
+      if (!THREE) return;
+
+      container.innerHTML = "";
+
+      const rect = container.getBoundingClientRect();
+      const width = rect.width || 400;
+      const height = rect.height || 260;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(width, height);
+      container.appendChild(renderer.domElement);
+
+      const panelsData = [
+        { w: 1.5, h: 1, x: 0, y: 0, z: 0 },
+        { w: 1.5, h: 1, x: 1.6, y: 0, z: 0 },
+      ];
+
+      panelsData.forEach((p) => {
+        const geometry = new THREE.BoxGeometry(p.w, p.h, 0.05);
+        const material = new THREE.MeshBasicMaterial({ color: new THREE.Color(color.hex) });
+        const panel = new THREE.Mesh(geometry, material);
+        panel.position.set(p.x, p.y, p.z);
+        scene.add(panel);
+      });
+
+      camera.position.z = 3;
+
+      const animate = () => {
+        frameId = window.requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+      };
+      animate();
+    }
+
+    if (!(window as any).THREE) {
+      const script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js";
+      script.async = true;
+      script.onload = () => initScene();
+      document.head.appendChild(script);
+    } else {
+      initScene();
+    }
+
+    return () => {
+      if (frameId !== null) {
+        window.cancelAnimationFrame(frameId);
+      }
+      if (container) {
+        container.innerHTML = "";
+      }
+    };
+  }, [color.hex]);
+
   const color = colors.find((c) => c.id === colorId)!;
   const selectedWidth = allWidths.find((w) => w.id === size.widthId);
   const widthLabel = `${size.widthIn}"`;
@@ -125,6 +191,8 @@ export function Configurator() {
     (clamp(size.widthIn, MIN_WIDTH_IN, MAX_WIDTH_IN) - MIN_WIDTH_IN) / (MAX_WIDTH_IN - MIN_WIDTH_IN || 1);
   const lengthRatio =
     (clamp(size.lengthIn, MIN_LENGTH_IN, MAX_LENGTH_IN) - MIN_LENGTH_IN) / (MAX_LENGTH_IN - MIN_LENGTH_IN || 1);
+
+  const projectExampleRef = useRef<HTMLDivElement | null>(null);
 
   const handleAddToCart = () => {
     if (!pricing) return;
@@ -335,61 +403,10 @@ export function Configurator() {
               </h2>
               <div className="mt-4">
                 <div
-                  className="relative w-full overflow-hidden rounded-2xl border border-gray-200/80 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200"
+                  className="relative w-full overflow-hidden rounded-2xl border border-gray-200/80 bg-slate-900/5"
                   style={{ aspectRatio: "4 / 3" }}
                 >
-                  {/* Simple square building massing */}
-                  <div className="absolute inset-x-[14%] bottom-[18%] top-[18%]">
-                    {/* Main square volume */}
-                    <div className="absolute bottom-0 left-1/2 h-full w-[60%] -translate-x-1/2 rounded-2xl bg-slate-300/90 shadow-[0_18px_40px_rgba(15,23,42,0.35)]" />
-
-                    {/* Panel grid overlay that changes with color */}
-                    {[0, 1, 2, 3].map((rowIdx) => (
-                      <div
-                        key={rowIdx}
-                        className="absolute left-[18%] w-[64%]"
-                        style={{
-                          top: `${8 + rowIdx * 22}%`,
-                          height: "18%",
-                        }}
-                      >
-                        {Array.from({ length: 4 }).map((_, colIdx) => (
-                          <div
-                            // eslint-disable-next-line react/no-array-index-key
-                            key={colIdx}
-                            className="absolute top-0 h-full w-[19%] rounded-md border border-black/10 bg-cover bg-center transition-colors"
-                            style={{
-                              left: `${colIdx * 27}%`,
-                              backgroundColor: color.hex,
-                              boxShadow:
-                                "0 0 0 1px rgba(15,23,42,0.08) inset, 0 4px 10px rgba(15,23,42,0.20)",
-                            }}
-                          />
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Ground plane */}
-                  <div className="absolute inset-x-[18%] bottom-[14%] h-[2px] rounded-full bg-slate-400/70 shadow-[0_12px_24px_rgba(15,23,42,0.45)]" />
-
-                  {/* Caption swatch showing selected color */}
-                  <div className="absolute bottom-4 left-4 flex items-center gap-3 rounded-xl bg-white/90 px-3 py-2 text-[11px] font-medium text-gray-700 shadow-[0_8px_20px_rgba(15,23,42,0.25)]">
-                    <span
-                      className="inline-block h-6 w-6 rounded-md border border-black/10 bg-cover bg-center"
-                      style={
-                        "swatchImage" in color && typeof (color as { swatchImage?: string }).swatchImage === "string"
-                          ? {
-                              backgroundImage: `url(${(color as { swatchImage: string }).swatchImage})`,
-                              backgroundColor: color.hex,
-                            }
-                          : { backgroundColor: color.hex }
-                      }
-                    />
-                    <span>
-                      {color.name} ({color.code})
-                    </span>
-                  </div>
+                  <div ref={projectExampleRef} className="absolute inset-0" />
                 </div>
               </div>
             </section>
