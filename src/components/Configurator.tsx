@@ -28,6 +28,11 @@ const defaultSize: SizeSelection = {
   lengthIn: 96,
 };
 
+const MIN_WIDTH_IN = 12;
+const MAX_WIDTH_IN = 62;
+const MIN_LENGTH_IN = 12;
+const MAX_LENGTH_IN = 190;
+
 export interface PriceResult {
   areaFt2: number;
   totalSqFt: number;
@@ -114,6 +119,12 @@ export function Configurator() {
   const widthLabel = `${size.widthIn}"`;
   const thicknessMmNumeric = Number(thicknessId.replace("mm", ""));
   const edgeThicknessPx = Math.min(18, Math.max(4, thicknessMmNumeric / 0.5));
+
+  const clamp = (val: number, min: number, max: number) => Math.min(max, Math.max(min, val));
+  const widthRatio =
+    (clamp(size.widthIn, MIN_WIDTH_IN, MAX_WIDTH_IN) - MIN_WIDTH_IN) / (MAX_WIDTH_IN - MIN_WIDTH_IN || 1);
+  const lengthRatio =
+    (clamp(size.lengthIn, MIN_LENGTH_IN, MAX_LENGTH_IN) - MIN_LENGTH_IN) / (MAX_LENGTH_IN - MIN_LENGTH_IN || 1);
 
   const handleAddToCart = () => {
     if (!pricing) return;
@@ -240,46 +251,69 @@ export function Configurator() {
                 <div
                   className="relative w-full overflow-visible rounded-2xl"
                   style={{
-                    aspectRatio: `${size.widthIn} / ${size.lengthIn}`,
+                    aspectRatio: "4 / 3",
                   }}
                   role="img"
-                  aria-label={`3D panel preview: ${size.widthIn} by ${size.lengthIn} inches, ${color.name} (${color.code}), ${finishes[0].label}, ${
+                  aria-label={`Panel elevation preview: ${size.widthIn} by ${size.lengthIn} inches, ${color.name} (${color.code}), ${finishes[0].label}, ${
                     thicknesses.find((t) => t.id === thicknessId)?.label ?? thicknessId
                   }`}
                 >
+                  {/* Wall background */}
+                  <div className="absolute inset-0 rounded-2xl bg-[radial-gradient(circle_at_top_left,_#f9fafb,_#e5e7eb)]" />
+                  <div className="absolute inset-[10%] rounded-xl border border-gray-300/80 bg-[repeating-linear-gradient(135deg,_rgba(255,255,255,0.7),_rgba(255,255,255,0.7)_8px,_rgba(243,244,246,0.9)_8px,_rgba(243,244,246,0.9)_16px)]" />
+
+                  {/* Vertical rails behind panel */}
+                  <div className="absolute inset-y-[14%] left-[18%] w-[3px] rounded-full bg-gray-400/80 shadow-sm" />
+                  <div className="absolute inset-y-[14%] left-[50%] w-[3px] rounded-full bg-gray-400/80 shadow-sm" />
+                  <div className="absolute inset-y-[14%] right-[18%] w-[3px] rounded-full bg-gray-400/80 shadow-sm" />
+
+                  {/* Brackets tied to rails */}
+                  {[20, 46, 72].map((percent) => (
+                    <div
+                      key={percent}
+                      className="absolute left-[9%] right-[9%] h-[10px]"
+                      style={{ top: `${percent}%` }}
+                    >
+                      <div className="absolute left-[8%] h-full w-[22px] rounded-sm bg-gray-500/90 shadow-sm" />
+                      <div className="absolute left-[40%] h-full w-[22px] rounded-sm bg-gray-500/90 shadow-sm" />
+                      <div className="absolute right-[8%] h-full w-[22px] rounded-sm bg-gray-500/90 shadow-sm" />
+                    </div>
+                  ))}
+
+                  {/* Panel mounted to brackets */}
                   <div
-                    className="relative mx-auto h-full w-full max-w-md"
+                    className="relative mx-auto h-[65%] w-[70%] translate-y-[6%]"
                     style={{ perspective: "1200px" }}
                   >
                     <div
-                      className="relative h-full w-full rounded-xl shadow-[0_18px_45px_rgba(15,23,42,0.45)]"
+                      className="relative h-full w-full rounded-md shadow-[0_14px_38px_rgba(15,23,42,0.35)]"
                       style={{
-                        transform: "rotateX(62deg) rotateY(-32deg)",
+                        transform: "rotateX(64deg) rotateY(-18deg)",
                         transformStyle: "preserve-3d",
                       }}
                     >
                       {/* Front face */}
                       <div
-                        className="absolute inset-0 rounded-xl border border-black/15 bg-cover bg-center"
+                        className="absolute inset-0 rounded-md border border-black/10 bg-cover bg-center"
                         style={
                           "swatchImage" in color && typeof (color as { swatchImage?: string }).swatchImage === "string"
                             ? {
                                 backgroundImage: `url(${(color as { swatchImage: string }).swatchImage})`,
                                 backgroundColor: color.hex,
                                 boxShadow:
-                                  "0 0 0 1px rgba(15,23,42,0.12) inset, 0 40px 80px rgba(15,23,42,0.55)",
+                                  "0 0 0 1px rgba(15,23,42,0.12) inset, 0 32px 70px rgba(15,23,42,0.45)",
                               }
                             : {
                                 backgroundColor: color.hex,
                                 boxShadow:
-                                  "0 0 0 1px rgba(15,23,42,0.12) inset, 0 40px 80px rgba(15,23,42,0.55)",
+                                  "0 0 0 1px rgba(15,23,42,0.12) inset, 0 32px 70px rgba(15,23,42,0.45)",
                               }
                         }
                       />
 
                       {/* Specular highlight */}
                       <div
-                        className="pointer-events-none absolute inset-0 rounded-xl"
+                        className="pointer-events-none absolute inset-0 rounded-md"
                         style={{
                           background:
                             "linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.08) 42%, transparent 60%, rgba(15,23,42,0.20) 100%)",
@@ -289,7 +323,7 @@ export function Configurator() {
 
                       {/* Right edge */}
                       <div
-                        className="absolute right-0 top-0 h-full origin-right rounded-r-xl"
+                        className="absolute right-0 top-0 h-full origin-right rounded-r-md"
                         style={{
                           width: `${edgeThicknessPx}px`,
                           background: `linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.55))`,
@@ -300,7 +334,7 @@ export function Configurator() {
 
                       {/* Bottom edge */}
                       <div
-                        className="absolute bottom-0 left-0 w-full origin-bottom rounded-b-xl"
+                        className="absolute bottom-0 left-0 w-full origin-bottom rounded-b-md"
                         style={{
                           height: `${Math.max(4, edgeThicknessPx * 0.6)}px`,
                           background: `linear-gradient(to right, rgba(0,0,0,0.6), rgba(0,0,0,0.3))`,
@@ -311,10 +345,44 @@ export function Configurator() {
                     </div>
                   </div>
 
-                  <div className="absolute -bottom-6 left-0 right-0 mx-auto h-10 max-w-xs rounded-full bg-black/10 blur-2xl" />
+                  {/* Ground shadow */}
+                  <div className="absolute -bottom-4 left-0 right-0 mx-auto h-9 max-w-sm rounded-full bg-black/5 blur-2xl" />
 
-                  <div className="absolute bottom-2 right-2 max-w-[85%] rounded-lg bg-white/85 px-2.5 py-1.5 text-[10px] font-medium text-gray-700 shadow-[0_1px_3px_rgba(0,0,0,0.18)] backdrop-blur-md">
-                    <p className="text-[10px] font-medium leading-snug text-gray-700">
+                  {/* Horizontal scale (width) */}
+                  <div className="pointer-events-none absolute bottom-2 left-[18%] right-[14%]">
+                    <div className="relative h-5">
+                      <div className="absolute bottom-2 left-0 h-[1px] w-full bg-gray-400/70" />
+                      <div className="absolute bottom-1 left-0 h-2 w-[1px] bg-gray-500" />
+                      <div className="absolute bottom-1 right-0 h-2 w-[1px] bg-gray-500" />
+                      <div
+                        className="absolute bottom-2 left-1/2 h-[3px] -translate-x-1/2 rounded-full bg-gray-700"
+                        style={{ width: `${35 + widthRatio * 45}%` }}
+                      />
+                    </div>
+                    <p className="mt-1 text-[11px] font-medium text-gray-700 text-center">
+                      Width: {size.widthIn.toFixed(0)} in (scaled)
+                    </p>
+                  </div>
+
+                  {/* Vertical scale (length) */}
+                  <div className="pointer-events-none absolute top-[16%] bottom-[20%] left-[4%] flex flex-col items-center justify-between">
+                    <div className="relative h-full w-8">
+                      <div className="absolute left-1/2 top-0 h-full w-[1px] -translate-x-1/2 bg-gray-400/70" />
+                      <div className="absolute left-1/2 top-0 h-2 w-[1px] -translate-x-1/2 bg-gray-500" />
+                      <div className="absolute left-1/2 bottom-0 h-2 w-[1px] -translate-x-1/2 bg-gray-500" />
+                      <div
+                        className="absolute left-1/2 top-1/2 w-[3px] -translate-x-1/2 rounded-full bg-gray-700"
+                        style={{ height: `${32 + lengthRatio * 48}%` }}
+                      />
+                    </div>
+                    <p className="mt-1 text-[11px] font-medium text-gray-700 text-center">
+                      Length: {size.lengthIn.toFixed(0)} in (scaled)
+                    </p>
+                  </div>
+
+                  {/* Label chip */}
+                  <div className="absolute top-3 right-3 max-w-[70%] rounded-lg bg-white/90 px-2.5 py-1.5 text-[10px] font-medium text-gray-700 shadow-[0_1px_3px_rgba(0,0,0,0.18)] backdrop-blur-md">
+                    <p className="leading-snug">
                       {color.name} ({color.code}) · {thicknesses.find((t) => t.id === thicknessId)?.label ?? thicknessId}
                     </p>
                   </div>
