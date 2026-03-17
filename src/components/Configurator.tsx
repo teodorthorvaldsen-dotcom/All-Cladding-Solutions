@@ -102,20 +102,15 @@ function ProjectExampleMahwahFord({ activeHex }: ProjectExampleProps) {
       {/* SVG building + panels */}
       <div className="overflow-auto rounded-2xl border border-gray-200/80 bg-white p-4 shadow-inner">
         <svg viewBox="0 0 760 420" className="h-auto w-full">
-          {/* Base building mass */}
-          <polygon
-            points="120,200 200,120 560,135 640,155 640,395 120,380"
-            fill={materials.black}
+          {/* Background Ford shop drawing image */}
+          <image
+            href="/ford-building-main.png"
+            x="0"
+            y="0"
+            width="760"
+            height="420"
+            preserveAspectRatio="xMidYMid meet"
           />
-
-          {/* Roof */}
-          <polygon points="120,140 200,120 560,135 640,155 600,130 520,110 200,95 100,120" fill="#9ca3af" />
-
-          {/* Dark band */}
-          <polygon points="200,200 560,215 560,230 200,215" fill="#374151" />
-
-          {/* Glass storefront */}
-          <polygon points="240,230 520,240 520,340 240,340" fill="#f9fafb" stroke="#999" />
 
           {/* Panel overlay on front wall */}
           {panels.map((p) => {
