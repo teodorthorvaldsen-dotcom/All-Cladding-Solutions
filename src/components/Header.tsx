@@ -104,22 +104,6 @@ export function Header() {
           )}
 
           <div className="flex shrink-0 items-center gap-4 lg:gap-5">
-            {isConfigurator ? (
-              <button
-                type="button"
-                onClick={scrollToEstimate}
-                className="whitespace-nowrap rounded-lg bg-gray-900 px-5 py-3 text-lg font-bold text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white lg:px-6 lg:py-3.5 lg:text-xl"
-              >
-                Get an Estimate
-              </button>
-            ) : (
-              <Link
-                href="/products/acm-panels"
-                className="whitespace-nowrap rounded-lg bg-gray-900 px-5 py-3 text-lg font-bold text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white lg:px-6 lg:py-3.5 lg:text-xl"
-              >
-                Get an Estimate
-              </Link>
-            )}
             <Link
               href="/cart"
               className="whitespace-nowrap rounded-lg px-4 py-3 text-lg font-bold tracking-wide text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-inset lg:text-xl"
