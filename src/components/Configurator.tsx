@@ -39,6 +39,58 @@ interface ProjectExampleProps {
   activeHex: string;
 }
 
+type PanelDef = {
+  id: string;
+  pts: string;
+};
+
+function lerp(a: number, b: number, t: number) {
+  return a + (b - a) * t;
+}
+
+function lerpPoint(ax: number, ay: number, bx: number, by: number, t: number) {
+  return { x: lerp(ax, bx, t), y: lerp(ay, by, t) };
+}
+
+function buildGridPanels(
+  idPrefix: string,
+  rows: number,
+  cols: number,
+  tl: { x: number; y: number },
+  tr: { x: number; y: number },
+  bl: { x: number; y: number },
+  br: { x: number; y: number }
+): PanelDef[] {
+  const panels: PanelDef[] = [];
+
+  for (let r = 0; r < rows; r += 1) {
+    const tTop0 = r / rows;
+    const tTop1 = (r + 1) / rows;
+
+    const leftTop = lerpPoint(tl.x, tl.y, bl.x, bl.y, tTop0);
+    const rightTop = lerpPoint(tr.x, tr.y, br.x, br.y, tTop0);
+    const leftBottom = lerpPoint(tl.x, tl.y, bl.x, bl.y, tTop1);
+    const rightBottom = lerpPoint(tr.x, tr.y, br.x, br.y, tTop1);
+
+    for (let c = 0; c < cols; c += 1) {
+      const s0 = c / cols;
+      const s1 = (c + 1) / cols;
+
+      const p1 = lerpPoint(leftTop.x, leftTop.y, rightTop.x, rightTop.y, s0);
+      const p2 = lerpPoint(leftTop.x, leftTop.y, rightTop.x, rightTop.y, s1);
+      const p3 = lerpPoint(leftBottom.x, leftBottom.y, rightBottom.x, rightBottom.y, s1);
+      const p4 = lerpPoint(leftBottom.x, leftBottom.y, rightBottom.x, rightBottom.y, s0);
+
+      panels.push({
+        id: `${idPrefix}-R${r + 1}-C${c + 1}`,
+        pts: `${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}`,
+      });
+    }
+  }
+
+  return panels;
+}
+
 function ProjectExampleMahwahFord({ activeHex }: ProjectExampleProps) {
   const materials: Record<string, string> = {
     default: "#e5e7eb",
@@ -51,31 +103,28 @@ function ProjectExampleMahwahFord({ activeHex }: ProjectExampleProps) {
   const [panelState, setPanelState] = useState<PanelStateMap>({});
   const [hovered, setHovered] = useState<string | null>(null);
 
-  // PANEL DEFINITIONS (approximate building layout along front wall)
-  const panels = [
-    // LEFT RETURN (ACM-1)
-    { id: "ACM1-R1-C1", pts: "120,140 200,120 200,200 120,220" },
-    { id: "ACM1-R2-C1", pts: "120,220 200,200 200,280 120,300" },
-    { id: "ACM1-R3-C1", pts: "120,300 200,280 200,360 120,380" },
+  // PANEL DEFINITIONS - generated to align to the red grid on ACM-1 and ACM-2 walls
+  const acm1Panels = buildGridPanels(
+    "ACM1",
+    3,
+    2,
+    { x: 120, y: 140 },
+    { x: 200, y: 120 },
+    { x: 120, y: 380 },
+    { x: 200, y: 360 }
+  );
 
-    // FRONT FACADE (ACM-2)
-    { id: "ACM2-R1-C1", pts: "200,120 320,125 320,205 200,200" },
-    { id: "ACM2-R1-C2", pts: "320,125 440,130 440,210 320,205" },
-    { id: "ACM2-R1-C3", pts: "440,130 560,135 560,215 440,210" },
+  const acm2Panels = buildGridPanels(
+    "ACM2",
+    3,
+    6,
+    { x: 200, y: 120 },
+    { x: 640, y: 155 },
+    { x: 200, y: 360 },
+    { x: 640, y: 395 }
+  );
 
-    { id: "ACM2-R2-C1", pts: "200,200 320,205 320,285 200,280" },
-    { id: "ACM2-R2-C2", pts: "320,205 440,210 440,290 320,285" },
-    { id: "ACM2-R2-C3", pts: "440,210 560,215 560,295 440,290" },
-
-    { id: "ACM2-R3-C1", pts: "200,280 320,285 320,365 200,360" },
-    { id: "ACM2-R3-C2", pts: "320,285 440,290 440,370 320,365" },
-    { id: "ACM2-R3-C3", pts: "440,290 560,295 560,375 440,370" },
-
-    // RIGHT RETURN
-    { id: "ACM2-R1-C4", pts: "560,135 640,155 640,235 560,215" },
-    { id: "ACM2-R2-C4", pts: "560,215 640,235 640,315 560,295" },
-    { id: "ACM2-R3-C4", pts: "560,295 640,315 640,395 560,375" },
-  ];
+  const panels: PanelDef[] = [...acm1Panels, ...acm2Panels];
 
   const setPanel = (id: string) => {
     setPanelState((prev) => ({ ...prev, [id]: activeMaterial }));
