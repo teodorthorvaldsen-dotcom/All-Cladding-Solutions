@@ -114,13 +114,13 @@ function ProjectExampleMahwahFord({ activeHex }: ProjectExampleProps) {
         <svg viewBox="0 0 650 320" className="h-auto w-full">
           {/* Background shop drawing */}
           <image
-            href="/module-3-ford.png"
+            href="/ford-building.svg"
             x="0"
             y="0"
             width="650"
             height="320"
             preserveAspectRatio="xMidYMid meet"
-            opacity="0.32"
+            opacity="0.35"
           />
 
           {panels.map((p) => {
