@@ -40,70 +40,120 @@ interface ProjectExampleProps {
 }
 
 function ProjectExampleMahwahFord({ activeHex }: ProjectExampleProps) {
-  const [panelState, setPanelState] = useState<PanelStateMap>({});
+  const materials: Record<string, string> = {
+    default: "#e5e7eb",
+    micaGrey: "#6b7280",
+    marineAluminum: "#bfc5c9",
+    black: "#111827",
+  };
 
-  // Panels roughly aligned to black front wall area of PNG silhouette
+  const [activeMaterial, setActiveMaterial] = useState<string>("micaGrey");
+  const [panelState, setPanelState] = useState<PanelStateMap>({});
+  const [hovered, setHovered] = useState<string | null>(null);
+
+  // PANEL DEFINITIONS (approximate building layout along front wall)
   const panels = [
-    // ROW 1 (top course)
-    { id: "ACM-R1-C1", x: 110, y: 80 },
-    { id: "ACM-R1-C2", x: 210, y: 75 },
-    { id: "ACM-R1-C3", x: 310, y: 72 },
-    { id: "ACM-R1-C4", x: 410, y: 75 },
-    { id: "ACM-R1-C5", x: 510, y: 82 },
-    // ROW 2 (middle)
-    { id: "ACM-R2-C1", x: 110, y: 145 },
-    { id: "ACM-R2-C2", x: 210, y: 140 },
-    { id: "ACM-R2-C3", x: 310, y: 137 },
-    { id: "ACM-R2-C4", x: 410, y: 140 },
-    { id: "ACM-R2-C5", x: 510, y: 148 },
-    // ROW 3 (bottom)
-    { id: "ACM-R3-C1", x: 110, y: 210 },
-    { id: "ACM-R3-C2", x: 210, y: 205 },
-    { id: "ACM-R3-C3", x: 310, y: 202 },
-    { id: "ACM-R3-C4", x: 410, y: 205 },
-    { id: "ACM-R3-C5", x: 510, y: 214 },
+    // LEFT RETURN (ACM-1)
+    { id: "ACM1-R1-C1", pts: "120,140 200,120 200,200 120,220" },
+    { id: "ACM1-R2-C1", pts: "120,220 200,200 200,280 120,300" },
+    { id: "ACM1-R3-C1", pts: "120,300 200,280 200,360 120,380" },
+
+    // FRONT FACADE (ACM-2)
+    { id: "ACM2-R1-C1", pts: "200,120 320,125 320,205 200,200" },
+    { id: "ACM2-R1-C2", pts: "320,125 440,130 440,210 320,205" },
+    { id: "ACM2-R1-C3", pts: "440,130 560,135 560,215 440,210" },
+
+    { id: "ACM2-R2-C1", pts: "200,200 320,205 320,285 200,280" },
+    { id: "ACM2-R2-C2", pts: "320,205 440,210 440,290 320,285" },
+    { id: "ACM2-R2-C3", pts: "440,210 560,215 560,295 440,290" },
+
+    { id: "ACM2-R3-C1", pts: "200,280 320,285 320,365 200,360" },
+    { id: "ACM2-R3-C2", pts: "320,285 440,290 440,370 320,365" },
+    { id: "ACM2-R3-C3", pts: "440,290 560,295 560,375 440,370" },
+
+    // RIGHT RETURN
+    { id: "ACM2-R1-C4", pts: "560,135 640,155 640,235 560,215" },
+    { id: "ACM2-R2-C4", pts: "560,215 640,235 640,315 560,295" },
+    { id: "ACM2-R3-C4", pts: "560,295 640,315 640,395 560,375" },
   ];
 
-  const PANEL_WIDTH = 90;
-  const PANEL_HEIGHT = 62;
-
-  const handleClick = (id: string) => {
-    setPanelState((prev) => ({
-      ...prev,
-      [id]: activeHex,
-    }));
+  const setPanel = (id: string) => {
+    setPanelState((prev) => ({ ...prev, [id]: activeMaterial }));
   };
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="overflow-auto rounded-2xl border border-gray-200/80 bg-white p-3 shadow-inner">
-        <svg viewBox="0 0 1024 570" className="h-auto w-full">
-          {/* Background silhouette */}
-          <image
-            href="/ford-building-panels.png"
-            x="0"
-            y="0"
-            width="1024"
-            height="570"
-            preserveAspectRatio="xMidYMid meet"
-            opacity="0.9"
+      {/* Materials */}
+      <div className="flex flex-wrap gap-3">
+        {Object.entries(materials).map(([key, value]) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => setActiveMaterial(key)}
+            className={`h-8 w-8 rounded-full border-2 ${
+              activeMaterial === key ? "border-gray-900" : "border-gray-300"
+            }`}
+            style={{ backgroundColor: key === "default" ? activeHex : value }}
+            title={key}
           />
-
-          {panels.map((p) => (
-            <polygon
-              key={p.id}
-              points={`${p.x},${p.y} ${p.x + PANEL_WIDTH},${p.y - 12} ${p.x + PANEL_WIDTH},${p.y + PANEL_HEIGHT} ${p.x},${p.y + PANEL_HEIGHT + 12}`}
-              fill={panelState[p.id] ?? activeHex}
-              stroke="#111827"
-              strokeWidth="0.8"
-              onClick={() => handleClick(p.id)}
-              style={{ cursor: "pointer" }}
-            />
-          ))}
-        </svg>
+        ))}
       </div>
 
-      {/* Output kept minimal / hidden from UI for now */}
+      {/* SVG building + panels */}
+      <div className="overflow-auto rounded-2xl border border-gray-200/80 bg-white p-4 shadow-inner">
+        <svg viewBox="0 0 760 420" className="h-auto w-full">
+          {/* Base building mass */}
+          <polygon
+            points="120,200 200,120 560,135 640,155 640,395 120,380"
+            fill={materials.black}
+          />
+
+          {/* Roof */}
+          <polygon points="120,140 200,120 560,135 640,155 600,130 520,110 200,95 100,120" fill="#9ca3af" />
+
+          {/* Dark band */}
+          <polygon points="200,200 560,215 560,230 200,215" fill="#374151" />
+
+          {/* Glass storefront */}
+          <polygon points="240,230 520,240 520,340 240,340" fill="#f9fafb" stroke="#999" />
+
+          {/* Panel overlay on front wall */}
+          {panels.map((p) => {
+            const fillKey = panelState[p.id];
+            const fillColor = fillKey ? materials[fillKey] ?? activeHex : activeHex;
+            const [firstPoint] = p.pts.split(" ");
+            const [labelX, labelY] = firstPoint.split(",").map(Number);
+
+            return (
+              <g key={p.id}>
+                <polygon
+                  points={p.pts}
+                  fill={fillColor}
+                  stroke="#111827"
+                  strokeWidth="0.9"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPanel(p.id);
+                  }}
+                  onMouseEnter={() => setHovered(p.id)}
+                  onMouseLeave={() => setHovered(null)}
+                  style={{ cursor: "pointer" }}
+                />
+                {/* Panel seams */}
+                <polygon points={p.pts} fill="none" stroke="#6b7280" strokeWidth="0.5" />
+                {hovered === p.id && (
+                  <text x={labelX} y={labelY - 6} fontSize="10" fill="#111827">
+                    {p.id}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+
+          {/* Right entry feature */}
+          <path d="M640 155 Q700 260 640 395 L600 375 Q660 260 600 155 Z" fill="#d1d5db" stroke="#111827" />
+        </svg>
+      </div>
     </div>
   );
 }
