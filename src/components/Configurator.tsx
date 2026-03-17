@@ -338,36 +338,31 @@ export function Configurator() {
                   className="relative w-full overflow-hidden rounded-2xl border border-gray-200/80 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200"
                   style={{ aspectRatio: "4 / 3" }}
                 >
-                  {/* Simple perspective building massing */}
-                  <div className="absolute inset-x-[8%] bottom-[16%] top-[20%]">
-                    {/* Left volume */}
-                    <div className="absolute bottom-0 left-0 h-full w-[34%] origin-bottom-left -skew-y-6 rounded-l-xl bg-slate-300/90 shadow-[0_16px_35px_rgba(15,23,42,0.35)]" />
-                    {/* Main facade */}
-                    <div className="absolute bottom-0 left-[20%] h-[74%] w-[58%] origin-bottom-left -skew-y-3 rounded-xl bg-slate-300/95 shadow-[0_18px_40px_rgba(15,23,42,0.4)]" />
-                    {/* Right feature wall */}
-                    <div className="absolute bottom-0 right-0 h-[82%] w-[16%] origin-bottom-right -skew-y-3 rounded-r-3xl bg-slate-400/90 shadow-[0_18px_40px_rgba(15,23,42,0.45)]" />
+                  {/* Simple square building massing */}
+                  <div className="absolute inset-x-[14%] bottom-[18%] top-[18%]">
+                    {/* Main square volume */}
+                    <div className="absolute bottom-0 left-1/2 h-full w-[60%] -translate-x-1/2 rounded-2xl bg-slate-300/90 shadow-[0_18px_40px_rgba(15,23,42,0.35)]" />
 
                     {/* Panel grid overlay that changes with color */}
-                    {[
-                      { top: "10%", height: "24%" },
-                      { top: "36%", height: "24%" },
-                      { top: "62%", height: "24%" },
-                    ].map((row, rowIdx) => (
+                    {[0, 1, 2, 3].map((rowIdx) => (
                       <div
                         key={rowIdx}
-                        className="absolute left-[22%] w-[54%]"
-                        style={{ top: row.top, height: row.height }}
+                        className="absolute left-[18%] w-[64%]"
+                        style={{
+                          top: `${8 + rowIdx * 22}%`,
+                          height: "18%",
+                        }}
                       >
-                        {Array.from({ length: 5 }).map((_, colIdx) => (
+                        {Array.from({ length: 4 }).map((_, colIdx) => (
                           <div
                             // eslint-disable-next-line react/no-array-index-key
                             key={colIdx}
-                            className="absolute top-0 h-full w-[16%] rounded-sm border border-black/10 bg-cover bg-center transition-colors"
+                            className="absolute top-0 h-full w-[19%] rounded-md border border-black/10 bg-cover bg-center transition-colors"
                             style={{
-                              left: `${colIdx * 19}%`,
+                              left: `${colIdx * 27}%`,
                               backgroundColor: color.hex,
                               boxShadow:
-                                "0 0 0 1px rgba(15,23,42,0.06) inset, 0 4px 10px rgba(15,23,42,0.20)",
+                                "0 0 0 1px rgba(15,23,42,0.08) inset, 0 4px 10px rgba(15,23,42,0.20)",
                             }}
                           />
                         ))}
@@ -376,7 +371,7 @@ export function Configurator() {
                   </div>
 
                   {/* Ground plane */}
-                  <div className="absolute inset-x-[6%] bottom-[10%] h-[2px] rounded-full bg-slate-400/70 shadow-[0_12px_24px_rgba(15,23,42,0.45)]" />
+                  <div className="absolute inset-x-[18%] bottom-[14%] h-[2px] rounded-full bg-slate-400/70 shadow-[0_12px_24px_rgba(15,23,42,0.45)]" />
 
                   {/* Caption swatch showing selected color */}
                   <div className="absolute bottom-4 left-4 flex items-center gap-3 rounded-xl bg-white/90 px-3 py-2 text-[11px] font-medium text-gray-700 shadow-[0_8px_20px_rgba(15,23,42,0.25)]">
