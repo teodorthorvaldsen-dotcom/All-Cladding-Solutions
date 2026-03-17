@@ -149,11 +149,12 @@ export function Configurator() {
         dirLight.position.set(3, 4, 5);
         scene.add(dirLight);
 
-        // Side wall (building) behind panels
-        const wallGeom = new THREE.BoxGeometry(4, 2.5, 0.2);
-        const wallMat = new THREE.MeshPhongMaterial({ color: 0xe2e8f0 });
+        // Side wall (building) behind panels using shop drawing texture
+        const wallTexture = new THREE.TextureLoader().load("/module-3-ford.png");
+        const wallGeom = new THREE.PlaneGeometry(5, 3);
+        const wallMat = new THREE.MeshPhongMaterial({ map: wallTexture, toneMapped: false });
         const wall = new THREE.Mesh(wallGeom, wallMat);
-        wall.position.set(0, 1.1, -0.3);
+        wall.position.set(0, 1.3, -0.5);
         scene.add(wall);
 
         // Scale panel size from inches (clamped to configurator bounds)
