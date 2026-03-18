@@ -57,6 +57,355 @@ function lerpPoint(ax: number, ay: number, bx: number, by: number, t: number) {
   return { x: lerp(ax, bx, t), y: lerp(ay, by, t) };
 }
 
+function PanelPreviewFromImage() {
+  const materials = {
+    arcticWhite: {
+      face: "#e9eef7",
+      side: "#4b5563",
+      top: "#374151",
+      label: "Arctic White",
+    },
+    micaGrey: {
+      face: "#bcc6d8",
+      side: "#4b5563",
+      top: "#374151",
+      label: "Mica Grey",
+    },
+    marineAluminum: {
+      face: "#d4d8df",
+      side: "#596270",
+      top: "#414a57",
+      label: "Marine Aluminum",
+    },
+    charcoal: {
+      face: "#6b7280",
+      side: "#374151",
+      top: "#1f2937",
+      label: "Charcoal",
+    },
+    black: {
+      face: "#1f2937",
+      side: "#111827",
+      top: "#0b1220",
+      label: "Black",
+    },
+    fordBlue: {
+      face: "#2563eb",
+      side: "#1d4ed8",
+      top: "#1e40af",
+      label: "Ford Blue",
+    },
+  } as const;
+
+  type MaterialKey = keyof typeof materials;
+
+  const [activeMaterial, setActiveMaterial] = useState<MaterialKey>("micaGrey");
+  const [panelWidth, setPanelWidth] = useState(48);
+  const [panelLength, setPanelLength] = useState(120);
+  const [panelDepth, setPanelDepth] = useState(2);
+  const [showReference, setShowReference] = useState(true);
+  const [showOverlayGuides, setShowOverlayGuides] = useState(false);
+
+  const active = materials[activeMaterial];
+
+  const config = useMemo(() => {
+    const viewW = 800;
+    const viewH = 595;
+
+    // base traced panel geometry from PNG (800x595)
+    const baseA = { x: 244, y: 32 };
+    const baseB = { x: 485, y: 187 };
+    const baseC = { x: 485, y: 593 };
+    const baseD = { x: 244, y: 454 };
+
+    const baseE = { x: 497, y: 180 };
+    const baseF = { x: 497, y: 595 };
+
+    const baseG = { x: 255, y: -2 };
+    const baseH = { x: 498, y: 154 };
+
+    const baseWidth = baseB.x - baseA.x;
+    const baseLength = baseD.y - baseA.y;
+
+    const widthScale = panelWidth / 48;
+    const lengthScale = panelLength / 120;
+    const depthScale = panelDepth / 2;
+
+    const scalePoint = (p: { x: number; y: number }, anchor = baseA) => ({
+      x: anchor.x + (p.x - anchor.x) * widthScale,
+      y: anchor.y + (p.y - anchor.y) * lengthScale,
+    });
+
+    const A = { ...baseA };
+    const B = scalePoint(baseB);
+    const C = {
+      x: A.x + (baseC.x - baseA.x) * widthScale,
+      y: A.y + (baseC.y - baseA.y) * lengthScale,
+    };
+    const D = {
+      x: A.x + (baseD.x - baseA.x) * widthScale,
+      y: A.y + (baseD.y - baseA.y) * lengthScale,
+    };
+
+    const sideInsetX = (baseE.x - baseB.x) * depthScale;
+    const sideInsetYTop = (baseE.y - baseB.y) * depthScale;
+    const sideInsetYBottom = (baseF.y - baseC.y) * depthScale;
+
+    const E = {
+      x: B.x + sideInsetX,
+      y: B.y + sideInsetYTop,
+    };
+
+    const F = {
+      x: C.x + sideInsetX,
+      y: C.y + sideInsetYBottom,
+    };
+
+    const G = {
+      x: A.x + (baseG.x - baseA.x) * depthScale,
+      y: A.y + (baseG.y - baseA.y) * depthScale,
+    };
+
+    const H = {
+      x: B.x + (baseH.x - baseB.x) * depthScale,
+      y: B.y + (baseH.y - baseB.y) * depthScale,
+    };
+
+    const interpolate = (
+      p1: { x: number; y: number },
+      p2: { x: number; y: number },
+      t: number
+    ) => ({
+      x: p1.x + (p2.x - p1.x) * t,
+      y: p1.y + (p2.y - p1.y) * t,
+    });
+
+    const finCount = Math.max(3, Math.round(panelWidth / 12));
+    const finStartRatio = 0.08;
+    const finEndRatio = 0.92;
+    const finSpan = finEndRatio - finStartRatio;
+    const finWidthRatio = Math.min(0.1, finSpan / (finCount * 1.7));
+
+    const fins = Array.from({ length: finCount }).map((_, i) => {
+      const step = finSpan / finCount;
+      const t1 = finStartRatio + i * step;
+      const t2 = Math.min(t1 + finWidthRatio, finEndRatio);
+
+      const front1 = interpolate(A, B, t1);
+      const front2 = interpolate(A, B, t2);
+
+      const liftX = (G.x - A.x) * 0.82;
+      const liftY = (G.y - A.y) * 0.82;
+
+      const back1 = { x: front1.x + liftX, y: front1.y + liftY };
+      const back2 = { x: front2.x + liftX, y: front2.y + liftY };
+
+      return { front1, front2, back1, back2 };
+    });
+
+    return {
+      viewW,
+      viewH,
+      A,
+      B,
+      C,
+      D,
+      E,
+      F,
+      G,
+      H,
+      fins,
+      frontWidthPx: baseWidth * widthScale,
+      frontLengthPx: baseLength * lengthScale,
+    };
+  }, [panelWidth, panelLength, panelDepth]);
+
+  const { A, B, C, D, E, F, G, H, fins, viewW, viewH } = config;
+
+  const frontPoints = `${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y} ${D.x},${D.y}`;
+  const sidePoints = `${B.x},${B.y} ${E.x},${E.y} ${F.x},${F.y} ${C.x},${C.y}`;
+  const topPoints = `${A.x},${A.y} ${B.x},${B.y} ${H.x},${H.y} ${G.x},${G.y}`;
+
+  return (
+    <div className="space-y-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="space-y-3">
+          <p className="text-[13px] text-gray-600">
+            Uses the shop-drawing style PNG as a reference and overlays a recolorable 3D panel.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {(Object.entries(materials) as [MaterialKey, (typeof materials)[MaterialKey]][]).map(
+              ([key, material]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setActiveMaterial(key)}
+                  className={`flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-medium ${
+                    activeMaterial === key
+                      ? "border-gray-900 bg-gray-50"
+                      : "border-gray-200 bg-white hover:bg-gray-50"
+                  }`}
+                >
+                  <span
+                    className="h-4 w-4 rounded-full border border-gray-300"
+                    style={{ background: material.face }}
+                  />
+                  <span className="text-gray-900">{material.label}</span>
+                </button>
+              )
+            )}
+          </div>
+          <div className="space-y-3 text-[12px]">
+            <div>
+              <div className="mb-1 flex items-center justify-between">
+                <span className="font-medium text-gray-900">Width (X axis)</span>
+                <span className="text-gray-600">{panelWidth} in</span>
+              </div>
+              <input
+                type="range"
+                min={12}
+                max={96}
+                step={1}
+                value={panelWidth}
+                onChange={(e) => setPanelWidth(Number(e.target.value))}
+                className="w-full"
+              />
+            </div>
+            <div>
+              <div className="mb-1 flex items-center justify-between">
+                <span className="font-medium text-gray-900">Length (Y axis)</span>
+                <span className="text-gray-600">{panelLength} in</span>
+              </div>
+              <input
+                type="range"
+                min={24}
+                max={192}
+                step={1}
+                value={panelLength}
+                onChange={(e) => setPanelLength(Number(e.target.value))}
+                className="w-full"
+              />
+            </div>
+            <div>
+              <div className="mb-1 flex items-center justify-between">
+                <span className="font-medium text-gray-900">Depth</span>
+                <span className="text-gray-600">{panelDepth} in</span>
+              </div>
+              <input
+                type="range"
+                min={1}
+                max={4}
+                step={0.5}
+                value={panelDepth}
+                onChange={(e) => setPanelDepth(Number(e.target.value))}
+                className="w-full"
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setShowReference((v) => !v)}
+              className="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-[12px] font-medium text-gray-900 hover:bg-gray-50"
+            >
+              {showReference ? "Hide PNG reference" : "Show PNG reference"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowOverlayGuides((v) => !v)}
+              className="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-[12px] font-medium text-gray-900 hover:bg-gray-50"
+            >
+              {showOverlayGuides ? "Hide overlay guides" : "Show overlay guides"}
+            </button>
+          </div>
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-[linear-gradient(45deg,#f3f4f6_25%,transparent_25%),linear-gradient(-45deg,#f3f4f6_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#f3f4f6_75%),linear-gradient(-45deg,transparent_75%,#f3f4f6_75%)] bg-[length:24px_24px] bg-[position:0_0,0_12px,12px_-12px,-12px_0px] p-3">
+          <svg viewBox={`0 0 ${viewW} ${viewH}`} className="block h-auto w-full">
+            <defs>
+              <linearGradient id="frontGloss" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="rgba(255,255,255,0.35)" />
+                <stop offset="55%" stopColor="rgba(255,255,255,0.08)" />
+                <stop offset="100%" stopColor="rgba(0,0,0,0.03)" />
+              </linearGradient>
+            </defs>
+
+            {showReference && (
+              <image
+                href="/panel-reference.png"
+                x="0"
+                y="0"
+                width={viewW}
+                height={viewH}
+                preserveAspectRatio="xMidYMid meet"
+                opacity={0.6}
+              />
+            )}
+
+            <ellipse
+              cx={(D.x + C.x) / 2 + 6}
+              cy={C.y + 10}
+              rx={Math.max(70, (C.x - D.x) * 0.33)}
+              ry={14}
+              fill="rgba(0,0,0,0.12)"
+            />
+
+            <polygon points={topPoints} fill={active.top} stroke="#1f2937" strokeWidth={2} />
+            <polygon points={sidePoints} fill={active.side} stroke="#111827" strokeWidth={2} />
+            <polygon points={frontPoints} fill={active.face} stroke="#374151" strokeWidth={2} />
+            <polygon points={frontPoints} fill="url(#frontGloss)" pointerEvents="none" />
+
+            {fins.map((fin, i) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <g key={i}>
+                <polygon
+                  points={`${fin.front1.x},${fin.front1.y} ${fin.front2.x},${fin.front2.y} ${fin.back2.x},${fin.back2.y} ${fin.back1.x},${fin.back1.y}`}
+                  fill={active.top}
+                  stroke="#1f2937"
+                  strokeWidth={1.6}
+                />
+                <line
+                  x1={fin.front2.x}
+                  y1={fin.front2.y}
+                  x2={fin.back2.x}
+                  y2={fin.back2.y}
+                  stroke="#111827"
+                  strokeWidth={1.2}
+                />
+              </g>
+            ))}
+
+            {showOverlayGuides && (
+              <>
+                <polygon
+                  points={frontPoints}
+                  fill="none"
+                  stroke="#ef4444"
+                  strokeWidth={2}
+                  strokeDasharray="6 4"
+                />
+                <polygon
+                  points={sidePoints}
+                  fill="none"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                  strokeDasharray="6 4"
+                />
+                <polygon
+                  points={topPoints}
+                  fill="none"
+                  stroke="#22c55e"
+                  strokeWidth={2}
+                  strokeDasharray="6 4"
+                />
+              </>
+            )}
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function buildGridPanels(
   idPrefix: string,
   rows: number,
