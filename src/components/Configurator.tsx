@@ -98,17 +98,22 @@ function buildGridPanels(
 
 function ProjectExampleMahwahFord({ activeHex }: ProjectExampleProps) {
   const materials: Record<string, string> = {
-    default: activeHex,
+    default: "#d1d5db",
     micaGrey: "#6b7280",
     marineAluminum: "#bfc5c9",
     charcoal: "#374151",
     black: "#111827",
     white: "#f8fafc",
+    fordBlue: "#2563eb",
   };
 
   const [activeMaterial, setActiveMaterial] = useState<string>("micaGrey");
   const [panelState, setPanelState] = useState<PanelStateMap>({});
   const [hovered, setHovered] = useState<string | null>(null);
+  const [showBackground, setShowBackground] = useState(true);
+  const [showOutlines, setShowOutlines] = useState(false);
+
+  const VIEWBOX = { width: 993, height: 581 };
 
   const materialEntries = Object.entries(materials);
 
@@ -120,216 +125,187 @@ function ProjectExampleMahwahFord({ activeHex }: ProjectExampleProps) {
 
   const pt = (x: number, y: number) => `${x.toFixed(1)},${y.toFixed(1)}`;
 
-  const quadPoints = (
+  const quad = (
     x1: number,
     x2: number,
     topFn: (x: number) => number,
     bottomFn: (x: number) => number
-  ) => {
-    return [
+  ) =>
+    [
       pt(x1, topFn(x1)),
       pt(x2, topFn(x2)),
       pt(x2, bottomFn(x2)),
       pt(x1, bottomFn(x1)),
     ].join(" ");
-  };
 
-  const centroidFromPoints = (points: string) => {
-    const coords = points.split(" ").map((p) => p.split(",").map(Number));
-    const sum = coords.reduce(
+  const centroid = (points: string) => {
+    const pts = points.split(" ").map((p) => p.split(",").map(Number));
+    const sum = pts.reduce(
       (acc, [x, y]) => ({ x: acc.x + x, y: acc.y + y }),
       { x: 0, y: 0 }
     );
     return {
-      x: sum.x / coords.length,
-      y: sum.y / coords.length,
+      x: sum.x / pts.length,
+      y: sum.y / pts.length,
     };
   };
 
-  const createBandPanels = ({
-    xCuts,
-    topFn,
-    bottomFn,
-    rowLabel,
-    face,
-  }: {
-    xCuts: number[];
-    topFn: (x: number) => number;
-    bottomFn: (x: number) => number;
-    rowLabel: string;
-    face: string;
-  }): FacadePanel[] => {
+  const panels = useMemo<FacadePanel[]>(() => {
     const result: FacadePanel[] = [];
-    for (let i = 0; i < xCuts.length - 1; i += 1) {
-      const x1 = xCuts[i];
-      const x2 = xCuts[i + 1];
+
+    // main facade row lines (traced from 993x581 image)
+    const topLine = (x: number) => lineY(x, 240, 61, 884, 272);
+    const row1Line = (x: number) => lineY(x, 240, 174, 884, 316);
+    const row2Line = (x: number) => lineY(x, 240, 275, 832, 350);
+    const row3Line = (x: number) => lineY(x, 223, 378, 629, 392);
+    const row4Line = (x: number) => lineY(x, 239, 482, 629, 459);
+    const bottomLine = (x: number) => lineY(x, 240, 559, 629, 509);
+
+    // left ACM‑1 return strip
+    const leftOuterTop = (x: number) => lineY(x, 221, 75, 240, 61);
+    const leftOuterRow1 = (x: number) => lineY(x, 221, 176, 240, 174);
+    const leftOuterRow2 = (x: number) => lineY(x, 221, 279, 240, 275);
+    const leftOuterRow3 = (x: number) => lineY(x, 221, 378, 240, 378);
+    const leftOuterRow4 = (x: number) => lineY(x, 221, 478, 239, 482);
+    const leftOuterBottom = (x: number) => lineY(x, 221, 551, 240, 559);
+
+    // right ACM‑2 vestibule visible side
+    const vestTop = (x: number) => lineY(x, 844, 259, 884, 272);
+    const vestRow1 = (x: number) => lineY(x, 844, 309, 884, 316);
+    const vestRow2 = (x: number) => lineY(x, 844, 350, 884, 377);
+    const vestRow3 = (x: number) => lineY(x, 844, 404, 884, 411);
+
+    // left return strip panels
+    result.push(
+      {
+        id: "ACM1-R1-C1",
+        points: [
+          pt(221, leftOuterTop(221)),
+          pt(240, topLine(240)),
+          pt(240, row1Line(240)),
+          pt(221, leftOuterRow1(221)),
+        ].join(" "),
+      },
+      {
+        id: "ACM1-R2-C1",
+        points: [
+          pt(221, leftOuterRow1(221)),
+          pt(240, row1Line(240)),
+          pt(240, row2Line(240)),
+          pt(221, leftOuterRow2(221)),
+        ].join(" "),
+      },
+      {
+        id: "ACM1-R3-C1",
+        points: [
+          pt(221, leftOuterRow2(221)),
+          pt(240, row2Line(240)),
+          pt(240, row3Line(240)),
+          pt(221, leftOuterRow3(221)),
+        ].join(" "),
+      },
+      {
+        id: "ACM1-R4-C1",
+        points: [
+          pt(221, leftOuterRow3(221)),
+          pt(239, row4Line(239)),
+          pt(239, row4Line(239)),
+          pt(221, leftOuterRow4(221)),
+        ].join(" "),
+      },
+      {
+        id: "ACM1-R5-C1",
+        points: [
+          pt(221, leftOuterRow4(221)),
+          pt(240, row4Line(240)),
+          pt(240, bottomLine(240)),
+          pt(221, leftOuterBottom(221)),
+        ].join(" "),
+      }
+    );
+
+    // main facade upper three rows
+    const upperCuts = [240, 406, 533, 628, 700, 762, 810, 844];
+
+    for (let i = 0; i < upperCuts.length - 1; i += 1) {
       result.push({
-        id: `${face}-${rowLabel}-C${i + 1}`,
-        points: quadPoints(x1, x2, topFn, bottomFn),
+        id: `MAIN-R1-C${i + 1}`,
+        points: quad(upperCuts[i], upperCuts[i + 1], topLine, row1Line),
       });
     }
+
+    for (let i = 0; i < upperCuts.length - 1; i += 1) {
+      result.push({
+        id: `MAIN-R2-C${i + 1}`,
+        points: quad(upperCuts[i], upperCuts[i + 1], row1Line, row2Line),
+      });
+    }
+
+    const thirdRowCuts = [240, 406, 533, 628, 700, 762, 810];
+    for (let i = 0; i < thirdRowCuts.length - 1; i += 1) {
+      result.push({
+        id: `MAIN-R3-C${i + 1}`,
+        points: quad(thirdRowCuts[i], thirdRowCuts[i + 1], row2Line, row3Line),
+      });
+    }
+
+    // lower two rows on left wall
+    const lowerCuts = [240, 406, 533, 629];
+    for (let i = 0; i < lowerCuts.length - 1; i += 1) {
+      result.push({
+        id: `MAIN-R4-C${i + 1}`,
+        points: quad(lowerCuts[i], lowerCuts[i + 1], row3Line, row4Line),
+      });
+    }
+
+    for (let i = 0; i < lowerCuts.length - 1; i += 1) {
+      result.push({
+        id: `MAIN-R5-C${i + 1}`,
+        points: quad(lowerCuts[i], lowerCuts[i + 1], row4Line, bottomLine),
+      });
+    }
+
+    // right vestibule small red grid spaces
+    const vestCutsTop = [844, 872, 884];
+    for (let i = 0; i < vestCutsTop.length - 1; i += 1) {
+      result.push({
+        id: `VEST-R1-C${i + 1}`,
+        points: quad(vestCutsTop[i], vestCutsTop[i + 1], vestTop, vestRow1),
+      });
+    }
+
+    const vestCutsMid = [810, 844, 872, 884];
+    for (let i = 0; i < vestCutsMid.length - 1; i += 1) {
+      result.push({
+        id: `VEST-R2-C${i + 1}`,
+        points: quad(vestCutsMid[i], vestCutsMid[i + 1], row1Line, vestRow2),
+      });
+    }
+
+    const vestCutsLow = [810, 844];
+    for (let i = 0; i < vestCutsLow.length - 1; i += 1) {
+      result.push({
+        id: `VEST-R3-C${i + 1}`,
+        points: quad(vestCutsLow[i], vestCutsLow[i + 1], row2Line, vestRow3),
+      });
+    }
+
     return result;
-  };
-
-  const panelData = useMemo<FacadePanel[]>(() => {
-    const panels: FacadePanel[] = [];
-
-    // Full upper sloped canopy band
-    const r0 = (x: number) => lineY(x, 265, 58, 1005, 258);
-    const r1 = (x: number) => lineY(x, 265, 182, 1005, 332);
-    const r2 = (x: number) => lineY(x, 265, 292, 1005, 401);
-
-    // Mid lower band that continues farther right but drops at the notch
-    const r3 = (x: number) => {
-      if (x <= 875) return lineY(x, 265, 414, 875, 448);
-      return lineY(x, 875, 448, 1005, 472);
-    };
-
-    // Lower left facade only
-    const r4 = (x: number) => lineY(x, 265, 530, 705, 554);
-    const r5 = (x: number) => lineY(x, 265, 608, 705, 575);
-
-    // Left return strip
-    const l0 = (x: number) => lineY(x, 235, 78, 265, 58);
-    const l1 = (x: number) => lineY(x, 235, 198, 265, 182);
-    const l2 = (x: number) => lineY(x, 235, 311, 265, 292);
-    const l3 = (x: number) => lineY(x, 235, 431, 265, 414);
-    const l4 = (x: number) => lineY(x, 235, 545, 265, 530);
-    const l5 = (x: number) => lineY(x, 235, 628, 265, 608);
-
-    // Right vestibule visible side
-    const v0 = (x: number) => lineY(x, 875, 292, 1000, 306);
-    const v1 = (x: number) => lineY(x, 875, 332, 1000, 350);
-    const v2 = (x: number) => lineY(x, 875, 402, 1000, 418);
-    const v3 = (x: number) => lineY(x, 875, 448, 1000, 460);
-
-    // Left thin return strip (ACM-1)
-    const leftReturnCuts = [235, 265];
-    panels.push(
-      ...createBandPanels({
-        xCuts: leftReturnCuts,
-        topFn: l0,
-        bottomFn: l1,
-        rowLabel: "R1",
-        face: "ACM1",
-      }),
-      ...createBandPanels({
-        xCuts: leftReturnCuts,
-        topFn: l1,
-        bottomFn: l2,
-        rowLabel: "R2",
-        face: "ACM1",
-      }),
-      ...createBandPanels({
-        xCuts: leftReturnCuts,
-        topFn: l2,
-        bottomFn: l3,
-        rowLabel: "R3",
-        face: "ACM1",
-      }),
-      ...createBandPanels({
-        xCuts: leftReturnCuts,
-        topFn: l3,
-        bottomFn: l4,
-        rowLabel: "R4",
-        face: "ACM1",
-      }),
-      ...createBandPanels({
-        xCuts: leftReturnCuts,
-        topFn: l4,
-        bottomFn: l5,
-        rowLabel: "R5",
-        face: "ACM1",
-      })
-    );
-
-    // Main upper sloped facade rows
-    const upperCuts = [265, 445, 590, 710, 820, 905, 960, 1005];
-    panels.push(
-      ...createBandPanels({
-        xCuts: upperCuts,
-        topFn: r0,
-        bottomFn: r1,
-        rowLabel: "R1",
-        face: "MAIN",
-      }),
-      ...createBandPanels({
-        xCuts: upperCuts,
-        topFn: r1,
-        bottomFn: r2,
-        rowLabel: "R2",
-        face: "MAIN",
-      }),
-      ...createBandPanels({
-        xCuts: upperCuts,
-        topFn: r2,
-        bottomFn: r3,
-        rowLabel: "R3",
-        face: "MAIN",
-      })
-    );
-
-    // Lower left facade rows under the canopy
-    const lowerCuts1 = [265, 445, 590, 705];
-    panels.push(
-      ...createBandPanels({
-        xCuts: lowerCuts1,
-        topFn: r3,
-        bottomFn: r4,
-        rowLabel: "R4",
-        face: "LOWER",
-      }),
-      ...createBandPanels({
-        xCuts: lowerCuts1,
-        topFn: r4,
-        bottomFn: r5,
-        rowLabel: "R5",
-        face: "LOWER",
-      })
-    );
-
-    // Right vestibule side panels
-    const vestibuleCuts = [875, 940, 975, 1000];
-    panels.push(
-      ...createBandPanels({
-        xCuts: vestibuleCuts,
-        topFn: v0,
-        bottomFn: v1,
-        rowLabel: "R1",
-        face: "VEST",
-      }),
-      ...createBandPanels({
-        xCuts: vestibuleCuts,
-        topFn: v1,
-        bottomFn: v2,
-        rowLabel: "R2",
-        face: "VEST",
-      }),
-      ...createBandPanels({
-        xCuts: vestibuleCuts,
-        topFn: v2,
-        bottomFn: v3,
-        rowLabel: "R3",
-        face: "VEST",
-      })
-    );
-
-    return panels;
   }, []);
 
   const setPanel = (id: string) => {
     setPanelState((prev) => ({ ...prev, [id]: activeMaterial }));
   };
 
-  const fillAllPanels = () => {
-    const all: PanelStateMap = {};
-    panelData.forEach((panel) => {
-      all[panel.id] = activeMaterial;
+  const fillAll = () => {
+    const next: PanelStateMap = {};
+    panels.forEach((panel) => {
+      next[panel.id] = activeMaterial;
     });
-    setPanelState(all);
+    setPanelState(next);
   };
 
-  const resetPanels = () => {
+  const resetAll = () => {
     setPanelState({});
   };
 
@@ -357,162 +333,70 @@ function ProjectExampleMahwahFord({ activeHex }: ProjectExampleProps) {
             </button>
           ))}
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={fillAllPanels}
+            onClick={fillAll}
             className="rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-black"
           >
             Fill all
           </button>
           <button
             type="button"
-            onClick={resetPanels}
+            onClick={resetAll}
             className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-800 hover:bg-gray-50"
           >
             Reset
           </button>
+          <button
+            type="button"
+            onClick={() => setShowBackground((v) => !v)}
+            className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-800 hover:bg-gray-50"
+          >
+            {showBackground ? "Hide background" : "Show background"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowOutlines((v) => !v)}
+            className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-800 hover:bg-gray-50"
+          >
+            {showOutlines ? "Hide guides" : "Show guides"}
+          </button>
         </div>
       </div>
 
-      <div className="overflow-auto rounded-2xl border border-gray-200 bg-white p-3 shadow-inner">
-        <svg viewBox="0 0 1150 700" className="h-auto w-full">
-          {/* Background */}
-          <rect x="0" y="0" width="1150" height="700" fill="#ececec" />
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white p-3 shadow-inner">
+        <svg
+          viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`}
+          className="block h-auto w-full"
+        >
+          {showBackground && (
+            <image
+              href="/building-grid-reference.png"
+              x="0"
+              y="0"
+              width={VIEWBOX.width}
+              height={VIEWBOX.height}
+              preserveAspectRatio="none"
+            />
+          )}
 
-          {/* Left roof / metal panel system */}
-          <polygon
-            points="55,355 235,198 265,182 265,246 55,390"
-            fill="#8b8b8b"
-          />
-          <g opacity="0.5">
-            {Array.from({ length: 18 }).map((_, i) => (
-              <line
-                // eslint-disable-next-line react/no-array-index-key
-                key={i}
-                x1={55}
-                y1={355 + i * 2}
-                x2={265}
-                y2={182 + i * 4}
-                stroke="#666"
-                strokeWidth="1"
-              />
-            ))}
-          </g>
-
-          {/* Left wall and storefront */}
-          <polygon points="115,390 235,311 235,628 115,566" fill="#bdbdbd" />
-          <polygon points="146,420 230,365 230,610 146,566" fill="#d7d7d7" />
-          <polygon points="185,440 225,414 225,585 185,612" fill="#f8fafc" />
-          <polygon points="149,455 181,434 181,594 149,613" fill="#ffffff" />
-          <rect x="185" y="505" width="4" height="18" fill="#8b8b8b" />
-
-          {/* Main building mass behind panels */}
-          <polygon
-            points="265,58 1005,258 1005,306 875,292 875,332 705,320 705,575 265,608"
-            fill="#2b2b2b"
-          />
-
-          {/* Under-canopy dark band */}
-          <polygon
-            points="705,320 875,332 1005,306 1005,350 875,380 705,365"
-            fill="#1f2937"
-          />
-
-          {/* Glazing below canopy */}
-          <polygon
-            points="706,365 875,380 875,558 706,575"
-            fill="#f7f7f7"
-            stroke="#c7c7c7"
-            strokeWidth="2"
-          />
-          <line
-            x1="790"
-            y1="372"
-            x2="790"
-            y2="565"
-            stroke="#c7c7c7"
-            strokeWidth="2"
-          />
-          <line
-            x1="875"
-            y1="380"
-            x2="875"
-            y2="558"
-            stroke="#c7c7c7"
-            strokeWidth="2"
-          />
-
-          {/* Right vestibule glazing */}
-          <polygon
-            points="875,380 1005,350 1005,535 875,558"
-            fill="#efefef"
-            stroke="#c7c7c7"
-            strokeWidth="2"
-          />
-          <line
-            x1="940"
-            y1="365"
-            x2="940"
-            y2="546"
-            stroke="#c7c7c7"
-            strokeWidth="2"
-          />
-          <line
-            x1="875"
-            y1="438"
-            x2="1005"
-            y2="418"
-            stroke="#c7c7c7"
-            strokeWidth="2"
-          />
-          <line
-            x1="875"
-            y1="494"
-            x2="1005"
-            y2="474"
-            stroke="#c7c7c7"
-            strokeWidth="2"
-          />
-
-          {/* Curved feature panel */}
-          <path
-            d="M1000 164
-               Q1070 350 1020 610
-               L955 582
-               Q1015 350 955 194
-               Z"
-            fill="#cfd4dc"
-            stroke="#6b7280"
-            strokeWidth="2"
-          />
-
-          {/* Monument sign / entry blade */}
-          <polygon
-            points="1048,150 1110,132 1138,585 1086,610"
-            fill="#9b9b9b"
-            stroke="#7c7c7c"
-            strokeWidth="2"
-          />
-          <polygon
-            points="1104,465 1140,462 1142,612 1107,612"
-            fill="#7d7d7d"
-          />
-
-          {/* PANEL OVERLAY */}
-          {panelData.map((panel) => {
-            const fill = materials[panelState[panel.id]] || activeHex;
+          {panels.map((panel) => {
+            const c = centroid(panel.points);
+            const fill =
+              materials[panelState[panel.id]] ?? "rgba(255,255,255,0.01)";
             const isHovered = hovered === panel.id;
-            const centroid = centroidFromPoints(panel.points);
 
             return (
               <g key={panel.id}>
                 <polygon
                   points={panel.points}
                   fill={fill}
-                  stroke={isHovered ? "#111827" : "#6b7280"}
-                  strokeWidth={isHovered ? 2.5 : 1.4}
-                  opacity="0.97"
+                  fillOpacity={panelState[panel.id] ? 0.72 : 0.01}
+                  stroke={
+                    showOutlines || isHovered ? "#111827" : "transparent"
+                  }
+                  strokeWidth={isHovered ? 2 : 1}
                   onClick={(e) => {
                     e.stopPropagation();
                     setPanel(panel.id);
@@ -522,38 +406,22 @@ function ProjectExampleMahwahFord({ activeHex }: ProjectExampleProps) {
                   style={{ cursor: "pointer" }}
                 />
 
-                <polyline
-                  points={panel.points}
-                  fill="none"
-                  stroke="rgba(255,255,255,0.45)"
-                  strokeWidth="0.8"
-                  pointerEvents="none"
-                />
-
                 {isHovered && (
                   <>
-                    <circle
-                      cx={centroid.x}
-                      cy={centroid.y}
-                      r="3"
-                      fill="#111827"
-                      pointerEvents="none"
-                    />
+                    <circle cx={c.x} cy={c.y} r="2.5" fill="#111827" />
                     <rect
-                      x={centroid.x + 8}
-                      y={centroid.y - 22}
-                      rx="6"
-                      ry="6"
-                      width={panel.id.length * 7.2 + 16}
-                      height="22"
+                      x={c.x + 8}
+                      y={c.y - 20}
+                      width={Math.max(86, panel.id.length * 7)}
+                      height="20"
+                      rx="5"
                       fill="rgba(17,24,39,0.92)"
-                      pointerEvents="none"
                     />
                     <text
-                      x={centroid.x + 16}
-                      y={centroid.y - 7}
-                      fontSize="12"
-                      fill="#ffffff"
+                      x={c.x + 14}
+                      y={c.y - 6}
+                      fontSize="11"
+                      fill="#fff"
                       pointerEvents="none"
                     >
                       {panel.id}
@@ -563,31 +431,6 @@ function ProjectExampleMahwahFord({ activeHex }: ProjectExampleProps) {
               </g>
             );
           })}
-
-          {/* Click area to paint all facade panels at once */}
-          <polygon
-            points="235,78 265,58 1005,258 1005,472 875,448 705,554 705,575 265,608 235,628"
-            fill="transparent"
-            onClick={fillAllPanels}
-            style={{ cursor: "pointer" }}
-          />
-
-          {/* Guide labels */}
-          <text x="30" y="30" fontSize="22" fill="#202020" fontWeight="600">
-            ACM-1 PANELS
-          </text>
-          <text x="555" y="82" fontSize="22" fill="#202020" fontWeight="600">
-            RAINSCREEN ACM PANEL
-          </text>
-          <text x="790" y="177" fontSize="20" fill="#202020" fontWeight="600">
-            ACM-2 PANELS
-          </text>
-          <text x="20" y="230" fontSize="18" fill="#202020" fontWeight="600">
-            METAL PANEL
-          </text>
-          <text x="20" y="252" fontSize="18" fill="#202020" fontWeight="600">
-            SYSTEM
-          </text>
         </svg>
       </div>
 
