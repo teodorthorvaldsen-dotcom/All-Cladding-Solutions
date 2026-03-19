@@ -33,7 +33,7 @@ export function ColorSwatches({ value, onChange }: ColorSwatchesProps) {
                   aria-pressed={isSelected}
                   aria-label={`${c.name} (${c.code})`}
                   title={`${c.name} (${c.code})`}
-                  className={`relative flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl transition focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 sm:h-13 sm:w-13 ${
+                  className={`relative flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl transition focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 sm:h-14 sm:w-14 ${
                     isSelected
                       ? "ring-2 ring-gray-900 ring-offset-2"
                       : "ring-1 ring-gray-200/80 ring-inset hover:ring-gray-300"
