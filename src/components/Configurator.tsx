@@ -32,6 +32,8 @@ type PanelStateMap = Record<string, string>;
 
 interface ProjectExampleProps {
   activeHex: string;
+  /** Tighter layout for sticky sidebar */
+  compact?: boolean;
 }
 
 type PanelDef = {
@@ -440,7 +442,7 @@ function buildGridPanels(
   return panels;
 }
 
-function ProjectExampleMahwahFord({ activeHex }: ProjectExampleProps) {
+function ProjectExampleMahwahFord({ activeHex, compact = false }: ProjectExampleProps) {
   const scene = useMemo(() => {
     const viewW = 520;
     const viewH = 320;
@@ -500,13 +502,30 @@ function ProjectExampleMahwahFord({ activeHex }: ProjectExampleProps) {
     scene;
 
   return (
-    <div className="flex flex-col gap-4">
-      <p className="text-[13px] text-gray-600">
-        Single 3D ACM panel on a background wall. Color matches your selected panel color.
-      </p>
+    <div className={compact ? "flex flex-col gap-2" : "flex flex-col gap-4"}>
+      {!compact && (
+        <p className="text-[13px] text-gray-600">
+          Single 3D ACM panel on a background wall. Color matches your selected panel color.
+        </p>
+      )}
+      {compact && (
+        <p className="text-[11px] leading-snug text-gray-600">
+          Color matches your selection.
+        </p>
+      )}
 
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-slate-900/90 p-3 shadow-inner">
-        <svg viewBox={`0 0 ${viewW} ${viewH}`} className="block h-auto w-full">
+      <div
+        className={
+          compact
+            ? "overflow-hidden rounded-xl border border-gray-200 bg-slate-900/90 p-1.5 shadow-inner"
+            : "overflow-hidden rounded-2xl border border-gray-200 bg-slate-900/90 p-3 shadow-inner"
+        }
+      >
+        <svg
+          viewBox={`0 0 ${viewW} ${viewH}`}
+          className={compact ? "mx-auto block h-auto max-h-[11rem] w-full" : "block h-auto w-full"}
+          preserveAspectRatio="xMidYMid meet"
+        >
           <defs>
             <linearGradient id="wallGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#1f2937" />
@@ -718,7 +737,7 @@ export function Configurator() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-      <div className="mb-12 md:mb-16">
+      <div className="mb-8 md:mb-10">
         <h1 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
           ACM Panel Configurator
         </h1>
@@ -794,31 +813,29 @@ export function Configurator() {
           id="estimate"
           className="md:col-span-5 scroll-mt-[200px] sm:scroll-mt-[220px] lg:scroll-mt-[300px]"
         >
-          <div
-            className="space-y-5 md:sticky md:top-[248px] md:max-h-[calc(100dvh-260px)] md:overflow-y-auto md:overscroll-contain md:pb-2 lg:top-[292px] lg:max-h-[calc(100dvh-304px)] lg:pb-3"
-            style={{ scrollbarGutter: "stable" }}
-          >
+          <div className="space-y-3 md:sticky md:top-[236px] lg:top-[276px] lg:space-y-4">
             <section
-              className="rounded-2xl border border-gray-200/80 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] md:p-6"
+              className="rounded-2xl border border-gray-200/80 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] md:p-4"
               aria-labelledby="panel-preview-heading"
             >
               <h2 id="panel-preview-heading" className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
                 Panel Preview
               </h2>
-              <div className="mt-4">
-                <ProjectExampleMahwahFord activeHex={color.hex} />
+              <div className="mt-2">
+                <ProjectExampleMahwahFord activeHex={color.hex} compact />
               </div>
             </section>
             <PriceSummary
               pricing={pricing}
               loading={loading}
               error={error}
+              compact
             />
             <button
               type="button"
               onClick={handleAddToCart}
               disabled={loading || !!error || !pricing}
-              className="w-full rounded-xl bg-gray-900 px-5 py-4 text-[15px] font-medium text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
+              className="w-full rounded-xl bg-gray-900 px-4 py-3 text-[14px] font-medium text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Add to cart
             </button>
