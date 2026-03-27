@@ -87,18 +87,20 @@ export function PriceSummary({
             <dt className="text-gray-600">Total sq ft</dt>
             <dd className="tabular-nums">{pricing.totalSqFt.toFixed(2)} ft²</dd>
           </div>
-          <div
-            className={
-              compact
-                ? "flex justify-between border-t border-gray-200 pt-2.5"
-                : "flex justify-between border-t border-gray-200 pt-4"
-            }
-          >
-            <dt className="font-semibold text-gray-900">Estimated total</dt>
-            <dd className={compact ? "text-lg font-bold tabular-nums text-gray-900" : "text-xl font-bold tabular-nums text-gray-900"}>
-              {formatUSD(pricing.total)}
-            </dd>
-          </div>
+          {pricing.panelType !== "custom" && (
+            <div
+              className={
+                compact
+                  ? "flex justify-between border-t border-gray-200 pt-2.5"
+                  : "flex justify-between border-t border-gray-200 pt-4"
+              }
+            >
+              <dt className="font-semibold text-gray-900">Estimated total</dt>
+              <dd className={compact ? "text-lg font-bold tabular-nums text-gray-900" : "text-xl font-bold tabular-nums text-gray-900"}>
+                {formatUSD(pricing.total)}
+              </dd>
+            </div>
+          )}
         </dl>
         <p className={compact ? "mt-2 text-[10px] leading-snug text-gray-500" : "mt-4 text-[12px] leading-relaxed text-gray-500"}>
           Pricing shown is preliminary and subject to change. Final quote will be confirmed after drawing review and verification of material cost from supplier.
