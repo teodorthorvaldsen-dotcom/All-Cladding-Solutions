@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 export type PanelConfiguratorPhotoPreviewProps = {
   panelWidthIn: number;
   panelHeightIn: number;
@@ -23,13 +25,15 @@ export function PanelConfiguratorPhotoPreview({
       )}
 
       <div
-        className="overflow-hidden rounded-xl border border-gray-200 bg-[#eef1f4] shadow-inner"
+        className="relative overflow-hidden rounded-xl border border-gray-200 bg-[#eef1f4] shadow-inner"
         style={{ aspectRatio: "1400 / 1100" }}
       >
-        <img
+        <Image
           src="/panel-preview-grid.png"
           alt={`ACM panel preview grid background for ${panelWidthIn}" × ${panelHeightIn}"`}
-          className="h-full w-full object-contain"
+          fill
+          className="object-contain"
+          sizes="(max-width: 1024px) 100vw, 896px"
         />
       </div>
 

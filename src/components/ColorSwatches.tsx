@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo } from "react";
 import { colors, type ColorId } from "@/data/acm";
 
@@ -46,12 +47,14 @@ export function ColorSwatches({ value, onChange }: ColorSwatchesProps) {
                     }}
                   />
                   {typeof swatchImage === "string" && (
-                    <img
+                    <Image
                       src={swatchImage}
                       alt=""
-                      aria-hidden
-                      className="absolute inset-0 h-full w-full object-cover"
+                      fill
+                      className="object-cover"
+                      sizes="56px"
                       draggable={false}
+                      aria-hidden
                     />
                   )}
 
