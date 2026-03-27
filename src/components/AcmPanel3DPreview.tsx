@@ -143,9 +143,6 @@ export function AcmPanel3DPreview({
       >
         Panel Preview
       </h2>
-      <p className="mt-2 text-[13px] leading-relaxed text-gray-500">
-        Schematic preview from your width, height, thickness, and color. Scale is normalized to fit this box.
-      </p>
 
       <div
         className="mx-auto mt-3 overflow-hidden rounded-xl"
@@ -168,7 +165,7 @@ export function AcmPanel3DPreview({
       </div>
 
       <p className="mt-3 border-t border-gray-100 pt-3 text-center text-[13px] font-medium text-gray-500">
-        Scaled preview: {panelWidthIn}&quot; × {panelHeightIn}&quot; × {depthLabel}&quot; deep (illustrative)
+        {panelWidthIn}&quot; × {panelHeightIn}&quot; × {depthLabel}&quot; deep
       </p>
     </section>
   );
