@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { AboutNarrative } from "@/components/AboutNarrative";
 import { OUR_WORK_IMAGES } from "@/data/ourWorkImages";
 
 export default function AboutPage() {
@@ -8,58 +9,9 @@ export default function AboutPage() {
         <h1 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
           About All Cladding Solutions
         </h1>
-
-        <section className="mt-10">
-          <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
-            Who We Are
-          </h2>
-          <p className="mt-4 text-[15px] leading-relaxed text-gray-700">
-            All Cladding Solutions is a Columbus, Georgia–based company specializing in the fabrication and supply of high-quality custom Aluminum Composite Material (ACM) panels. With our own dedicated workshop, we oversee every step of the production process — from precision cutting and fabrication to careful packaging and shipping, ensuring accuracy, consistency, and durability in every panel we produce.
-          </p>
-          <p className="mt-4 text-[15px] leading-relaxed text-gray-700">
-            Our team is built of contractors, architects, engineers, and installation teams to deliver tailored cladding solutions designed to meet the exact specifications of each project. Whether it&apos;s a modern commercial façade, retail exterior, or specialty architectural feature, our panels are built with precision craftsmanship and attention to detail.
-          </p>
-          <p className="mt-4 text-[15px] leading-relaxed text-gray-700">
-            At All Cladding Solutions, we understand that timelines matter. That&apos;s why we focus on efficient production, dependable communication, and reliable nationwide shipping directly to your job site. Our goal is simple: provide premium custom ACM panels that elevate your project while making the process seamless from order to delivery.
-          </p>
-          <p className="mt-6 text-[15px] font-semibold tracking-wide text-gray-900">
-            Precision Built. Professionally Delivered.
-          </p>
-        </section>
-
-        <section className="mt-12">
-          <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
-            Capabilities
-          </h2>
-          <ul className="mt-4 space-y-2 text-[15px] leading-relaxed text-gray-700">
-            <li>• Fire-rated ACM panels (Alfrex FR 4mm and 6mm)</li>
-            <li>• Cut-to-length from 12 in to 300 in</li>
-            <li>• Wide color range: solids, micas, metallics, wood, metal, specialty</li>
-            <li>• Standard and custom widths</li>
-            <li>• Fabrication support and technical guidance</li>
-          </ul>
-        </section>
-
-        <section className="mt-12">
-          <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
-            Service Area
-          </h2>
-          <p className="mt-4 text-[15px] leading-relaxed text-gray-700">
-            We ship nationwide across the United States. Availability and lead times are confirmed with your final quote based on project size, finish selection, and delivery location.
-          </p>
-        </section>
-
-        <section className="mt-12">
-          <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
-            Quality & Process
-          </h2>
-          <ul className="mt-4 space-y-2 text-[15px] leading-relaxed text-gray-700">
-            <li>• Fire-rated panels meet building code requirements for exterior applications</li>
-            <li>• Kynar PVDF finish for durability and color retention</li>
-            <li>• Transparent pricing and responsive quote process</li>
-            <li>• Orders confirmed before fabrication begins</li>
-          </ul>
-        </section>
+        <p className="mt-4 text-[15px] leading-relaxed text-gray-600">
+          Company details and project photography are in Our Work below.
+        </p>
       </div>
 
       <section
@@ -77,7 +29,11 @@ export default function AboutPage() {
           A selection of project and installation photography from our work.
         </p>
 
-        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-8">
+        <div className="mx-auto mt-10 max-w-3xl border-b border-gray-200 pb-12">
+          <AboutNarrative />
+        </div>
+
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-8">
           {OUR_WORK_IMAGES.map((src) => (
             <div
               key={src}
