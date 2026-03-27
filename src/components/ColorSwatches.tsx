@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo } from "react";
 import { colors, type ColorId } from "@/data/acm";
 
 interface ColorSwatchesProps {
@@ -10,8 +9,6 @@ interface ColorSwatchesProps {
 }
 
 export function ColorSwatches({ value, onChange }: ColorSwatchesProps) {
-  const filteredColors = useMemo(() => colors, []);
-
   const selectedColor = colors.find((c) => c.id === value);
 
   return (
@@ -21,9 +18,9 @@ export function ColorSwatches({ value, onChange }: ColorSwatchesProps) {
 
       <div role="group" aria-label="Panel color" className="mt-5">
         <div className="grid grid-cols-6 gap-3 sm:grid-cols-7 md:grid-cols-8 lg:grid-cols-9 xl:grid-cols-10">
-          {filteredColors.map((c) => {
+          {colors.map((c) => {
             const isSelected = value === c.id;
-            const hex = (c.swatchHex ?? c.hex ?? "#ccc") as string;
+            const hex = c.swatchHex ?? "#ccc";
             const swatchImage = (c as unknown as { swatchImage?: string }).swatchImage;
 
             return (

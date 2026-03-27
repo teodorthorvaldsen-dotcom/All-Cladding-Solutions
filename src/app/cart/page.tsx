@@ -50,7 +50,7 @@ function CartLine({
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <div
           className="h-10 w-10 shrink-0 rounded border border-gray-300"
-          style={{ backgroundColor: color?.hex ?? "#ccc" }}
+          style={{ backgroundColor: color?.swatchHex ?? "#ccc" }}
           aria-hidden
         />
         <div className="min-w-0">
