@@ -5,23 +5,22 @@ import { OUR_WORK_IMAGES } from "@/data/ourWorkImages";
 export default function AboutPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-      <div className="mx-auto max-w-3xl">
-        <h1 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-          About All Cladding Solutions
-        </h1>
-        <p className="mt-4 text-[15px] leading-relaxed text-gray-600">
-          Company details and project photography are in Our Work below.
-        </p>
-      </div>
+      <section id="our-work" className="scroll-mt-28">
+        <div className="mx-auto max-w-3xl">
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+            About All Cladding Solutions
+          </h1>
+          <p className="mt-2 text-[15px] text-gray-500">
+            Fabrication, supply, and support for fire-rated ACM panels nationwide.
+          </p>
+          <div className="mt-10">
+            <AboutNarrative />
+          </div>
+        </div>
 
-      <section
-        id="our-work"
-        className="mt-16 scroll-mt-28"
-        aria-labelledby="our-work-heading"
-      >
         <h2
           id="our-work-heading"
-          className="text-[13px] font-medium uppercase tracking-wider text-gray-500"
+          className="mt-16 text-[13px] font-medium uppercase tracking-wider text-gray-500"
         >
           Our Work
         </h2>
@@ -29,11 +28,7 @@ export default function AboutPage() {
           A selection of project and installation photography from our work.
         </p>
 
-        <div className="mx-auto mt-10 max-w-3xl border-b border-gray-200 pb-12">
-          <AboutNarrative />
-        </div>
-
-        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-8">
+        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-8">
           {OUR_WORK_IMAGES.map((src) => (
             <div
               key={src}

@@ -1,5 +1,5 @@
 /**
- * Company narrative: Who we are, capabilities, service area, quality (shared by Home & About Our Work).
+ * Company narrative: Who we are, capabilities, service area, quality.
  */
 export function AboutNarrative() {
   return (

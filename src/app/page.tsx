@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { AboutNarrative } from "@/components/AboutNarrative";
 
 const TRUST_ITEMS = [
   {
@@ -158,27 +157,6 @@ export default function HomePage() {
                 </p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* About */}
-      <section
-        className="border-t border-gray-200 bg-white py-28 lg:py-32"
-        aria-labelledby="home-about-heading"
-      >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2
-            id="home-about-heading"
-            className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl"
-          >
-            About All Cladding Solutions
-          </h2>
-          <p className="mt-2 max-w-3xl text-[15px] text-gray-500">
-            Fabrication, supply, and support for fire-rated ACM panels nationwide.
-          </p>
-          <div className="mx-auto mt-10 max-w-3xl">
-            <AboutNarrative />
           </div>
         </div>
       </section>
