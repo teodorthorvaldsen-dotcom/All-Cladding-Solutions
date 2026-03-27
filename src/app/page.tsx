@@ -72,7 +72,7 @@ export default function HomePage() {
         <div className="relative z-10 flex h-full items-center justify-center px-6 text-center">
           <div className="max-w-3xl text-white">
             <h1 className="animate-hero-fade-in text-[2.75rem] font-semibold tracking-[-0.03em] md:text-[4.25rem] lg:text-[5rem]">
-              ACM Panels & Cladding
+              ACM Panels &amp; Cladding
             </h1>
             <p className="mt-6 animate-hero-fade-in text-lg text-white/90 md:text-xl [animation-delay:0.15s]">
               Fire-rated ACM panels. Configure online or submit drawings for consultation. Nationwide.
@@ -105,7 +105,7 @@ export default function HomePage() {
       {/* Product highlights */}
       <section className="mx-auto max-w-7xl px-4 py-28 sm:px-6 lg:px-8 lg:py-32">
         <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-          Products & services
+          Products &amp; services
         </h2>
         <p className="mt-2 text-[15px] text-gray-500">
           Fire-rated ACM panels. Configure online or submit drawings for consultation.

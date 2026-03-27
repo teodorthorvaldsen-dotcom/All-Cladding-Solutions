@@ -67,8 +67,54 @@ function toMetalSystemId(key: string): MetalSystemId {
   return VALID_SYSTEM_IDS.includes(key as MetalSystemId) ? (key as MetalSystemId) : "precision-series";
 }
 
+function computeTotalSqFtFromInput(totalSqFtInput: string): number {
+  const parsed = Number(totalSqFtInput.replace(",", "").trim());
+  if (!Number.isFinite(parsed) || parsed <= 0) return 0;
+  return parsed;
+}
+
+function computeMetalPricingSummary(params: {
+  hasEstimate: boolean;
+  material: MetalMaterialId;
+  gauge: GaugeId;
+  finishType: PacCladFinishType;
+  systemId: MetalSystemId;
+  totalSqFt: number;
+  laborPerSqFt: number;
+}): {
+  pricePerSqFt: number;
+  materialSubtotal: number;
+  laborSubtotal: number;
+} {
+  const { hasEstimate, material, gauge, finishType, systemId, totalSqFt, laborPerSqFt } = params;
+
+  if (!hasEstimate) {
+    return {
+      pricePerSqFt: 0,
+      materialSubtotal: 0,
+      laborSubtotal: 0,
+    };
+  }
+
+  const base = BASE_MATERIAL_COST_PER_SQFT[material];
+  const gaugeFactor = GAUGE_ADJUSTMENT[gauge] ?? 1;
+  const finishFactor = FINISH_CATEGORY_MULTIPLIER[finishType] ?? 1;
+  const systemFactor = SYSTEM_MULTIPLIER[systemId] || 1;
+
+  const materialPerSqFt = base * gaugeFactor * finishFactor * systemFactor;
+  const materialTotal = materialPerSqFt * totalSqFt;
+  const laborTotal = laborPerSqFt * totalSqFt;
+  const totalPerSqFt = materialPerSqFt + laborPerSqFt;
+
+  return {
+    pricePerSqFt: totalPerSqFt,
+    materialSubtotal: materialTotal,
+    laborSubtotal: laborTotal,
+  };
+}
+
 export interface MetalConfiguratorProps {
-  /** When set, configurator uses this as the panel system (e.g. from Systems browser "Add to Estimate"). */
+  /** When set, configurator uses this as the panel system (e.g. from Systems browser Apply). */
   externalSystemId?: MetalSystemId | null;
   /** Called when panel system is changed (from picker or externally). */
   onExternalSystemIdChange?: (id: MetalSystemId) => void;
@@ -91,55 +137,33 @@ export function MetalConfigurator({
   };
   const [material, setMaterial] = useState<MetalMaterialId>(DEFAULT_MATERIAL);
   const [gauge, setGauge] = useState<GaugeId>(DEFAULT_GAUGE);
-  type AttachmentType = "with_clips" | "without_clips" | null;
-  const [attachmentType, setAttachmentType] = useState<AttachmentType>(null);
   const [colorId, setColorId] = useState<PacCladColorId>(DEFAULT_COLOR_ID);
   const [totalSqFtInput, setTotalSqFtInput] = useState<string>("1000");
   const [projectState, setProjectState] = useState<string>("");
   const [projectPostalCode, setProjectPostalCode] = useState<string>("");
 
   const totalSqFt = useMemo(() => {
-    const parsed = Number(totalSqFtInput.replace(",", "").trim());
-    if (!Number.isFinite(parsed) || parsed <= 0) return 0;
-    return parsed;
+    return computeTotalSqFtFromInput(totalSqFtInput);
   }, [totalSqFtInput]);
 
   const selectedSystem = METAL_SYSTEM_OPTIONS.find((s) => s.id === systemId)!;
   const selectedColor = pacCladColors.find((c) => c.id === colorId)!;
 
   const isSpecialty = systemId === "specialty-custom";
-  const requiresAttachment = systemId === "precision-series";
-  const attachmentSelected = !requiresAttachment || attachmentType !== null;
-  const hasEstimate = !isSpecialty && totalSqFt >= 10 && attachmentSelected;
+  const hasEstimate = !isSpecialty && totalSqFt >= 10;
 
   const laborPerSqFt = LABOR_RATE_PER_HOUR * LABOR_HOURS_PER_SQFT;
 
   const { pricePerSqFt, materialSubtotal, laborSubtotal } = useMemo(() => {
-    if (!hasEstimate) {
-      return {
-        pricePerSqFt: 0,
-        materialSubtotal: 0,
-        laborSubtotal: 0,
-      };
-    }
-
-    const base = BASE_MATERIAL_COST_PER_SQFT[material];
-    const gaugeFactor = GAUGE_ADJUSTMENT[gauge] ?? 1;
-    const finishFactor = FINISH_CATEGORY_MULTIPLIER[selectedColor.finishType] ?? 1;
-    const systemFactor = SYSTEM_MULTIPLIER[systemId] || 1;
-    const attachmentFactor =
-      systemId === "precision-series" && attachmentType === "with_clips" ? 1.08 : 1;
-
-    const materialPerSqFt = base * gaugeFactor * finishFactor * systemFactor * attachmentFactor;
-    const materialTotal = materialPerSqFt * totalSqFt;
-    const laborTotal = laborPerSqFt * totalSqFt;
-    const totalPerSqFt = materialPerSqFt + laborPerSqFt;
-
-    return {
-      pricePerSqFt: totalPerSqFt,
-      materialSubtotal: materialTotal,
-      laborSubtotal: laborTotal,
-    };
+    return computeMetalPricingSummary({
+      hasEstimate,
+      material,
+      gauge,
+      finishType: selectedColor.finishType,
+      systemId,
+      totalSqFt,
+      laborPerSqFt,
+    });
   }, [hasEstimate, material, gauge, selectedColor.finishType, systemId, totalSqFt, laborPerSqFt]);
 
   const handleMaterialChange = (next: MetalMaterialId) => {
@@ -220,6 +244,10 @@ export function MetalConfigurator({
           Select a wall panel system, finish, and basic project information to see a budgetary
           estimate and request a formal quote.
         </p>
+        {/* FIXED: no more unescaped quotes */}
+        <p className="mt-2 max-w-2xl text-sm text-gray-600">
+          Click &quot;Apply&quot; to preview your &quot;metal panel&quot; selection.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12">
@@ -242,40 +270,6 @@ export function MetalConfigurator({
                 <MaterialPicker value={material} onChange={handleMaterialChange} />
                 <GaugePicker material={material} value={gauge} onChange={setGauge} />
               </div>
-              {requiresAttachment && (
-                <div className="py-6">
-                  <h3 className="text-sm font-medium text-gray-900">
-                    Attachment Type
-                  </h3>
-                  <p className="mt-0.5 text-[13px] text-gray-500">
-                    Select panel attachment configuration.
-                  </p>
-                  <div className="mt-3 grid grid-cols-2 gap-3 sm:max-w-xs">
-                    <button
-                      type="button"
-                      onClick={() => setAttachmentType("with_clips")}
-                      className={`flex h-10 items-center justify-center rounded-lg border text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 ${
-                        attachmentType === "with_clips"
-                          ? "border-gray-900 bg-gray-900 text-white"
-                          : "border-gray-200 bg-white text-gray-900 hover:border-gray-300"
-                      }`}
-                    >
-                      With Clip
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAttachmentType("without_clips")}
-                      className={`flex h-10 items-center justify-center rounded-lg border text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 ${
-                        attachmentType === "without_clips"
-                          ? "border-gray-900 bg-gray-900 text-white"
-                          : "border-gray-200 bg-white text-gray-900 hover:border-gray-300"
-                      }`}
-                    >
-                      Without Clip
-                    </button>
-                  </div>
-                </div>
-              )}
               <div className="py-6">
                 <PacCladColorSwatches value={colorId} onChange={setColorId} />
               </div>
@@ -352,13 +346,6 @@ export function MetalConfigurator({
               pricePerSqFt={pricePerSqFt}
               materialSubtotal={materialSubtotal}
               laborSubtotal={laborSubtotal}
-              attachmentLabel={
-                systemId === "precision-series" && attachmentType
-                  ? attachmentType === "with_clips"
-                    ? "Attachment: With Clip"
-                    : "Attachment: Without Clip"
-                  : undefined
-              }
             />
             <button
               type="button"

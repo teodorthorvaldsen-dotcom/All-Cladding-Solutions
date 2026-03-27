@@ -321,8 +321,10 @@ export default function QuotePage() {
 
       <form onSubmit={handleSubmit} className="rounded-2xl border border-gray-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
         <div className="border-b border-gray-100 px-6 py-5 md:px-8">
-          <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">Contact & project details</h2>
-          <p className="mt-0.5 text-[13px] text-gray-500">We’ll use this to send your quote.</p>
+          <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
+            Contact &amp; project details
+          </h2>
+          <p className="mt-0.5 text-[13px] text-gray-500">We&apos;ll use this to send your quote.</p>
         </div>
         <div className="space-y-6 p-6 md:p-8">
           {formError && (

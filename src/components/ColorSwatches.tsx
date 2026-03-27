@@ -16,7 +16,7 @@ export function ColorSwatches({ value, onChange }: ColorSwatchesProps) {
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-900">Color & Finish</label>
+      <label className="block text-sm font-medium text-gray-900">Color &amp; Finish</label>
       <p className="mt-0.5 text-[13px] text-gray-500">Select a finish/color from the palette.</p>
 
       <div role="group" aria-label="Panel color" className="mt-5">

@@ -46,7 +46,7 @@ export function AboutNarrative() {
 
       <section className="mt-12">
         <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
-          Quality & Process
+          Quality &amp; Process
         </h2>
         <ul className="mt-4 space-y-2 text-[15px] leading-relaxed text-gray-700">
           <li>• Fire-rated panels meet building code requirements for exterior applications</li>

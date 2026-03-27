@@ -258,6 +258,9 @@ export function Configurator() {
               <h2 id="panel-preview-heading" className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
                 Panel Preview
               </h2>
+              <p className="mt-2 text-[13px] leading-relaxed text-gray-500">
+                Preview reflects your configured width, height, and thickness.
+              </p>
               <div className="mt-2">
                 <PanelConfiguratorPhotoPreview
                   panelWidthIn={size.widthIn}

@@ -28,7 +28,8 @@ export function MetalSystemsBrowser({ onAddToEstimate }: MetalSystemsBrowserProp
           Systems
         </h2>
         <p className="mt-2 max-w-2xl text-sm text-gray-600 sm:text-base">
-          Browse by category and add a system to the configurator below for a budgetary estimate.
+          Browse by category, then click Apply on a system to load it in the configurator below for a
+          budgetary estimate.
         </p>
       </div>
 

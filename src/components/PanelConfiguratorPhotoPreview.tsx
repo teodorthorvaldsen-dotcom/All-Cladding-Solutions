@@ -44,7 +44,7 @@ export function PanelConfiguratorPhotoPreview({
             : "text-center text-[12px] font-semibold tabular-nums text-gray-800"
         }
       >
-        {panelWidthIn}" × {panelHeightIn}" · {panelDepthIn.toFixed(2)}" deep
+        {`${panelWidthIn}" × ${panelHeightIn}" · ${panelDepthIn.toFixed(2)}" deep`}
       </p>
     </div>
   );

@@ -62,7 +62,7 @@ export function MetalSystemCard({ item, onAddToEstimate }: MetalSystemCardProps)
             onClick={() => onAddToEstimate(item.configKey)}
             className="rounded-lg bg-gray-900 px-3 py-2 text-[12px] font-medium text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
           >
-            Add to Estimate
+            Apply
           </button>
           <a
             href={item.specUrl ?? "#specs"}
