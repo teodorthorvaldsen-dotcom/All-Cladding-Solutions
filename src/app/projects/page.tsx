@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-/** Legacy /projects (Our Work) — redirect to About where the gallery now lives. */
+/** Legacy /projects — redirect to About (gallery anchor). */
 export default function ProjectsIndexRedirect() {
   useEffect(() => {
     window.location.replace("/about#our-work");
