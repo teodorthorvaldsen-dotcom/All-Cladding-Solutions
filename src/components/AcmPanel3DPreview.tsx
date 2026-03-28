@@ -5,7 +5,7 @@ import { useMemo, type CSSProperties } from "react";
 const PREVIEW_W = 520;
 const PREVIEW_H = 360;
 
-export interface ProductPreviewProps {
+export interface AcmPanel3DPreviewProps {
   panelWidthIn: number;
   panelHeightIn: number;
   /** Visual depth in inches (may be scaled from real thickness for readability). */
@@ -17,14 +17,14 @@ export interface ProductPreviewProps {
   panelSwatchImage?: string;
 }
 
-export function ProductPreview({
+export function AcmPanel3DPreview({
   panelWidthIn,
   panelHeightIn,
   panelDepthIn,
   panelColorHex,
   panelColorName,
   panelSwatchImage,
-}: ProductPreviewProps) {
+}: AcmPanel3DPreviewProps) {
   const scaled = useMemo(() => {
     const baseW = panelWidthIn * 6;
     const baseH = panelHeightIn * 3.2;
@@ -136,10 +136,10 @@ export function ProductPreview({
   return (
     <section
       className="rounded-2xl border border-gray-200/80 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] md:p-4"
-      aria-labelledby="product-preview-heading"
+      aria-labelledby="acm-panel-3d-preview-heading"
     >
       <h2
-        id="product-preview-heading"
+        id="acm-panel-3d-preview-heading"
         className="text-[13px] font-medium uppercase tracking-wider text-gray-500"
       >
         Panel Preview
@@ -271,8 +271,3 @@ const staticStyles: Record<string, CSSProperties> = {
     pointerEvents: "none",
   },
 };
-
-/** @deprecated Use `ProductPreview`. */
-export const AcmPanel3DPreview = ProductPreview;
-/** @deprecated Use `ProductPreviewProps`. */
-export type AcmPanel3DPreviewProps = ProductPreviewProps;
