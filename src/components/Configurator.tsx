@@ -327,7 +327,7 @@ export function Configurator() {
           className="md:col-span-5 scroll-mt-[200px] sm:scroll-mt-[220px] lg:scroll-mt-[300px]"
         >
           <div
-            className="space-y-3 lg:space-y-4 md:sticky md:z-10 md:max-h-[calc(100vh-11rem)] md:overflow-y-auto md:overscroll-y-contain md:pb-2 md:top-[10.75rem] lg:top-[11.5rem] xl:top-[12.25rem]"
+            className="space-y-3 lg:space-y-4 md:sticky md:z-10 md:max-h-[calc(100vh-18rem)] md:overflow-y-auto md:overscroll-y-contain md:pb-2 md:top-[16.5rem] lg:top-[18rem] xl:top-[20.5rem]"
           >
             <AcmPanel3DPreview
               panelWidthIn={size.widthIn}

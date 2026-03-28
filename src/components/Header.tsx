@@ -53,7 +53,7 @@ export function Header() {
         Skip to content
       </a>
       <header className="sticky top-0 z-40 border-b border-gray-200/60 bg-white/95 backdrop-blur-xl">
-        <div className="mx-auto flex w-full min-w-0 max-w-[100vw] flex-col items-stretch gap-4 px-4 py-5 sm:px-6 sm:py-6 lg:flex-row lg:items-center lg:justify-between lg:gap-5 lg:px-10 lg:py-6">
+        <div className="mx-auto flex w-full min-w-0 max-w-[100vw] flex-col items-stretch gap-4 px-4 py-6 sm:px-6 sm:py-7 lg:flex-row lg:items-center lg:justify-between lg:gap-6 lg:px-10 lg:py-8">
           <Link
             href="/"
             className="relative flex shrink-0 items-center justify-center rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white lg:justify-start"
@@ -64,7 +64,7 @@ export function Header() {
               alt="All Cladding Solutions"
               width={840}
               height={216}
-              className="h-[5.25rem] w-auto object-contain object-left sm:h-24 md:h-[6.5rem] lg:h-28 xl:h-32"
+              className="h-[10.5rem] w-auto object-contain object-left sm:h-48 md:h-[13rem] lg:h-56 xl:h-64"
               priority
               unoptimized
             />
@@ -72,7 +72,7 @@ export function Header() {
 
           {isConfigurator ? (
             <nav
-              className="hidden min-w-0 flex-1 flex-wrap items-center justify-center gap-x-2 gap-y-2 md:flex md:gap-x-2 lg:gap-x-3"
+              className="hidden min-w-0 flex-1 flex-wrap items-center justify-center gap-x-2 gap-y-3 md:flex md:gap-x-3 lg:gap-x-4"
               aria-label="Configurator sections"
             >
               {CONFIGURATOR_LINKS.map(({ href, label }) =>
@@ -81,7 +81,7 @@ export function Header() {
                     key={href}
                     href={href}
                     onClick={(e) => scrollToSection(e, href, "auto")}
-                    className="whitespace-nowrap rounded-lg px-3 py-2.5 text-base font-bold tracking-wide text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-inset md:px-4 md:py-3 md:text-lg lg:text-lg xl:text-xl"
+                    className="max-w-[8.5rem] whitespace-normal rounded-lg px-3 py-2.5 text-center text-base font-bold leading-snug tracking-wide text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-inset md:max-w-[9rem] md:px-4 md:py-3 md:text-lg lg:text-lg xl:text-xl"
                   >
                     {label}
                   </a>
@@ -89,7 +89,7 @@ export function Header() {
                   <Link
                     key={href}
                     href={href}
-                    className="whitespace-nowrap rounded-lg px-3 py-2.5 text-base font-bold tracking-wide text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-inset md:px-4 md:py-3 md:text-lg lg:text-lg xl:text-xl"
+                    className="max-w-[8.5rem] whitespace-normal rounded-lg px-3 py-2.5 text-center text-base font-bold leading-snug tracking-wide text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-inset md:max-w-[9rem] md:px-4 md:py-3 md:text-lg lg:text-lg xl:text-xl"
                     aria-label={`Cart: ${totalCount} item${totalCount !== 1 ? "s" : ""}`}
                   >
                     {label}
@@ -99,14 +99,14 @@ export function Header() {
             </nav>
           ) : (
             <nav
-              className="hidden min-w-0 flex-1 flex-wrap items-center justify-center gap-x-2 gap-y-2 md:flex md:gap-x-2 lg:gap-x-3"
+              className="hidden min-w-0 flex-1 flex-wrap items-center justify-center gap-x-2 gap-y-3 md:flex md:gap-x-3 lg:gap-x-4"
               aria-label="Main"
             >
               {NAV_LINKS.map(({ id, href, label }) => (
                 <Link
                   key={id}
                   href={href}
-                  className={`whitespace-nowrap rounded-lg px-3 py-2.5 text-base font-bold tracking-wide focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-inset md:px-4 md:py-3 md:text-lg lg:text-lg xl:text-xl ${
+                  className={`max-w-[10rem] whitespace-normal rounded-lg px-3 py-2.5 text-center text-base font-bold leading-snug tracking-wide focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-inset sm:max-w-[11rem] md:max-w-[11.5rem] md:px-4 md:py-3 md:text-lg lg:max-w-[12rem] lg:text-lg xl:text-xl ${
                     pathname === href
                       ? "text-gray-900"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
