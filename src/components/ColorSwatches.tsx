@@ -238,11 +238,9 @@ export function ColorSwatches({
         <section>
           <SeriesHeader title="Custom colors" />
           <p className="mt-2 text-[11px] leading-relaxed text-gray-500 sm:text-xs">
-            Matching custom colors is part of our everyday business. To begin, send a physical sample (preferred), a
-            coating manufacturer paint code, or a reference such as a Pantone number, with your performance
-            requirements. Matching 0.040″ flat sheet can often be coated with coil for MCM or plate, subject to minimums.
-            Perfect matches are not always possible due to substrate, paint system, and process differences — contact us
-            for specifics.
+            To begin the custom color match process, send a physical sample (preferred), a coating manufacturer paint
+            code, or a reference such as a Pantone number, with your performance requirements. Perfect matches are not
+            always possible due to substrate, paint system, and process differences — contact us for specifics.
           </p>
           <div className="mt-4">
             <SwatchGrid colorIds={["custom-color-match"]} maxCols={1} value={value} onChange={onChange} />
