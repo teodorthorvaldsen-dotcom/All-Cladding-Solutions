@@ -204,7 +204,19 @@ export const colors = [
   { id: "blue-grey", name: "Blue Grey", code: "JY-Z110", category: "Specialty" as ColorCategory, series: "Specialty" as ColorSeries, swatchHex: "#5C6B74", rgbApprox: "Natural Zinc", adderPerFt2: 1.75, availability: mto, leadTimeDaysRange: [10, 21] as [number, number] },
   { id: "graphite-grey", name: "Graphite Grey", code: "JY-Z100", category: "Specialty" as ColorCategory, series: "Specialty" as ColorSeries, swatchHex: "#4B5054", rgbApprox: "Natural Zinc", adderPerFt2: 1.75, availability: mto, leadTimeDaysRange: [10, 21] as [number, number] },
   { id: "hairline-clear", name: "Hairline Clear", code: "JY-H100", category: "Specialty" as ColorCategory, series: "Specialty" as ColorSeries, swatchHex: "#B8B8B8", rgbApprox: "Specialty", adderPerFt2: 1.75, availability: mto, leadTimeDaysRange: [10, 21] as [number, number] },
-  { id: "mirror", name: "Mirror", code: "JY-A160", category: "Specialty" as ColorCategory, series: "Specialty" as ColorSeries, swatchHex: "#D0D0D0", rgbApprox: "Specialty", adderPerFt2: 1.75, availability: mto, leadTimeDaysRange: [10, 21] as [number, number] },
+  {
+    id: "mirror",
+    name: "Mirrored finish",
+    code: "JY-A160",
+    category: "Specialty" as ColorCategory,
+    series: "Specialty" as ColorSeries,
+    swatchHex: "#D0D0D0",
+    swatchImage: "/images/acm/mirror-jy-a160.png",
+    rgbApprox: "Specialty",
+    adderPerFt2: 1.75,
+    availability: mto,
+    leadTimeDaysRange: [10, 21] as [number, number],
+  },
   { id: "custom-color-match", name: "Custom color match", code: "Custom (MOQ)", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#9CA3AF", rgbApprox: "Per sample / Pantone", adderPerFt2: 0, availability: mto, leadTimeDaysRange: [14, 28] as [number, number] },
 ] as const;
 
