@@ -14,7 +14,6 @@ import { type QuoteDraft, QUOTE_DRAFT_STORAGE_KEY } from "@/types/quote";
 import Link from "next/link";
 import type { PanelType } from "@/lib/pricing";
 import { useCart } from "@/context/CartContext";
-import { AcmFinishCatalogShowcase } from "./AcmFinishCatalogShowcase";
 import { ColorSwatches } from "./ColorSwatches";
 import { MaterialCompositionDiagram } from "./MaterialCompositionDiagram";
 import { PanelTypePicker } from "./PanelTypePicker";
@@ -358,8 +357,6 @@ export function Configurator() {
           </div>
         </div>
       </div>
-
-      <AcmFinishCatalogShowcase />
 
       <section className="mt-20 border-t border-gray-200/80 pt-16" aria-labelledby="material-composition-heading">
         <h2 id="material-composition-heading" className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
