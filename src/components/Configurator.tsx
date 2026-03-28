@@ -21,7 +21,7 @@ import { PriceSummary } from "./PriceSummary";
 import { QuantityPicker } from "./QuantityPicker";
 import { SizePicker, type SizeSelection } from "./SizePicker";
 import { ThicknessPicker } from "./ThicknessPicker";
-import { AcmPanel3DPreview } from "./AcmPanel3DPreview";
+import { ProductPreview } from "./ProductPreview";
 import { AcmFinishDetails } from "./AcmFinishDetails";
 
 const defaultSize: SizeSelection = {
@@ -259,13 +259,20 @@ export function Configurator() {
           className="md:col-span-5 scroll-mt-[200px] sm:scroll-mt-[220px] lg:scroll-mt-[300px]"
         >
           <div className="space-y-3 md:sticky md:top-[236px] lg:top-[276px] lg:space-y-4">
-            <AcmPanel3DPreview
+            <ProductPreview
               panelWidthIn={size.widthIn}
               panelHeightIn={size.lengthIn}
               panelDepthIn={previewDepthIn}
               panelColorHex={color.swatchHex}
               panelColorName={color.name}
-              panelSwatchImage={"swatchImage" in color ? color.swatchImage : undefined}
+              panelSwatchImage={
+                typeof color === "object" &&
+                color !== null &&
+                "swatchImage" in color &&
+                typeof color.swatchImage === "string"
+                  ? color.swatchImage
+                  : undefined
+              }
             />
             <PriceSummary
               pricing={pricing}
