@@ -5,7 +5,7 @@ export function AboutNarrative() {
   return (
     <>
       <section>
-        <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
+        <h2 className="text-[15px] font-medium uppercase tracking-wider text-gray-500">
           Who We Are
         </h2>
         <p className="mt-4 text-[15px] leading-relaxed text-gray-700">
@@ -23,7 +23,7 @@ export function AboutNarrative() {
       </section>
 
       <section className="mt-12">
-        <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
+        <h2 className="text-[15px] font-medium uppercase tracking-wider text-gray-500">
           Capabilities
         </h2>
         <ul className="mt-4 space-y-2 text-[15px] leading-relaxed text-gray-700">
@@ -36,7 +36,7 @@ export function AboutNarrative() {
       </section>
 
       <section className="mt-12">
-        <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
+        <h2 className="text-[15px] font-medium uppercase tracking-wider text-gray-500">
           Service Area
         </h2>
         <p className="mt-4 text-[15px] leading-relaxed text-gray-700">
@@ -45,7 +45,7 @@ export function AboutNarrative() {
       </section>
 
       <section className="mt-12">
-        <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
+        <h2 className="text-[15px] font-medium uppercase tracking-wider text-gray-500">
           Quality &amp; Process
         </h2>
         <ul className="mt-4 space-y-2 text-[15px] leading-relaxed text-gray-700">

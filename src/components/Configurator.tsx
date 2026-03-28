@@ -256,10 +256,10 @@ export function Configurator() {
         <div className="md:col-span-7 min-w-0">
           <section className="rounded-2xl border border-gray-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             <div className="border-b border-gray-100 px-6 py-5 md:px-8">
-              <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
+              <h2 className="text-[15px] font-medium uppercase tracking-wider text-gray-500">
                 Configuration
               </h2>
-              <p className="mt-0.5 text-[13px] text-gray-500">
+              <p className="mt-0.5 text-[15px] text-gray-500">
                 Choose thickness, size, color, and quantity.
               </p>
             </div>
@@ -271,7 +271,7 @@ export function Configurator() {
                 <PanelTypePicker value={panelType} onChange={setPanelType} />
                 {panelType === "custom" && (
                   <div className="mt-4 rounded-xl border border-gray-200/80 bg-gray-50/50 p-4">
-                    <p className="text-[13px] text-gray-700">Non-square panels will need drawings.</p>
+                    <p className="text-[15px] text-gray-700">Non-square panels will need drawings.</p>
                     <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-[14px] font-medium text-gray-900 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-gray-400 focus-within:ring-offset-2">
                       <input
                         type="file"
@@ -282,7 +282,7 @@ export function Configurator() {
                       Upload panel drawing
                     </label>
                     {panelDrawingFile && (
-                      <p className="mt-2 text-[12px] text-gray-600">{panelDrawingFile.name}</p>
+                      <p className="mt-2 text-[14px] text-gray-600">{panelDrawingFile.name}</p>
                     )}
                   </div>
                 )}
@@ -381,25 +381,25 @@ export function Configurator() {
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-2xl border border-gray-200/80 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             <h3 className="text-[15px] font-medium text-gray-900">FR Rated Panels</h3>
-            <p className="mt-1.5 text-[13px] leading-relaxed text-gray-500">
+            <p className="mt-1.5 text-[15px] leading-relaxed text-gray-500">
               Fire-resistant ACM panels meet building codes for exterior applications.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-200/80 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             <h3 className="text-[15px] font-medium text-gray-900">Lead Times</h3>
-            <p className="mt-1.5 text-[13px] leading-relaxed text-gray-500">
+            <p className="mt-1.5 text-[15px] leading-relaxed text-gray-500">
               Availability and lead times are confirmed with your final quote based on project size, finish selection, and delivery location.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-200/80 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             <h3 className="text-[15px] font-medium text-gray-900">Cut-to-Length</h3>
-            <p className="mt-1.5 text-[13px] leading-relaxed text-gray-500">
+            <p className="mt-1.5 text-[15px] leading-relaxed text-gray-500">
               Custom lengths from 12 in to 300 in. Specify your size when configuring.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-200/80 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             <h3 className="text-[15px] font-medium text-gray-900">Nationwide Shipping</h3>
-            <p className="mt-1.5 text-[13px] leading-relaxed text-gray-500">
+            <p className="mt-1.5 text-[15px] leading-relaxed text-gray-500">
               We ship across the US. Delivery options and pricing provided with your quote.
             </p>
           </div>

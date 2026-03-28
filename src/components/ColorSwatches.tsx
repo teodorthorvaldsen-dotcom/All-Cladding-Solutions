@@ -134,8 +134,8 @@ function SwatchCell({
         )}
       </button>
       <div className="w-full text-center">
-        <p className="text-[11px] font-semibold leading-snug text-gray-900 sm:text-xs">{c.name}</p>
-        <p className="mt-0.5 text-[10px] font-normal tabular-nums text-gray-500 sm:text-[11px]">{c.code}</p>
+        <p className="text-[15px] font-semibold leading-snug text-gray-900 sm:text-xs">{c.name}</p>
+        <p className="mt-0.5 text-[14px] font-normal tabular-nums text-gray-500 sm:text-[15px]">{c.code}</p>
         {coatLabel && (
           <p className="mt-0.5 text-[9px] font-normal capitalize leading-tight text-gray-400">{coatLabel}</p>
         )}
@@ -150,7 +150,7 @@ function SeriesHeader({ title, subtitle }: { title: string; subtitle?: string })
       <h3 className="text-base font-bold uppercase tracking-[0.06em] text-blue-900 sm:text-lg sm:tracking-[0.07em]">
         {title}
       </h3>
-      {subtitle ? <p className="mt-2 text-[11px] leading-relaxed text-gray-500 sm:text-sm">{subtitle}</p> : null}
+      {subtitle ? <p className="mt-2 text-[15px] leading-relaxed text-gray-500 sm:text-sm">{subtitle}</p> : null}
     </div>
   );
 }
@@ -168,14 +168,14 @@ export function ColorSwatches({
   return (
     <div>
       <label className="block text-sm font-medium text-gray-900">Color &amp; Finish</label>
-      <p className="mt-0.5 text-[13px] text-gray-500">
+      <p className="mt-0.5 text-[15px] text-gray-500">
         Select a standard Alfrex FR finish or custom color match. Series below follow the standard finishes catalog.
       </p>
 
       <div className="mt-8 space-y-10" role="region" aria-label="Panel color series">
         <section>
           <h3 className="text-sm font-medium text-gray-900">Order color swatches</h3>
-          <p className="mt-0.5 text-[13px] text-gray-500">
+          <p className="mt-0.5 text-[15px] text-gray-500">
             Request physical finish samples to review color and appearance under your lighting before you order panels.{" "}
             <Link
               href="/contact"
@@ -238,7 +238,7 @@ export function ColorSwatches({
 
         <section>
           <SeriesHeader title="Natural zinc series*" />
-          <p className="mb-3 text-[11px] italic leading-relaxed text-gray-500">
+          <p className="mb-3 text-[15px] italic leading-relaxed text-gray-500">
             *Non-stocking item subject to minimum quantities. Bond integrity warranty only.
           </p>
           <SwatchGrid colorIds={naturalZincColorIds} maxCols={2} value={value} onChange={onChange} />
@@ -254,7 +254,7 @@ export function ColorSwatches({
 
         <section>
           <SeriesHeader title="Custom colors" />
-          <p className="mt-2 text-[11px] leading-relaxed text-gray-500 sm:text-xs">
+          <p className="mt-2 text-[15px] leading-relaxed text-gray-500 sm:text-xs">
             To begin the custom color match process, send a physical sample (preferred), a coating manufacturer paint
             code, or a reference such as a Pantone number, with your performance requirements. Perfect matches are not
             always possible due to substrate, paint system, and process differences — contact us for specifics.
@@ -265,10 +265,10 @@ export function ColorSwatches({
           {value === "custom-color-match" && (
             <div className="mt-5 max-w-lg space-y-4 rounded-xl border border-gray-200/90 bg-gray-50/80 p-4 sm:p-5">
               <div>
-                <label htmlFor="custom-color-reference" className="block text-[13px] font-medium text-gray-900">
+                <label htmlFor="custom-color-reference" className="block text-[15px] font-medium text-gray-900">
                   Paint code or color reference
                 </label>
-                <p className="mt-0.5 text-[11px] text-gray-500">
+                <p className="mt-0.5 text-[15px] text-gray-500">
                   Manufacturer paint code, Pantone number, or other standard reference (optional but helpful).
                 </p>
                 <textarea
@@ -282,12 +282,12 @@ export function ColorSwatches({
                 />
               </div>
               <div>
-                <span className="block text-[13px] font-medium text-gray-900">Color specification (PDF)</span>
-                <p className="mt-0.5 text-[11px] text-gray-500">
+                <span className="block text-[15px] font-medium text-gray-900">Color specification (PDF)</span>
+                <p className="mt-0.5 text-[15px] text-gray-500">
                   Upload a cutsheet or submittal if you have one (PDF only).
                 </p>
                 <label className="mt-2 flex cursor-pointer flex-col gap-2 sm:flex-row sm:items-center">
-                  <span className="inline-flex w-fit rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-[13px] font-medium text-gray-800 shadow-sm transition hover:bg-gray-50 focus-within:ring-2 focus-within:ring-gray-400 focus-within:ring-offset-2">
+                  <span className="inline-flex w-fit rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-[15px] font-medium text-gray-800 shadow-sm transition hover:bg-gray-50 focus-within:ring-2 focus-within:ring-gray-400 focus-within:ring-offset-2">
                     <input
                       type="file"
                       accept="application/pdf,.pdf"
@@ -314,7 +314,7 @@ export function ColorSwatches({
                     Choose PDF
                   </span>
                   {customColorSpecFile ? (
-                    <span className="flex min-w-0 flex-1 items-center gap-2 text-[12px] text-gray-600">
+                    <span className="flex min-w-0 flex-1 items-center gap-2 text-[14px] text-gray-600">
                       <span className="truncate" title={customColorSpecFile.name}>
                         {customColorSpecFile.name}
                       </span>
@@ -327,7 +327,7 @@ export function ColorSwatches({
                       </button>
                     </span>
                   ) : (
-                    <span className="text-[12px] text-gray-400">No file selected</span>
+                    <span className="text-[14px] text-gray-400">No file selected</span>
                   )}
                 </label>
               </div>
@@ -336,16 +336,16 @@ export function ColorSwatches({
         </section>
       </div>
 
-      <p className="mt-8 text-[11px] leading-relaxed text-gray-400">
+      <p className="mt-8 text-[15px] leading-relaxed text-gray-400">
         On-screen swatches are approximations. Final color varies by lighting, viewing angle, and production lot.
       </p>
 
       {selectedColor && (
-        <p className="mt-2 text-[13px] text-gray-500">
+        <p className="mt-2 text-[15px] text-gray-500">
           <span className="font-medium text-gray-700">Selected:</span>{" "}
           <span className="font-medium text-gray-900">{selectedColor.name}</span> ({selectedColor.code})
           {selectedColor.availability === "Made to Order" ? (
-            <span className="block text-[12px] text-amber-800/90">Made to order — lead time confirmed on quote.</span>
+            <span className="block text-[14px] text-amber-800/90">Made to order — lead time confirmed on quote.</span>
           ) : null}
         </p>
       )}

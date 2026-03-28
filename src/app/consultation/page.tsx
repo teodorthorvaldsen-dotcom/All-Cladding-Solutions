@@ -114,10 +114,10 @@ export default function ConsultationPage() {
 
       <form onSubmit={handleSubmit} className="rounded-2xl border border-gray-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
         <div className="border-b border-gray-100 px-6 py-5 md:px-8">
-          <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
+          <h2 className="text-[15px] font-medium uppercase tracking-wider text-gray-500">
             Contact &amp; project details
           </h2>
-          <p className="mt-0.5 text-[13px] text-gray-500">We will use this to follow up on your consultation.</p>
+          <p className="mt-0.5 text-[15px] text-gray-500">We will use this to follow up on your consultation.</p>
         </div>
         <div className="space-y-6 p-6 md:p-8">
           {formError && (

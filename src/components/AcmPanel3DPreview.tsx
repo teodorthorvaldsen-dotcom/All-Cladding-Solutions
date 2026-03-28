@@ -141,7 +141,7 @@ export function AcmPanel3DPreview({
     >
       <h2
         id="acm-panel-3d-preview-heading"
-        className="text-[13px] font-medium uppercase tracking-wider text-gray-500"
+        className="text-[15px] font-medium uppercase tracking-wider text-gray-500"
       >
         Panel Preview
       </h2>
@@ -166,7 +166,7 @@ export function AcmPanel3DPreview({
         </div>
       </div>
 
-      <p className="mt-3 border-t border-gray-100 pt-3 text-center text-[13px] font-medium text-gray-500">
+      <p className="mt-3 border-t border-gray-100 pt-3 text-center text-[15px] font-medium text-gray-500">
         {panelWidthIn}&quot; × {panelHeightIn}&quot; · {panelColorName}
       </p>
     </section>

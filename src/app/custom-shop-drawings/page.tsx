@@ -101,7 +101,7 @@ export default function CustomShopDrawingsPage() {
 
       <form onSubmit={handleSubmit} className="rounded-2xl border border-gray-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
         <div className="border-b border-gray-100 px-6 py-5 md:px-8">
-          <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">Inquiry details</h2>
+          <h2 className="text-[15px] font-medium uppercase tracking-wider text-gray-500">Inquiry details</h2>
         </div>
         <div className="space-y-6 p-6 md:p-8">
           {formError && (

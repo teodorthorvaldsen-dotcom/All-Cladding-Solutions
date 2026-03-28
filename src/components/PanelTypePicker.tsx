@@ -39,7 +39,7 @@ export function PanelTypePicker({ value, onChange }: PanelTypePickerProps) {
               {opt.price}
             </span>
             {opt.description && (
-              <span className={`mt-2 text-[12px] leading-relaxed ${value === opt.value ? "text-white/80" : "text-gray-500"}`}>
+              <span className={`mt-2 text-[14px] leading-relaxed ${value === opt.value ? "text-white/80" : "text-gray-500"}`}>
                 {opt.description}
               </span>
             )}

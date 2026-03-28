@@ -149,7 +149,7 @@ export default function CheckoutPage() {
       </div>
 
       <section className="mb-10 rounded-2xl border border-gray-200/80 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] md:p-8">
-        <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">Order summary</h2>
+        <h2 className="text-[15px] font-medium uppercase tracking-wider text-gray-500">Order summary</h2>
         <ul className="mt-4 space-y-3">
           {items.map((item) => (
             <li key={item.id} className="flex justify-between text-sm">
@@ -161,13 +161,13 @@ export default function CheckoutPage() {
         <p className="mt-4 border-t border-gray-100 pt-4 text-sm font-semibold text-gray-900">
           Subtotal: {formatUSD(subtotal)} · {totalSqFt.toFixed(1)} ft² total
         </p>
-        <p className="mt-2 text-[12px] text-gray-500">
+        <p className="mt-2 text-[14px] text-gray-500">
           Final cost will be confirmed in your written quote after we check inventory and prepare the estimate.
         </p>
       </section>
 
       <section className="mb-10 rounded-2xl border border-gray-200/80 bg-gray-50/50 p-6 md:p-8">
-        <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">Order process</h2>
+        <h2 className="text-[15px] font-medium uppercase tracking-wider text-gray-500">Order process</h2>
         <ol className="mt-4 list-decimal space-y-2 pl-4 text-[14px] text-gray-700">
           {ORDER_STEPS.map((step, i) => (
             <li key={i}>{step}</li>
@@ -176,7 +176,7 @@ export default function CheckoutPage() {
       </section>
 
       <section className="mb-10 rounded-2xl border border-gray-200/80 bg-amber-50/50 p-6 md:p-8">
-        <h2 className="text-[13px] font-medium uppercase tracking-wider text-amber-800">Payment</h2>
+        <h2 className="text-[15px] font-medium uppercase tracking-wider text-amber-800">Payment</h2>
         <p className="mt-2 text-[14px] text-gray-700">
           Once your quote is final and approved by you, a 50% deposit is required. The remainder is due upon shipping.
         </p>
@@ -208,7 +208,7 @@ export default function CheckoutPage() {
 
       <form onSubmit={handleSubmit} className="rounded-2xl border border-gray-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
         <div className="border-b border-gray-100 px-6 py-5 md:px-8">
-          <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
+          <h2 className="text-[15px] font-medium uppercase tracking-wider text-gray-500">
             Contact &amp; project details
           </h2>
         </div>
@@ -252,7 +252,7 @@ export default function CheckoutPage() {
           <div className="rounded-xl border border-gray-200/80 bg-gray-50/50 p-6">
             <span className="block text-sm font-medium text-gray-900">Pre-estimate agreement</span>
             <p className="mt-0.5 text-xs text-gray-500">By signing below, you agree to the terms of the ACM Panel Pre-Estimate Agreement.</p>
-            <a href="/documents/All_Cladding_ACM_Panel_Pre_Estimate_Agreement.html" target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex text-[13px] font-medium text-gray-900 underline hover:text-gray-700">
+            <a href="/documents/All_Cladding_ACM_Panel_Pre_Estimate_Agreement.html" target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex text-[15px] font-medium text-gray-900 underline hover:text-gray-700">
               Read the pre-estimate agreement
             </a>
             <label className="mt-4 block">

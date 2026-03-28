@@ -93,7 +93,7 @@ export default function HomePage() {
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900">
                   {item.title}
                 </h3>
-                <p className="mt-2 text-[13px] leading-relaxed text-gray-600">
+                <p className="mt-2 text-[15px] leading-relaxed text-gray-600">
                   {item.description}
                 </p>
               </div>
@@ -117,13 +117,13 @@ export default function HomePage() {
               href={card.href}
               className="group rounded-2xl border border-gray-200/60 bg-white p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-300 hover:border-gray-300/80 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
             >
-              <h3 className="text-[17px] font-medium text-gray-900 group-hover:text-gray-800">
+              <h3 className="text-lg font-medium text-gray-900 group-hover:text-gray-800">
                 {card.title}
               </h3>
-              <p className="mt-2 text-[13px] leading-relaxed text-gray-500">
+              <p className="mt-2 text-[15px] leading-relaxed text-gray-500">
                 {card.description}
               </p>
-              <span className="mt-4 inline-block text-[13px] font-medium text-gray-900 group-hover:underline">
+              <span className="mt-4 inline-block text-[15px] font-medium text-gray-900 group-hover:underline">
                 {card.cta} →
               </span>
             </Link>
@@ -152,7 +152,7 @@ export default function HomePage() {
                 <h3 className="text-[15px] font-medium text-white">
                   {item.title}
                 </h3>
-                <p className="mt-2 text-[13px] leading-relaxed text-gray-500">
+                <p className="mt-2 text-[15px] leading-relaxed text-gray-500">
                   {item.description}
                 </p>
               </div>

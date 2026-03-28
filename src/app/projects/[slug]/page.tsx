@@ -26,7 +26,7 @@ export default async function ProjectPage({ params }: Props) {
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <Link
           href="/about#our-work"
-          className="text-[13px] font-medium text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-inset rounded"
+          className="text-[15px] font-medium text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-inset rounded"
         >
           ← Back to About
         </Link>
@@ -41,7 +41,7 @@ export default async function ProjectPage({ params }: Props) {
           <ul className="mt-3 flex flex-wrap gap-2" role="list">
             {project.tags.map((tag) => (
               <li key={tag}>
-                <span className="rounded-md bg-gray-100 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider text-gray-600">
+                <span className="rounded-md bg-gray-100 px-2 py-0.5 text-[15px] font-medium uppercase tracking-wider text-gray-600">
                   {tag}
                 </span>
               </li>
@@ -51,20 +51,20 @@ export default async function ProjectPage({ params }: Props) {
 
         {/* Overview */}
         <section className="mt-12" aria-labelledby="overview-heading">
-          <h2 id="overview-heading" className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
+          <h2 id="overview-heading" className="text-[15px] font-medium uppercase tracking-wider text-gray-500">
             Overview
           </h2>
           <dl className="mt-4 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-3">
             <div>
-              <dt className="text-[13px] text-gray-500">Location</dt>
+              <dt className="text-[15px] text-gray-500">Location</dt>
               <dd className="mt-0.5 text-[15px] font-medium text-gray-900">{project.location}</dd>
             </div>
             <div>
-              <dt className="text-[13px] text-gray-500">Year</dt>
+              <dt className="text-[15px] text-gray-500">Year</dt>
               <dd className="mt-0.5 text-[15px] font-medium text-gray-900">{project.year}</dd>
             </div>
             <div>
-              <dt className="text-[13px] text-gray-500">Scope</dt>
+              <dt className="text-[15px] text-gray-500">Scope</dt>
               <dd className="mt-0.5 text-[15px] font-medium text-gray-900">{project.scope}</dd>
             </div>
           </dl>
@@ -72,7 +72,7 @@ export default async function ProjectPage({ params }: Props) {
 
         {/* Materials used */}
         <section className="mt-12" aria-labelledby="materials-heading">
-          <h2 id="materials-heading" className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
+          <h2 id="materials-heading" className="text-[15px] font-medium uppercase tracking-wider text-gray-500">
             Materials Used
           </h2>
           <ul className="mt-4 space-y-2">
@@ -86,7 +86,7 @@ export default async function ProjectPage({ params }: Props) {
 
         {/* Gallery placeholders */}
         <section className="mt-16" aria-labelledby="gallery-heading">
-          <h2 id="gallery-heading" className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
+          <h2 id="gallery-heading" className="text-[15px] font-medium uppercase tracking-wider text-gray-500">
             Gallery
           </h2>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">

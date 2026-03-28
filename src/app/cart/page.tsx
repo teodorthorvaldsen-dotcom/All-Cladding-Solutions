@@ -74,7 +74,7 @@ function CartLine({
             {item.areaFt2.toFixed(2)} ft² per panel · {formatUSD(item.unitPrice)} per panel
           </p>
           {(item.customColorReference || item.customColorSpecFileName) && (
-            <div className="mt-2 rounded-lg bg-gray-50 px-2 py-1.5 text-[11px] text-gray-600">
+            <div className="mt-2 rounded-lg bg-gray-50 px-2 py-1.5 text-[15px] text-gray-600">
               {item.customColorReference ? (
                 <p>
                   <span className="font-medium text-gray-700">Color reference:</span>{" "}

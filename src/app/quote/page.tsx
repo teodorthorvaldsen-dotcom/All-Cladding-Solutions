@@ -195,7 +195,7 @@ export default function QuotePage() {
       </div>
 
       <section className="mb-10 rounded-2xl border border-gray-200/80 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] md:p-8">
-        <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">Quote Summary</h2>
+        <h2 className="text-[15px] font-medium uppercase tracking-wider text-gray-500">Quote Summary</h2>
         {!isMetal && (
           <>
             <dl className="mt-4 grid grid-cols-1 gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
@@ -332,11 +332,11 @@ export default function QuotePage() {
             </dl>
           </>
         )}
-        <p className="mt-4 border-t border-gray-100 pt-4 text-[12px] text-gray-500">
+        <p className="mt-4 border-t border-gray-100 pt-4 text-[14px] text-gray-500">
           <span className="font-medium text-gray-600">Disclaimer:</span> Estimated costs are for reference only and are subject to change. Final pricing and lead times will be confirmed in your written quote.
         </p>
         {!isMetal && draft.customColorSpecOversizeFileName ? (
-          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-[13px] text-amber-950">
+          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-[15px] text-amber-950">
             <span className="font-medium">Large PDF:</span>{" "}
             <span className="break-all">{draft.customColorSpecOversizeFileName}</span> was not pre-attached
             (over 1 MB). Please upload it under drawings below so we receive your full specification.
@@ -345,7 +345,7 @@ export default function QuotePage() {
       </section>
 
       <section className="mb-10 rounded-2xl border border-gray-200/80 bg-gray-50/50 p-6 md:p-8">
-        <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">Order process</h2>
+        <h2 className="text-[15px] font-medium uppercase tracking-wider text-gray-500">Order process</h2>
         <ol className="mt-4 list-decimal space-y-2 pl-4 text-[14px] text-gray-700">
           {ORDER_STEPS.map((step, i) => (
             <li key={i}>{step}</li>
@@ -354,7 +354,7 @@ export default function QuotePage() {
       </section>
 
       <section className="mb-10 rounded-2xl border border-amber-200/80 bg-amber-50/50 p-6 md:p-8">
-        <h2 className="text-[13px] font-medium uppercase tracking-wider text-amber-800">Payment</h2>
+        <h2 className="text-[15px] font-medium uppercase tracking-wider text-amber-800">Payment</h2>
         <p className="mt-2 text-[14px] text-gray-700">
           Once your quote is final and approved by you, a 50% deposit is required. The remainder is due upon shipping.
         </p>
@@ -372,10 +372,10 @@ export default function QuotePage() {
 
       <form onSubmit={handleSubmit} className="rounded-2xl border border-gray-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
         <div className="border-b border-gray-100 px-6 py-5 md:px-8">
-          <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
+          <h2 className="text-[15px] font-medium uppercase tracking-wider text-gray-500">
             Contact &amp; project details
           </h2>
-          <p className="mt-0.5 text-[13px] text-gray-500">We&apos;ll use this to send your quote.</p>
+          <p className="mt-0.5 text-[15px] text-gray-500">We&apos;ll use this to send your quote.</p>
         </div>
         <div className="space-y-6 p-6 md:p-8">
           {formError && (
@@ -470,7 +470,7 @@ export default function QuotePage() {
               >
                 Select files
               </button>
-              <p id="file-helper" className="mt-2 text-[13px] text-gray-500" aria-live="polite">
+              <p id="file-helper" className="mt-2 text-[15px] text-gray-500" aria-live="polite">
                 {selectedFiles.length === 0
                   ? "No files chosen"
                   : `${selectedFiles.length} file(s) selected`}
@@ -502,7 +502,7 @@ export default function QuotePage() {
                 href={TERMS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-medium text-gray-900 underline hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded"
+                className="mt-3 inline-flex items-center gap-1.5 text-[15px] font-medium text-gray-900 underline hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded"
               >
                 Read the pre-estimate agreement
                 <span className="sr-only">(opens in new tab)</span>

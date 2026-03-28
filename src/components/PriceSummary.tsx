@@ -28,7 +28,7 @@ export function PriceSummary({
       <div className={cardBase}>
         <div className={bodyBase}>
           <p className="text-sm text-red-600" role="alert">{error}</p>
-          <p className="mt-1 text-[13px] text-gray-500">Check your options and try again.</p>
+          <p className="mt-1 text-[15px] text-gray-500">Check your options and try again.</p>
         </div>
       </div>
     );
@@ -58,7 +58,7 @@ export function PriceSummary({
     <div className={cardBase}>
       <div className={bodyBase}>
         {loading && (
-          <p className={compact ? "mb-2 text-[12px] text-gray-500" : "mb-4 text-[13px] text-gray-500"} aria-live="polite">
+          <p className={compact ? "mb-2 text-[14px] text-gray-500" : "mb-4 text-[15px] text-gray-500"} aria-live="polite">
             Updating price…
           </p>
         )}
@@ -78,7 +78,7 @@ export function PriceSummary({
             </p>
           </div>
         )}
-        <dl className={compact ? "space-y-2 text-[13px]" : "space-y-3.5 text-[15px]"}>
+        <dl className={compact ? "space-y-2 text-[15px]" : "space-y-3.5 text-[15px]"}>
           <div className="flex justify-between gap-2">
             <dt className="shrink-0 text-gray-600">Panel type</dt>
             <dd className="min-w-0 text-right tabular-nums text-gray-900">{pricing.panelTypeLabel}</dd>
@@ -102,7 +102,7 @@ export function PriceSummary({
             </div>
           )}
         </dl>
-        <p className={compact ? "mt-2 text-[10px] leading-snug text-gray-500" : "mt-4 text-[12px] leading-relaxed text-gray-500"}>
+        <p className={compact ? "mt-2 text-[14px] leading-snug text-gray-500" : "mt-4 text-[14px] leading-relaxed text-gray-500"}>
           Pricing shown is preliminary and subject to change. Final quote will be confirmed after drawing review and verification of material cost from supplier.
         </p>
       </div>

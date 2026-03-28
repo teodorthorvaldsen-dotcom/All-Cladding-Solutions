@@ -14,7 +14,7 @@ function PdfCard({ item }: { item: AlfrexPdfItem }) {
   return (
     <a href={item.href} target="_blank" rel="noopener noreferrer" className={cardClassName}>
       <span className="text-[14px] font-medium leading-snug text-gray-900 group-hover:text-gray-800">{item.title}</span>
-      <span className="mt-2 text-[13px] text-gray-500 group-hover:text-gray-700">View PDF →</span>
+      <span className="mt-2 text-[15px] text-gray-500 group-hover:text-gray-700">View PDF →</span>
     </a>
   );
 }
@@ -49,7 +49,7 @@ export function TechnicalResourcesSection() {
           <div className="mt-2 space-y-10">
             {alfrexTechnicalResourceSubgroups.map((sub) => (
               <div key={sub.label}>
-                <p className="text-[13px] font-semibold uppercase tracking-wide text-gray-700">{sub.label}</p>
+                <p className="text-[15px] font-semibold uppercase tracking-wide text-gray-700">{sub.label}</p>
                 <PdfGrid items={sub.items} />
               </div>
             ))}
@@ -61,7 +61,7 @@ export function TechnicalResourcesSection() {
           <div className="mt-2 space-y-10">
             {alfrexCertificationSubgroups.map((sub) => (
               <div key={sub.label}>
-                <p className="text-[13px] font-semibold uppercase tracking-wide text-gray-700">{sub.label}</p>
+                <p className="text-[15px] font-semibold uppercase tracking-wide text-gray-700">{sub.label}</p>
                 <PdfGrid items={sub.items} />
               </div>
             ))}

@@ -58,7 +58,7 @@ export default function ContactPage() {
 
       <div className="mt-12 grid gap-12 lg:grid-cols-2">
         <section>
-          <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
+          <h2 className="text-[15px] font-medium uppercase tracking-wider text-gray-500">
             Get in touch
           </h2>
           <p className="mt-4 text-[15px] text-gray-700">
@@ -67,18 +67,18 @@ export default function ContactPage() {
           <p className="mt-1 text-[15px] text-gray-700">
             {BUSINESS_PHONE}
           </p>
-          <p className="mt-6 text-[13px] text-gray-500">
+          <p className="mt-6 text-[15px] text-gray-500">
             {SERVICE_AREA}
           </p>
         </section>
 
         <section>
-          <h2 className="text-[13px] font-medium uppercase tracking-wider text-gray-500">
+          <h2 className="text-[15px] font-medium uppercase tracking-wider text-gray-500">
             Send a message
           </h2>
           <form onSubmit={handleSubmit} className="mt-4 space-y-4">
             <div>
-              <label htmlFor="name" className="block text-[13px] font-medium text-gray-700">
+              <label htmlFor="name" className="block text-[15px] font-medium text-gray-700">
                 Name <span className="text-gray-400">*</span>
               </label>
               <input
@@ -91,7 +91,7 @@ export default function ContactPage() {
               />
             </div>
             <div>
-              <label htmlFor="company" className="block text-[13px] font-medium text-gray-700">
+              <label htmlFor="company" className="block text-[15px] font-medium text-gray-700">
                 Company
               </label>
               <input
@@ -103,7 +103,7 @@ export default function ContactPage() {
               />
             </div>
             <div>
-              <label htmlFor="email" className="block text-[13px] font-medium text-gray-700">
+              <label htmlFor="email" className="block text-[15px] font-medium text-gray-700">
                 Email <span className="text-gray-400">*</span>
               </label>
               <input
@@ -116,7 +116,7 @@ export default function ContactPage() {
               />
             </div>
             <div>
-              <label htmlFor="phone" className="block text-[13px] font-medium text-gray-700">
+              <label htmlFor="phone" className="block text-[15px] font-medium text-gray-700">
                 Phone
               </label>
               <input
@@ -128,7 +128,7 @@ export default function ContactPage() {
               />
             </div>
             <div>
-              <label htmlFor="message" className="block text-[13px] font-medium text-gray-700">
+              <label htmlFor="message" className="block text-[15px] font-medium text-gray-700">
                 Message <span className="text-gray-400">*</span>
               </label>
               <textarea
