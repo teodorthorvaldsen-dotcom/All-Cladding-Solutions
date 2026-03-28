@@ -145,9 +145,11 @@ function SwatchCell({
 
 function SeriesHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <div className="border-b border-blue-900/35 pb-2">
-      <h3 className="text-[13px] font-bold uppercase tracking-wide text-blue-900">{title}</h3>
-      {subtitle ? <p className="mt-1.5 text-[11px] leading-relaxed text-gray-500 sm:text-xs">{subtitle}</p> : null}
+    <div className="border-b-2 border-blue-900/45 pb-3">
+      <h3 className="text-base font-bold uppercase tracking-[0.06em] text-blue-900 sm:text-lg sm:tracking-[0.07em]">
+        {title}
+      </h3>
+      {subtitle ? <p className="mt-2 text-[11px] leading-relaxed text-gray-500 sm:text-sm">{subtitle}</p> : null}
     </div>
   );
 }
