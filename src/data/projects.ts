@@ -19,7 +19,7 @@ export const projects: Project[] = [
     tags: ["FR", "Commercial", "Exterior"],
     year: 2024,
     scope: "22,000 sq ft exterior facade",
-    materials: ["Alfrex FR 4mm", "Classic White (JY-5195)", "Warm Gray (JY-5201)"],
+    materials: ["Alfrex FR 4mm", "Classic White (JY-5195)", "Castle Gray (JY-6160)"],
     galleryCount: 4,
   },
   {
@@ -30,7 +30,7 @@ export const projects: Project[] = [
     tags: ["FR", "Office", "Exterior"],
     year: 2024,
     scope: "45,000 sq ft building envelope",
-    materials: ["Alfrex FR 4mm", "Alfrex FR 6mm", "Snow White (JY-5196)", "Charcoal (JY-5203)"],
+    materials: ["Alfrex FR 4mm", "Alfrex FR 6mm", "Bone White (JY-5165)", "Charcoal (JY-6150)"],
     galleryCount: 5,
   },
   {
@@ -41,7 +41,7 @@ export const projects: Project[] = [
     tags: ["FR", "Retail", "Exterior"],
     year: 2023,
     scope: "18,000 sq ft retail facades",
-    materials: ["Alfrex FR 4mm", "Pearl White (JY-5197)", "Black (JY-5205)"],
+    materials: ["Alfrex FR 4mm", "Alabaster (JY-6165)", "Black (JY-6220)"],
     galleryCount: 6,
   },
   {
@@ -52,7 +52,7 @@ export const projects: Project[] = [
     tags: ["FR", "Mixed-Use", "Exterior"],
     year: 2024,
     scope: "65,000 sq ft mixed commercial and residential",
-    materials: ["Alfrex FR 4mm", "Alfrex FR 6mm", "Classic White (JY-5195)", "Warm Gray (JY-5201)", "Charcoal (JY-5203)"],
+    materials: ["Alfrex FR 4mm", "Alfrex FR 6mm", "Classic White (JY-5195)", "Castle Gray (JY-6160)", "Charcoal (JY-6150)"],
     galleryCount: 5,
   },
   {
@@ -63,7 +63,7 @@ export const projects: Project[] = [
     tags: ["FR", "Healthcare", "Exterior"],
     year: 2023,
     scope: "28,000 sq ft medical campus",
-    materials: ["Alfrex FR 4mm", "Snow White (JY-5196)", "Pearl White (JY-5197)"],
+    materials: ["Alfrex FR 4mm", "Classic White (JY-5195)", "Bone White (JY-5165)"],
     galleryCount: 4,
   },
   {
@@ -74,7 +74,7 @@ export const projects: Project[] = [
     tags: ["FR", "Education", "Exterior"],
     year: 2024,
     scope: "35,000 sq ft academic building",
-    materials: ["Alfrex FR 4mm", "Alfrex FR 6mm", "Classic White (JY-5195)", "Warm Gray (JY-5201)"],
+    materials: ["Alfrex FR 4mm", "Alfrex FR 6mm", "Classic White (JY-5195)", "Castle Gray (JY-6160)"],
     galleryCount: 6,
   },
 ];
