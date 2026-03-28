@@ -8,18 +8,13 @@ import {
 } from "@/data/alfrexPdfResources";
 
 const cardClassName =
-  "group rounded-2xl border border-gray-200/80 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-colors hover:border-gray-300/80 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2";
+  "group flex min-h-0 min-w-0 w-full flex-col rounded-2xl border border-gray-200/80 bg-white p-5 text-left shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-colors hover:border-gray-300/80 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2";
 
 function PdfCard({ item }: { item: AlfrexPdfItem }) {
   return (
-    <a
-      href={item.href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={cardClassName}
-    >
-      <h3 className="text-[14px] font-medium leading-snug text-gray-900 group-hover:text-gray-800">{item.title}</h3>
-      <span className="mt-2 inline-block text-[13px] text-gray-500 group-hover:text-gray-700">View PDF →</span>
+    <a href={item.href} target="_blank" rel="noopener noreferrer" className={cardClassName}>
+      <span className="text-[14px] font-medium leading-snug text-gray-900 group-hover:text-gray-800">{item.title}</span>
+      <span className="mt-2 text-[13px] text-gray-500 group-hover:text-gray-700">View PDF →</span>
     </a>
   );
 }
@@ -40,23 +35,11 @@ export function TechnicalResourcesSection() {
       <h2 id="technical-resources-heading" className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
         Technical Resources
       </h2>
-      <p className="mt-2 max-w-3xl text-[15px] text-gray-500">
-        Official Alfrex technical documents, certifications, and finish literature. PDFs open in a new tab from{" "}
-        <a
-          href="https://alfrexusa.com/downloads/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-medium text-gray-700 underline decoration-gray-300 underline-offset-2 hover:text-gray-900"
-        >
-          alfrexusa.com/downloads
-        </a>
-        .
-      </p>
 
       <div className="mt-10 space-y-12">
         <div>
           <h3 className="text-lg font-semibold tracking-tight text-gray-900">Standard product finishes</h3>
-          <div className="mt-4 max-w-md">
+          <div className="mt-4 w-full max-w-md">
             <PdfCard item={alfrexStandardProductFinishes} />
           </div>
         </div>
