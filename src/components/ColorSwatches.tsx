@@ -132,7 +132,9 @@ export function ColorSwatches({ value, onChange }: ColorSwatchesProps) {
             <h3 className="text-[12px] font-semibold uppercase tracking-wide text-gray-800">2 Coat Solids</h3>
             <span className="text-[11px] text-gray-500">30 yr · AAMA 2605 · In stock</span>
           </div>
-          <div className="grid grid-cols-5 gap-2 sm:gap-3">{twoCoatSolids.map(renderSwatch)}</div>
+          <div className="grid gap-2 sm:gap-3 [grid-template-columns:repeat(5,max-content)] max-sm:[grid-template-columns:repeat(3,max-content)]">
+            {twoCoatSolids.map(renderSwatch)}
+          </div>
         </div>
 
         <div
@@ -145,7 +147,9 @@ export function ColorSwatches({ value, onChange }: ColorSwatchesProps) {
             </h3>
             <span className="text-[11px] text-gray-500">20 yr limited · AAMA 2605 · In stock</span>
           </div>
-          <div className="grid grid-cols-5 gap-2 sm:gap-3">{vividSolids.map(renderSwatch)}</div>
+          <div className="grid gap-2 sm:gap-3 [grid-template-columns:repeat(5,max-content)] max-sm:[grid-template-columns:repeat(3,max-content)]">
+            {vividSolids.map(renderSwatch)}
+          </div>
         </div>
 
         <div
@@ -156,7 +160,9 @@ export function ColorSwatches({ value, onChange }: ColorSwatchesProps) {
             <h3 className="text-[12px] font-semibold uppercase tracking-wide text-gray-800">2 Coat Micas</h3>
             <span className="text-[11px] text-gray-500">30 yr limited · AAMA 2605 · Directional</span>
           </div>
-          <div className="grid grid-cols-5 gap-2 sm:gap-3">{twoCoatMicas.map(renderSwatch)}</div>
+          <div className="grid gap-2 sm:gap-3 [grid-template-columns:repeat(5,max-content)] max-sm:[grid-template-columns:repeat(3,max-content)]">
+            {twoCoatMicas.map(renderSwatch)}
+          </div>
         </div>
 
         <div
@@ -167,7 +173,7 @@ export function ColorSwatches({ value, onChange }: ColorSwatchesProps) {
             <h3 className="text-[12px] font-semibold uppercase tracking-wide text-gray-800">3 Coat Metallics</h3>
             <span className="text-[11px] text-gray-500">30 yr · AAMA 2605 · Directional</span>
           </div>
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <div className="grid gap-2 sm:gap-3 [grid-template-columns:repeat(3,max-content)] max-sm:[grid-template-columns:repeat(2,max-content)]">
             {threeCoatMetallics.map(renderSwatch)}
           </div>
         </div>
@@ -180,7 +186,9 @@ export function ColorSwatches({ value, onChange }: ColorSwatchesProps) {
             <h3 className="text-[12px] font-semibold uppercase tracking-wide text-gray-800">Metal Series</h3>
             <span className="text-[11px] text-gray-500">20 yr · AAMA 2605 · Directional</span>
           </div>
-          <div className="grid grid-cols-4 gap-2 sm:gap-3">{metalSeries.map(renderSwatch)}</div>
+          <div className="grid gap-2 sm:gap-3 [grid-template-columns:repeat(4,max-content)] max-sm:[grid-template-columns:repeat(2,max-content)]">
+            {metalSeries.map(renderSwatch)}
+          </div>
         </div>
 
         <div>
