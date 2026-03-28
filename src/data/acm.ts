@@ -798,7 +798,7 @@ export const colors = [
   },
   {
     id: "mirror",
-    name: "Mirrored finish",
+    name: "Mirror",
     code: "JY-A160",
     category: "Specialty" as ColorCategory,
     series: "Specialty" as ColorSeries,
