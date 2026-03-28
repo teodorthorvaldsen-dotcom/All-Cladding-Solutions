@@ -11,7 +11,6 @@ import {
   type ThicknessId,
 } from "@/data/acm";
 import { type QuoteDraft, QUOTE_DRAFT_STORAGE_KEY } from "@/types/quote";
-import Link from "next/link";
 import type { PanelType } from "@/lib/pricing";
 import { useCart } from "@/context/CartContext";
 import { ColorSwatches } from "./ColorSwatches";
@@ -22,6 +21,7 @@ import { QuantityPicker } from "./QuantityPicker";
 import { SizePicker, type SizeSelection } from "./SizePicker";
 import { ThicknessPicker } from "./ThicknessPicker";
 import { AcmPanel3DPreview } from "./AcmPanel3DPreview";
+import { TechnicalResourcesSection } from "./TechnicalResourcesSection";
 
 const defaultSize: SizeSelection = {
   widthId: "custom",
@@ -370,68 +370,7 @@ export function Configurator() {
         </div>
       </section>
 
-      <section className="mt-20 border-t border-gray-200/80 pt-16" aria-labelledby="technical-resources-heading">
-        <h2 id="technical-resources-heading" className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-          Technical Resources
-        </h2>
-        <p className="mt-2 text-[15px] text-gray-500">
-          Specifications, finishes, and support documentation.
-        </p>
-        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Link
-            href="/resources/alfrex-fr-technical-data-sheet"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group rounded-2xl border border-gray-200/80 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-colors hover:border-gray-300/80 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-          >
-            <h3 className="text-[15px] font-medium text-gray-900 group-hover:text-gray-800">Alfrex FR Technical Data Sheet</h3>
-            <span className="mt-2 inline-block text-[13px] text-gray-500 group-hover:text-gray-700">View PDF →</span>
-          </Link>
-          <Link
-            href="/resources/alfrex-standard-finishes-catalog"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group rounded-2xl border border-gray-200/80 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-colors hover:border-gray-300/80 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-          >
-            <h3 className="text-[15px] font-medium text-gray-900 group-hover:text-gray-800">Alfrex Standard Finishes Catalog</h3>
-            <span className="mt-2 inline-block text-[13px] text-gray-500 group-hover:text-gray-700">View PDF →</span>
-          </Link>
-          <Link
-            href="/resources/installation-guidelines"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group rounded-2xl border border-gray-200/80 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-colors hover:border-gray-300/80 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-          >
-            <h3 className="text-[15px] font-medium text-gray-900 group-hover:text-gray-800">Installation Guidelines</h3>
-            <span className="mt-2 inline-block text-[13px] text-gray-500 group-hover:text-gray-700">View PDF →</span>
-          </Link>
-          <Link
-            href="/resources/warranty-information"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group rounded-2xl border border-gray-200/80 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-colors hover:border-gray-300/80 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-          >
-            <h3 className="text-[15px] font-medium text-gray-900 group-hover:text-gray-800">Warranty Information</h3>
-            <span className="mt-2 inline-block text-[13px] text-gray-500 group-hover:text-gray-700">View PDF →</span>
-          </Link>
-        </div>
-        <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-6">
-          <Link
-            href="/resources/alfrex-fr-spec-sheet.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center rounded-xl bg-gray-900 px-6 py-3.5 text-[15px] font-medium text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-          >
-            View the official Alfrex FR spec sheet (PDF)
-          </Link>
-          <Link
-            href="/consultation"
-            className="inline-flex items-center rounded-xl border border-gray-200 bg-white px-6 py-3.5 text-[15px] font-medium text-gray-900 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-          >
-            Need help specifying? Upload plans for consultation.
-          </Link>
-        </div>
-      </section>
+      <TechnicalResourcesSection />
 
       <section className="mt-20 border-t border-gray-200/80 pt-16" aria-labelledby="trust-heading">
         <h2 id="trust-heading" className="sr-only">
