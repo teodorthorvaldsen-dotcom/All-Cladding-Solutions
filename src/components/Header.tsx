@@ -6,14 +6,15 @@ import { usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 
 const NAV_LINKS = [
-  { id: "acm-panels", href: "/products/acm-panels", label: "ACM Panels" },
-  { id: "installment-kits", href: "/products/acm-panels", label: "Installment Kits" },
-  { id: "custom-shop-drawings", href: "/custom-shop-drawings", label: "Custom Shop Drawings" },
-  { id: "about", href: "/about", label: "About" },
-  { id: "consultation", href: "/consultation", label: "Consultation" },
-  { id: "contact", href: "/contact", label: "Contact" },
+  { id: "acm-panels", href: "/products/acm-panels", label: "ACM Panel Configuator" },
+  { id: "installment-kits", href: "/products/acm-panels", label: "Installment Kit Configuator" },
   { id: "stock-material", href: "/stock-material", label: "Stock Material" },
   { id: "installment-videos", href: "/installment-videos", label: "Installment Videos" },
+  { id: "custom-shop-drawings", href: "/custom-shop-drawings", label: "Custom Shop Drawings" },
+  { id: "consultation", href: "/consultation", label: "Consultation" },
+  { id: "about", href: "/about", label: "About" },
+  { id: "contact", href: "/contact", label: "Contact" },
+  { id: "cart", href: "/cart", label: "Cart" },
 ] as const;
 
 const CONFIGURATOR_LINKS = [
@@ -92,7 +93,6 @@ export function Header() {
                     aria-label={`Cart: ${totalCount} item${totalCount !== 1 ? "s" : ""}`}
                   >
                     {label}
-                    {totalCount > 0 && <span className="ml-0.5">({totalCount})</span>}
                   </Link>
                 )
               )}
@@ -118,15 +118,13 @@ export function Header() {
             </nav>
           )}
 
-          <div className="flex shrink-0 items-center gap-4 lg:gap-5">
+          <div className="flex shrink-0 items-center gap-4 md:hidden lg:gap-5">
             <Link
               href="/cart"
-              className={`whitespace-nowrap rounded-lg px-4 py-3 text-lg font-bold tracking-wide text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-inset lg:text-xl ${
-                isConfigurator ? "md:hidden" : ""
-              }`}
+              className="whitespace-nowrap rounded-lg px-4 py-3 text-lg font-bold tracking-wide text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-inset lg:text-xl"
               aria-label={`Cart: ${totalCount} item${totalCount !== 1 ? "s" : ""}`}
             >
-              Cart {totalCount > 0 && <span className="ml-0.5">({totalCount})</span>}
+              Cart
             </Link>
           </div>
         </div>
