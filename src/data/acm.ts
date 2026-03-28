@@ -87,19 +87,53 @@ export const colorSeriesList: ColorSeries[] = [
   "Specialty",
 ];
 
+/**
+ * Alfrex "2 Coat Solids" standard stocking order (grid layout per F-01).
+ * RGB approximations from manufacturer stocking table for hex swatches in the configurator.
+ */
+export const twoCoatSolidColorIds = [
+  "classic-white",
+  "bone-white",
+  "ascot-white",
+  "alabaster",
+  "oyster",
+  "castle-gray",
+  "sea-wolf",
+  "dove-gray",
+  "slate-gray",
+  "fashion-gray",
+  "greyhound",
+  "dark-gray",
+  "charcoal",
+  "bronze",
+  "black",
+  "midnight-black",
+] as const;
+
+export type TwoCoatSolidColorId = (typeof twoCoatSolidColorIds)[number];
+
 /** Alfrex standard finishes: id, name, code, category, series, swatchHex, swatchImage (for textures). */
 export const colors = [
-  { id: "classic-white", name: "Classic White", code: "JY-5195", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#FFFFFF", rgbApprox: "255 255 255", adderPerFt2: 0, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
-  { id: "snow-white", name: "Snow White", code: "JY-5196", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#F8F8F8", rgbApprox: "248 248 248", adderPerFt2: 0, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
-  { id: "pearl-white", name: "Pearl White", code: "JY-5197", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#F2F2EB", rgbApprox: "242 242 235", adderPerFt2: 0.2, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
-  { id: "warm-gray", name: "Warm Gray", code: "JY-5201", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#918C87", rgbApprox: "145 140 135", adderPerFt2: 0.15, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
-  { id: "charcoal", name: "Charcoal", code: "JY-5203", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#555555", rgbApprox: "85 85 85", adderPerFt2: 0.2, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
-  { id: "black", name: "Black", code: "JY-5205", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#232323", rgbApprox: "35 35 35", adderPerFt2: 0.25, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
+  { id: "classic-white", name: "Classic White", code: "JY-5195", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#EDEEEF", rgbApprox: "237 238 239", adderPerFt2: 0, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
+  { id: "bone-white", name: "Bone White", code: "JY-5165", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#E0E1E1", rgbApprox: "224 225 225", adderPerFt2: 0, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
+  { id: "ascot-white", name: "Ascot White", code: "JY-5110", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#CDD4CA", rgbApprox: "205 212 202", adderPerFt2: 0, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
+  { id: "alabaster", name: "Alabaster", code: "JY-6165", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#DADDD4", rgbApprox: "218 221 212", adderPerFt2: 0, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
+  { id: "oyster", name: "Oyster", code: "JY-5125", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#E2DCC9", rgbApprox: "226 220 201", adderPerFt2: 0, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
+  { id: "castle-gray", name: "Castle Gray", code: "JY-6160", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#B3AFA6", rgbApprox: "179 175 166", adderPerFt2: 0, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
+  { id: "sea-wolf", name: "Sea Wolf", code: "JY-6175", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#B1A9A0", rgbApprox: "177 169 160", adderPerFt2: 0, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
+  { id: "dove-gray", name: "Dove Gray", code: "JY-6120", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#A9AAA9", rgbApprox: "169 170 169", adderPerFt2: 0, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
+  { id: "slate-gray", name: "Slate Gray", code: "JY-6145", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#898782", rgbApprox: "137 135 130", adderPerFt2: 0, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
+  { id: "fashion-gray", name: "Fashion Gray", code: "JY-6130", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#838586", rgbApprox: "131 133 134", adderPerFt2: 0, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
+  { id: "greyhound", name: "Greyhound", code: "JY-6155", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#525558", rgbApprox: "82 85 88", adderPerFt2: 0, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
+  { id: "dark-gray", name: "Dark Gray", code: "JY-6140", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#666B6E", rgbApprox: "102 107 110", adderPerFt2: 0, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
+  { id: "charcoal", name: "Charcoal", code: "JY-6150", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#545556", rgbApprox: "84 85 86", adderPerFt2: 0, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
+  { id: "bronze", name: "Bronze", code: "JY-6180", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#57524D", rgbApprox: "87 82 77", adderPerFt2: 0, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
+  { id: "black", name: "Black", code: "JY-6220", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#4B4C4E", rgbApprox: "75 76 78", adderPerFt2: 0, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
+  { id: "midnight-black", name: "Midnight Black", code: "JY-6230", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#444544", rgbApprox: "68 69 68", adderPerFt2: 0, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
   { id: "red", name: "Red", code: "JY-5210", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#B42D32", rgbApprox: "180 45 50", adderPerFt2: 0.4, availability: "Made to Order" as Availability, leadTimeDaysRange: [7, 14] as [number, number] },
   { id: "navy", name: "Navy", code: "JY-5215", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#283C5A", rgbApprox: "40 60 90", adderPerFt2: 0.4, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
   { id: "slate-blue", name: "Slate Blue", code: "JY-5218", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#465F7D", rgbApprox: "70 95 125", adderPerFt2: 0.35, availability: "Made to Order" as Availability, leadTimeDaysRange: [7, 14] as [number, number] },
   { id: "forest-green", name: "Forest Green", code: "JY-5220", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#37553C", rgbApprox: "55 85 60", adderPerFt2: 0.4, availability: "Made to Order" as Availability, leadTimeDaysRange: [7, 14] as [number, number] },
-  { id: "bronze", name: "Bronze", code: "JY-5225", category: "Solid" as ColorCategory, series: "Solids" as ColorSeries, swatchHex: "#825F46", rgbApprox: "130 95 70", adderPerFt2: 0.5, availability: "Made to Order" as Availability, leadTimeDaysRange: [7, 14] as [number, number] },
   { id: "silver-mica", name: "Silver Mica", code: "JY-5301", category: "Mica" as ColorCategory, series: "Micas" as ColorSeries, swatchHex: "#C3C3C3", rgbApprox: "195 195 195", adderPerFt2: 0.35, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
   { id: "pearl-mica", name: "Pearl Mica", code: "JY-5302", category: "Mica" as ColorCategory, series: "Micas" as ColorSeries, swatchHex: "#E6E4DC", rgbApprox: "230 228 220", adderPerFt2: 0.4, availability: "In Stock" as Availability, leadTimeDaysRange: [2, 5] as [number, number] },
   { id: "anthracite-mica", name: "Anthracite Mica", code: "JY-5305", category: "Mica" as ColorCategory, series: "Micas" as ColorSeries, swatchHex: "#4B4B4E", rgbApprox: "75 75 78", adderPerFt2: 0.35, availability: "Made to Order" as Availability, leadTimeDaysRange: [7, 14] as [number, number] },
