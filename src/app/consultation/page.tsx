@@ -89,7 +89,7 @@ export default function ConsultationPage() {
       <div className="mx-auto max-w-xl px-4 py-16 text-center">
         <h1 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">Thank you.</h1>
         <p className="mt-3 text-[15px] text-gray-600">
-          We have received your consultation request and will respond within 1 business day.
+          We have received your consultation request and will respond in 1–3 business days.
         </p>
         <Link
           href="/"
@@ -108,7 +108,7 @@ export default function ConsultationPage() {
           Cladding Consultation
         </h1>
         <p className="mt-2 text-[15px] text-gray-500">
-          Upload plans and request a consultation. Our team, composed of general contractors and structural engineers, will look over your request and get back to you as soon as possible.
+          Our team includes general contractors and structural engineers. We will review your submission and respond in 1–3 business days.
         </p>
       </div>
 

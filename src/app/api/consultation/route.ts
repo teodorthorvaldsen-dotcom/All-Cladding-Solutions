@@ -39,7 +39,7 @@ function buildBusinessEmailHtml(payload: ConsultationPayload): string {
 <head><meta charset="utf-8"></head>
 <body style="font-family: system-ui, sans-serif; line-height: 1.6; color: #333; max-width: 600px;">
   <h2 style="margin-bottom: 0.5em;">New Consultation Request</h2>
-  <p style="color: #666; margin-bottom: 1.5em;">A customer has requested a panel consultation.</p>
+  <p style="color: #666; margin-bottom: 1.5em;">New cladding consultation request.</p>
 
   <h3 style="margin-bottom: 0.5em; font-size: 1em;">Contact & Project</h3>
   <table style="border-collapse: collapse; margin-bottom: 1.5em;">
@@ -69,12 +69,10 @@ function buildCustomerEmailHtml(payload: ConsultationPayload): string {
 <body style="font-family: system-ui, sans-serif; line-height: 1.6; color: #333; max-width: 600px;">
   <h2 style="margin-bottom: 0.5em;">Consultation Request Received</h2>
   <p>Dear ${escapeHtml(payload.fullName)},</p>
-  <p>Thank you for your consultation request. We have received your submission and will respond within 1 business day.</p>
+  <p>Thank you for your consultation request. We have received your submission. Our team of general contractors and structural engineers will review it and respond in 1–3 business days.</p>
 
   <p><strong>Request type:</strong> ${escapeHtml(typeLabel)}</p>
   ${payload.uploadedFilenames?.length ? `<p><strong>Files received:</strong> ${payload.uploadedFilenames.map((f) => escapeHtml(f)).join(", ")}</p>` : ""}
-
-  <p>Our team will review your plans and follow up with panel recommendations.</p>
   <p style="color: #666; font-size: 0.9em;">— Cladding Solutions</p>
 </body>
 </html>
