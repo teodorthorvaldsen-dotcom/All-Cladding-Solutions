@@ -145,8 +145,8 @@ function SwatchCell({
 
 function SeriesHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <div className="border-b border-red-600/35 pb-2">
-      <h3 className="text-[13px] font-bold uppercase tracking-wide text-red-600">{title}</h3>
+    <div className="border-b border-blue-900/35 pb-2">
+      <h3 className="text-[13px] font-bold uppercase tracking-wide text-blue-900">{title}</h3>
       {subtitle ? <p className="mt-1.5 text-[11px] leading-relaxed text-gray-500 sm:text-xs">{subtitle}</p> : null}
     </div>
   );
@@ -304,7 +304,7 @@ export function ColorSwatches({
                       <button
                         type="button"
                         onClick={() => onCustomColorSpecFileChange(null)}
-                        className="shrink-0 text-red-600 hover:text-red-700 focus:outline-none focus:underline"
+                        className="shrink-0 text-blue-900 hover:text-blue-950 focus:outline-none focus:underline"
                       >
                         Remove
                       </button>
