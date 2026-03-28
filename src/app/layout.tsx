@@ -18,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="overflow-x-hidden">
+    <html lang="en">
       <body className="min-h-screen overflow-x-hidden bg-[#f9fafb] text-gray-900 antialiased">
         <AppShell>{children}</AppShell>
       </body>
