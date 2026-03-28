@@ -87,7 +87,8 @@ export function AcmPanel3DPreview({
           width: scaled.faceW,
           height: scaled.faceH,
           borderColor,
-          backgroundImage: `linear-gradient(145deg, rgba(255,255,255,0.14) 0%, transparent 38%, rgba(0,0,0,0.18) 100%), ${url}`,
+          /** Light wash only so the swatch texture reads clearly (no heavy vignette on face). */
+          backgroundImage: `linear-gradient(145deg, rgba(255,255,255,0.12) 0%, transparent 40%, rgba(0,0,0,0.06) 100%), ${url}`,
           backgroundSize: "cover, cover",
           backgroundPosition: "center, center",
           backgroundRepeat: "no-repeat, no-repeat",
@@ -159,7 +160,7 @@ export function AcmPanel3DPreview({
             <div style={sideStyle} />
             <div style={frontStyle}>
               <div style={staticStyles.panelGloss} />
-              <div style={staticStyles.panelInnerBorder} />
+              {!panelSwatchImage ? <div style={staticStyles.panelInnerBorder} /> : null}
             </div>
           </div>
         </div>
