@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import {
   colors,
   naturalZincColorIds,
@@ -168,15 +169,29 @@ export function ColorSwatches({
     <div>
       <label className="block text-sm font-medium text-gray-900">Color &amp; Finish</label>
       <p className="mt-0.5 text-[13px] text-gray-500">
-        Select a standard Alfrex FR finish or custom color match. Series below follow the standard finishes catalog
-        (F-01).
+        Select a standard Alfrex FR finish or custom color match. Series below follow the standard finishes catalog.
       </p>
 
       <div className="mt-8 space-y-10" role="region" aria-label="Panel color series">
         <section>
+          <SeriesHeader title="Order color swatches" />
+          <p className="mt-2 text-[11px] leading-relaxed text-gray-500 sm:text-xs">
+            Request physical finish samples to review color and appearance under your lighting before you order panels.{" "}
+            <Link
+              href="/contact"
+              className="font-medium text-blue-900 underline decoration-blue-900/30 underline-offset-2 hover:text-blue-950"
+            >
+              Contact us
+            </Link>{" "}
+            with the finish names or JY codes you need and your ship-to address; we will confirm availability and how
+            samples are provided.
+          </p>
+        </section>
+
+        <section>
           <SeriesHeader
             title="2 coat solids"
-            subtitle="30 Year Finish Warranty · AAMA 2605 · Matching 0.040″ flat sheet in inventory"
+            subtitle="30 Year Finish Warranty"
           />
           <SwatchGrid colorIds={twoCoatSolidColorIds} maxCols={5} value={value} onChange={onChange} />
         </section>
@@ -184,7 +199,7 @@ export function ColorSwatches({
         <section>
           <SeriesHeader
             title="Vivid solids*"
-            subtitle="20 Year Limited Finish Warranty · AAMA 2605 · Matching 0.040″ flat sheet in inventory"
+            subtitle="20 Year Limited Finish Warranty"
           />
           <SwatchGrid colorIds={vividSolidColorIds} maxCols={5} value={value} onChange={onChange} />
         </section>
@@ -192,7 +207,7 @@ export function ColorSwatches({
         <section>
           <SeriesHeader
             title="2 coat micas"
-            subtitle="30 Year Finish Warranty · AAMA 2605 · Matching 0.040″ flat sheet in inventory. Micaceous finishes can appear directional under different viewing angles and lighting."
+            subtitle="30 Year Finish Warranty. Micaceous finishes can appear directional under different viewing angles and lighting."
           />
           <SwatchGrid colorIds={twoCoatMicaColorIds} maxCols={5} value={value} onChange={onChange} />
         </section>
@@ -200,7 +215,7 @@ export function ColorSwatches({
         <section>
           <SeriesHeader
             title="3 coat metallics"
-            subtitle="30 Year Finish Warranty · AAMA 2605 · Matching 0.040″ flat sheet in inventory"
+            subtitle="30 Year Finish Warranty"
           />
           <SwatchGrid colorIds={threeCoatMetallicColorIds} maxCols={5} value={value} onChange={onChange} />
         </section>
@@ -208,7 +223,7 @@ export function ColorSwatches({
         <section>
           <SeriesHeader
             title="Metal series"
-            subtitle="20 Year Finish Warranty · AAMA 2605 · Matching 0.040″ flat sheet in inventory"
+            subtitle="20 Year Finish Warranty"
           />
           <SwatchGrid colorIds={metalSeriesColorIds} maxCols={4} value={value} onChange={onChange} />
         </section>
@@ -216,7 +231,7 @@ export function ColorSwatches({
         <section>
           <SeriesHeader
             title="Wood series"
-            subtitle="20 Year Finish Warranty · AAMA 2605 · Matching 0.040″ flat sheet in inventory"
+            subtitle="20 Year Finish Warranty"
           />
           <SwatchGrid colorIds={woodSeriesColorIds} maxCols={3} value={value} onChange={onChange} />
         </section>
