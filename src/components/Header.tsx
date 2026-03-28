@@ -7,7 +7,7 @@ import { useCart } from "@/context/CartContext";
 
 const NAV_LINKS = [
   { id: "acm-panels", href: "/products/acm-panels", label: "ACM Panel Configurator" },
-  { id: "installment-kits", href: "/products/acm-panels", label: "Installment Kit Configurator" },
+  { id: "installment-kits", href: "/installment-kit-configurator", label: "Installment Kit Configurator" },
   { id: "stock-material", href: "/stock-material", label: "Stock Material" },
   { id: "installment-videos", href: "/installment-videos", label: "Installment Videos" },
   { id: "custom-shop-drawings", href: "/custom-shop-drawings", label: "Custom Shop Drawings" },
