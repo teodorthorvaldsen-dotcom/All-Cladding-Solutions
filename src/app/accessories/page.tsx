@@ -43,20 +43,22 @@ export default function AccessoriesPage() {
   const [addedId, setAddedId] = useState<string | null>(null);
 
   const setQty = useCallback((id: string, next: number) => {
-    const q = Math.max(1, Math.floor(next) || 1);
+    const n = Number(next);
+    const q = !Number.isFinite(n) ? 0 : Math.max(0, Math.floor(n));
     setQuantities((prev) => ({ ...prev, [id]: q }));
   }, []);
 
   const bump = useCallback((id: string, delta: number) => {
     setQuantities((prev) => {
-      const cur = prev[id] ?? 1;
-      return { ...prev, [id]: Math.max(1, cur + delta) };
+      const cur = prev[id] ?? 0;
+      return { ...prev, [id]: Math.max(0, cur + delta) };
     });
   }, []);
 
   const handleAdd = useCallback(
     (entry: (typeof accessoryCatalog)[number]) => {
-      const qty = quantities[entry.id] ?? 1;
+      const qty = quantities[entry.id] ?? 0;
+      if (qty < 1) return;
       addItem(accessoryToCartPayload(entry, qty));
       setAddedId(entry.id);
       window.setTimeout(() => setAddedId((id) => (id === entry.id ? null : id)), 2200);
@@ -67,8 +69,9 @@ export default function AccessoriesPage() {
   const cards = useMemo(
     () =>
       accessoryCatalog.map((entry) => {
-        const qty = quantities[entry.id] ?? 1;
+        const qty = quantities[entry.id] ?? 0;
         const lineEst = entry.unitPrice * qty;
+        const canAdd = qty >= 1;
         return (
           <article
             key={entry.id}
@@ -93,10 +96,10 @@ export default function AccessoriesPage() {
                 </button>
                 <input
                   type="number"
-                  min={1}
+                  min={0}
                   value={qty}
                   onChange={(e) => setQty(entry.id, Number(e.target.value))}
-                  className="h-10 w-14 border-0 bg-transparent text-center text-[15px] font-medium tabular-nums text-gray-900 focus:outline-none focus:ring-0"
+                  className="h-10 min-w-[3.25rem] border-0 bg-transparent text-center text-[15px] font-medium tabular-nums text-gray-900 focus:outline-none focus:ring-0"
                   aria-label={`Quantity for ${entry.title}`}
                 />
                 <button
@@ -114,8 +117,9 @@ export default function AccessoriesPage() {
             </div>
             <button
               type="button"
+              disabled={!canAdd}
               onClick={() => handleAdd(entry)}
-              className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-gray-900 px-5 py-3.5 text-[15px] font-medium text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 sm:w-auto"
+              className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-gray-900 px-5 py-3.5 text-[15px] font-medium text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 enabled:cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-400 disabled:text-gray-200 sm:w-auto"
             >
               Add to cart
             </button>
