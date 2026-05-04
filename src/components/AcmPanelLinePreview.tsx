@@ -171,14 +171,6 @@ export interface AcmPanelLinePreviewProps {
   canvasRef?: MutableRefObject<HTMLCanvasElement | null>;
 }
 
-function fmtIn(n: number): string {
-  if (!Number.isFinite(n)) return "";
-  const r = Math.round(n * 100) / 100;
-  if (Math.abs(r - Math.round(r)) < 1e-9) return `${Math.round(r)}"`;
-  if (Math.abs(r * 2 - Math.round(r * 2)) < 1e-9) return `${(Math.round(r * 2) / 2).toFixed(1).replace(/\.0$/, "")}"`;
-  return `${r.toFixed(2).replace(/0$/, "").replace(/\.$/, "")}"`;
-}
-
 function buildProfilePolyline(
   panelWidthIn: number,
   sides: BoxTraySideRow[]
@@ -294,8 +286,7 @@ export function AcmPanelLinePreview({
   /** Fixed orthographic orientation (shop-detail style). */
   const rot = 0;
 
-  const { points, labels, segmentLensIn, vertexAnglesDeg, hemRender, hemStrokesWorld, hemBoundsPts } =
-    useMemo(() => buildProfilePolyline(panelWidthIn, boxSides), [panelWidthIn, boxSides]);
+  const { points } = useMemo(() => buildProfilePolyline(panelWidthIn, boxSides), [panelWidthIn, boxSides]);
 
   useEffect(() => {
     const canvas = outCanvasRef.current;
@@ -313,7 +304,7 @@ export function AcmPanelLinePreview({
     // Zoom is for annotation readability, not geometry scaling.
     // Keep the profile fully inside the viewport at all times.
     const textZoom = clamp(zoomMul, 0.6, 2.2);
-    const pad = 42 * textZoom;
+    const pad = 28 * textZoom;
 
     ctx.clearRect(0, 0, rectW, rectH);
 
@@ -324,12 +315,15 @@ export function AcmPanelLinePreview({
     const cx = rectW / 2;
     const cy = rectH / 2;
 
-    // Fit based on rotated bounds so long shallow profiles stay centered and visible.
+    const flatA = points[0]!;
+    const flatB = points[1]!;
+
+    // Fit to flat center segment only.
     let minX = Infinity,
       minY = Infinity,
       maxX = -Infinity,
       maxY = -Infinity;
-    const boundsPts = hemBoundsPts ?? points;
+    const boundsPts = [flatA, flatB];
     for (const p of boundsPts) {
       minX = Math.min(minX, p.x);
       minY = Math.min(minY, p.y);
@@ -341,7 +335,7 @@ export function AcmPanelLinePreview({
 
     const cosR = Math.cos(rot);
     const sinR = Math.sin(rot);
-    const rotPts = points.map((p) => {
+    const rotPts = boundsPts.map((p) => {
       const x0 = p.x - midX;
       const y0 = p.y - midY;
       return { x: x0 * cosR - y0 * sinR, y: x0 * sinR + y0 * cosR };
@@ -374,251 +368,27 @@ export function AcmPanelLinePreview({
       return { x: cx + x1, y: cy - y1 };
     };
 
-    const screenPts = points.map(tx);
-
-    const drawArrow = (x: number, y: number, dx: number, dy: number, size = 7) => {
-      const len = Math.hypot(dx, dy) || 1;
-      const ux = dx / len;
-      const uy = dy / len;
-      const px = -uy;
-      const py = ux;
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(x - ux * size + px * (size * 0.5), y - uy * size + py * (size * 0.5));
-      ctx.lineTo(x - ux * size - px * (size * 0.5), y - uy * size - py * (size * 0.5));
-      ctx.closePath();
-      ctx.fill();
-    };
-
-    const drawDim = (a: Pt, b: Pt, label: string) => {
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-      const segLen = Math.hypot(dx, dy);
-      if (segLen < 8) return;
-      const ux = dx / segLen;
-      const uy = dy / segLen;
-      const px = -uy;
-      const py = ux;
-      const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
-      const toCenter = { x: mid.x - cx, y: mid.y - cy };
-      const sign = toCenter.x * px + toCenter.y * py > 0 ? 1 : -1;
-      const off = 22 * textZoom * sign;
-      const ax = a.x + px * off;
-      const ay = a.y + py * off;
-      const bx = b.x + px * off;
-      const by = b.y + py * off;
-
-      // Light CAD-style dimension lines (no filled boxes).
-      ctx.strokeStyle = "rgba(55,65,81,0.55)";
-      ctx.lineWidth = 1.25;
-      ctx.beginPath();
-      ctx.moveTo(a.x, a.y);
-      ctx.lineTo(ax, ay);
-      ctx.moveTo(b.x, b.y);
-      ctx.lineTo(bx, by);
-      ctx.stroke();
-
-      ctx.strokeStyle = "rgba(55,65,81,0.75)";
-      ctx.lineWidth = 1.25;
-      ctx.beginPath();
-      ctx.moveTo(ax, ay);
-      ctx.lineTo(bx, by);
-      ctx.stroke();
-
-      ctx.fillStyle = "rgba(55,65,81,0.85)";
-      drawArrow(ax, ay, ux, uy, 5.5 * textZoom);
-      drawArrow(bx, by, -ux, -uy, 5.5 * textZoom);
-
-      ctx.save();
-      ctx.translate((ax + bx) / 2, (ay + by) / 2);
-      const ang = Math.atan2(by - ay, bx - ax);
-      const flip = Math.cos(ang) < 0;
-      ctx.rotate(flip ? ang + Math.PI : ang);
-      ctx.font = `700 ${Math.round(12 * textZoom)}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      // Small halo so text stays readable without blocking geometry.
-      ctx.lineJoin = "round";
-      ctx.miterLimit = 2;
-      ctx.lineWidth = 4.5;
-      ctx.strokeStyle = "rgba(244,245,247,0.95)";
-      ctx.strokeText(label, 0, -8 * textZoom);
-      ctx.fillStyle = "rgba(17,24,39,0.9)";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(label, 0, -8 * textZoom);
-      ctx.restore();
-    };
-
-    const drawAngle = (p: Pt, deg: number) => {
-      const t = `${Math.round(deg)}°`;
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.font = `700 ${Math.round(12 * textZoom)}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
-      ctx.lineJoin = "round";
-      ctx.miterLimit = 2;
-      ctx.lineWidth = 4.5;
-      ctx.strokeStyle = "rgba(244,245,247,0.95)";
-      ctx.strokeText(t, 0, 0);
-      ctx.fillStyle = "rgba(17,24,39,0.9)";
-      ctx.fillText(t, 0, 0);
-      ctx.restore();
-    };
-
     const strokeColor = "#0b1220";
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.strokeStyle = strokeColor;
     ctx.lineWidth = Math.max(3, 4 * Math.min(1.15, textZoom));
 
+    const pa = tx(flatA);
+    const pb = tx(flatB);
     ctx.beginPath();
-    const p0 = tx(points[0]!);
-    ctx.moveTo(p0.x, p0.y);
-    for (let i = 1; i < points.length; i++) {
-      const p = tx(points[i]!);
-      ctx.lineTo(p.x, p.y);
-    }
+    ctx.moveTo(pa.x, pa.y);
+    ctx.lineTo(pb.x, pb.y);
     ctx.stroke();
 
-    // COLOR leader (like typical detail callout).
-    if (screenPts.length >= 2) {
-      const a = screenPts[0]!;
-      const b = screenPts[1]!;
-      const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
-      const labelX = mid.x + 70;
-      const labelY = mid.y - 55;
-      ctx.strokeStyle = "rgba(17,24,39,0.75)";
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(mid.x, mid.y);
-      ctx.lineTo(labelX - 8, labelY + 8);
-      ctx.stroke();
-      ctx.font = `800 ${Math.round(12 * textZoom)}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
-      const t = "COLOR";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.lineJoin = "round";
-      ctx.miterLimit = 2;
-      ctx.lineWidth = 5;
-      ctx.strokeStyle = "rgba(244,245,247,0.95)";
-      ctx.strokeText(t, labelX, labelY);
-      ctx.fillStyle = "rgba(17,24,39,0.9)";
-      ctx.fillText(t, labelX, labelY);
-    }
-
-    // Hem: replace straight chord with flat / open / teardrop profile (world-space arcs → screen).
-    if (hemRender && hemStrokesWorld && hemStrokesWorld.length > 0) {
-      const s = screenPts[hemRender.startIndex];
-      const e = screenPts[hemRender.endIndex];
-      if (s && e) {
-        const bg = "#f4f5f7";
-        ctx.strokeStyle = bg;
-        ctx.lineWidth = 10 * Math.min(1.25, textZoom);
-        ctx.lineCap = "round";
-        ctx.lineJoin = "round";
-        ctx.beginPath();
-        ctx.moveTo(s.x, s.y);
-        ctx.lineTo(e.x, e.y);
-        ctx.stroke();
-
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = Math.max(3, 4 * Math.min(1.15, textZoom));
-        for (const stroke of hemStrokesWorld) {
-          if (stroke.length === 0) continue;
-          ctx.beginPath();
-          const pFirst = tx(stroke[0]!);
-          ctx.moveTo(pFirst.x, pFirst.y);
-          for (let i = 1; i < stroke.length; i++) {
-            const q = tx(stroke[i]!);
-            ctx.lineTo(q.x, q.y);
-          }
-          ctx.stroke();
-        }
-      }
-    }
-
-    // Dimensions (NorthClad-style callouts).
-    for (let i = 0; i < screenPts.length - 1; i++) {
-      const a = screenPts[i]!;
-      const b = screenPts[i + 1]!;
-      const len = segmentLensIn[i] ?? 0;
-      if (len > 0) {
-        // Base/face dimension is typically labeled "A" in shop details.
-        if (i === 0) drawDim(a, b, `A  ${fmtIn(len)}`);
-        else drawDim(a, b, fmtIn(len));
-      }
-    }
-    for (let i = 1; i < screenPts.length - 1; i++) {
-      const deg = vertexAnglesDeg[i - 1];
-      if (typeof deg === "number" && Number.isFinite(deg)) {
-        const p = screenPts[i]!;
-        // Nudge angle tag slightly away from the vertex along the local normal.
-        const a = screenPts[i - 1]!;
-        const b = screenPts[i + 1]!;
-        const vx = b.x - a.x;
-        const vy = b.y - a.y;
-        const vlen = Math.hypot(vx, vy) || 1;
-        const nx = -vy / vlen;
-        const ny = vx / vlen;
-        drawAngle({ x: p.x + nx * 18 * textZoom, y: p.y + ny * 18 * textZoom }, deg);
-      }
-    }
-
-    // Small nodes.
+    // Endpoint nodes only.
     ctx.fillStyle = strokeColor;
-    for (const p of points) {
-      const q = tx(p);
+    for (const q of [pa, pb]) {
       ctx.beginPath();
       ctx.arc(q.x, q.y, 3, 0, Math.PI * 2);
       ctx.fill();
     }
-
-    // Fold labels (minimal, like a detail drawing).
-    ctx.font = `700 ${Math.round(10 * textZoom)}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    for (const l of labels) {
-      if (l.text === "Flat center") continue;
-      const q = tx(l.at);
-      ctx.save();
-      ctx.translate(q.x, q.y);
-      // Keep text mostly upright regardless of profile rotation.
-      const a = rot + l.angleRad;
-      const flip = Math.cos(a) < 0;
-      ctx.rotate(flip ? a + Math.PI : a);
-      ctx.lineJoin = "round";
-      ctx.miterLimit = 2;
-      ctx.lineWidth = 5;
-      ctx.strokeStyle = "rgba(244,245,247,0.95)";
-      ctx.strokeText(l.text, 0, 0);
-      ctx.fillStyle = "rgba(17,24,39,0.9)";
-      ctx.fillText(l.text, 0, 0);
-      ctx.restore();
-    }
-
-    // Caption (bottom).
-    ctx.font = "500 12px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial";
-    ctx.fillStyle = "rgba(17,24,39,0.82)";
-    ctx.textAlign = "center";
-    ctx.fillText(`${panelWidthIn}" × ${panelLengthIn}" · ${panelColorName}`, rectW / 2, rectH - 18);
-  }, [
-    outCanvasRef,
-    viewportH,
-    viewportW,
-    points,
-    labels,
-    zoomMul,
-    panelWidthIn,
-    panelLengthIn,
-    panelColorName,
-    segmentLensIn,
-    vertexAnglesDeg,
-    hemRender,
-    hemStrokesWorld,
-    hemBoundsPts,
-  ]);
+  }, [outCanvasRef, viewportH, viewportW, points, zoomMul]);
 
   return (
     <section
