@@ -286,7 +286,10 @@ export function AcmPanelLinePreview({
   /** Fixed orthographic orientation (shop-detail style). */
   const rot = 0;
 
-  const { points } = useMemo(() => buildProfilePolyline(panelWidthIn, boxSides), [panelWidthIn, boxSides]);
+  const { points, hemRender, hemStrokesWorld, hemBoundsPts } = useMemo(
+    () => buildProfilePolyline(panelWidthIn, boxSides),
+    [panelWidthIn, boxSides]
+  );
 
   useEffect(() => {
     const canvas = outCanvasRef.current;
@@ -315,16 +318,14 @@ export function AcmPanelLinePreview({
     const cx = rectW / 2;
     const cy = rectH / 2;
 
-    const flatA = points[0]!;
-    const flatB = points[1]!;
+    // Center/scale using full profile + hem outline so folds and long returns stay in view.
+    const fitPts: Pt[] = [...points, ...(hemBoundsPts ?? [])];
 
-    // Fit to flat center segment only.
     let minX = Infinity,
       minY = Infinity,
       maxX = -Infinity,
       maxY = -Infinity;
-    const boundsPts = [flatA, flatB];
-    for (const p of boundsPts) {
+    for (const p of fitPts) {
       minX = Math.min(minX, p.x);
       minY = Math.min(minY, p.y);
       maxX = Math.max(maxX, p.x);
@@ -335,7 +336,7 @@ export function AcmPanelLinePreview({
 
     const cosR = Math.cos(rot);
     const sinR = Math.sin(rot);
-    const rotPts = boundsPts.map((p) => {
+    const rotPts = fitPts.map((p) => {
       const x0 = p.x - midX;
       const y0 = p.y - midY;
       return { x: x0 * cosR - y0 * sinR, y: x0 * sinR + y0 * cosR };
@@ -355,7 +356,6 @@ export function AcmPanelLinePreview({
     const rSpanY = Math.max(0.01, rMaxY - rMinY);
 
     const scaleFit = Math.min((rectW - pad * 2) / rSpanX, (rectH - pad * 2) / rSpanY);
-    // Geometry always uses the fit scale; zoom affects only labels/callouts.
     const k = scaleFit;
 
     const tx = (p: Pt): Pt => {
@@ -368,27 +368,61 @@ export function AcmPanelLinePreview({
       return { x: cx + x1, y: cy - y1 };
     };
 
+    const screenPts = points.map(tx);
+
     const strokeColor = "#0b1220";
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.strokeStyle = strokeColor;
     ctx.lineWidth = Math.max(3, 4 * Math.min(1.15, textZoom));
 
-    const pa = tx(flatA);
-    const pb = tx(flatB);
     ctx.beginPath();
-    ctx.moveTo(pa.x, pa.y);
-    ctx.lineTo(pb.x, pb.y);
+    const p0 = tx(points[0]!);
+    ctx.moveTo(p0.x, p0.y);
+    for (let i = 1; i < points.length; i++) {
+      const p = tx(points[i]!);
+      ctx.lineTo(p.x, p.y);
+    }
     ctx.stroke();
 
-    // Endpoint nodes only.
+    if (hemRender && hemStrokesWorld && hemStrokesWorld.length > 0) {
+      const s = screenPts[hemRender.startIndex];
+      const e = screenPts[hemRender.endIndex];
+      if (s && e) {
+        const bg = "#f4f5f7";
+        ctx.strokeStyle = bg;
+        ctx.lineWidth = 10 * Math.min(1.25, textZoom);
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y);
+        ctx.lineTo(e.x, e.y);
+        ctx.stroke();
+
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = Math.max(3, 4 * Math.min(1.15, textZoom));
+        for (const stroke of hemStrokesWorld) {
+          if (stroke.length === 0) continue;
+          ctx.beginPath();
+          const pFirst = tx(stroke[0]!);
+          ctx.moveTo(pFirst.x, pFirst.y);
+          for (let j = 1; j < stroke.length; j++) {
+            const q = tx(stroke[j]!);
+            ctx.lineTo(q.x, q.y);
+          }
+          ctx.stroke();
+        }
+      }
+    }
+
     ctx.fillStyle = strokeColor;
-    for (const q of [pa, pb]) {
+    for (const p of points) {
+      const q = tx(p);
       ctx.beginPath();
       ctx.arc(q.x, q.y, 3, 0, Math.PI * 2);
       ctx.fill();
     }
-  }, [outCanvasRef, viewportH, viewportW, points, zoomMul]);
+  }, [outCanvasRef, viewportH, viewportW, points, zoomMul, hemRender, hemStrokesWorld, hemBoundsPts]);
 
   return (
     <section
