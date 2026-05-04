@@ -270,7 +270,7 @@ export function AcmPanelLinePreview({
   boxSides = [],
   panelColorName,
   title = "Fold & bend preview",
-  subtitle = "Scaled detail view (no rotation). Use +, −, and 1× to zoom. Dimensions and angles reflect your inputs.",
+  subtitle = "Scaled detail view (no rotation). Use +, −, and 1× to zoom. Geometry reflects your fold inputs.",
   compact = false,
   scale = 1,
   canvasRef,

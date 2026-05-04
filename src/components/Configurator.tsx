@@ -503,7 +503,7 @@ export function Configurator({
                   boxSides={size.boxSides}
                   panelColorName={color.name}
                   title="Fold & bend preview"
-                  subtitle='Drag to rotate; use +, −, and 1× to zoom. Labels show the flat center and each fold.'
+                  subtitle="Use +, −, and 1× to zoom. The profile updates as you edit folds and return height."
                   compact
                   scale={2}
                   canvasRef={previewGlCanvasRef}
