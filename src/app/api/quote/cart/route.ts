@@ -19,8 +19,9 @@ const BOX_EDGE_EMAIL_LABEL: Record<string, string> = {
 };
 
 interface CartQuoteItem {
-  productKind?: "acm" | "flashing";
+  productKind?: "acm" | "flashing" | "accessory";
   productLabel?: string;
+  accessoryDetail?: string;
   widthIn: number;
   heightIn: number;
   standardId: string | null;
@@ -198,15 +199,19 @@ function buildCartEmailHtml(payload: CartQuotePayload, previewCids: (string | nu
   const subtotal = payload.items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
   const paymentLabel = payload.paymentMethod === "wire" ? "Wire transfer" : "Credit card (3% fee)";
   const workspaceHero = staffAcmWorkspaceUrl(orderId, 0);
-  const workspaceHeroBlock = workspaceHero
-    ? `<div style="margin:0 0 16px 0;padding:12px 14px;border:1px solid #bfdbfe;border-radius:10px;background:#eff6ff;">
+  const firstLineIsAccessory = payload.items[0]?.productKind === "accessory";
+  const workspaceHeroBlock = firstLineIsAccessory
+    ? ""
+    : workspaceHero
+      ? `<div style="margin:0 0 16px 0;padding:12px 14px;border:1px solid #bfdbfe;border-radius:10px;background:#eff6ff;">
         <div style="font-size:13px;color:#1e3a8a;font-weight:600;margin-bottom:6px;">3D preview in the staff workspace</div>
         <a href="${escapeHtml(workspaceHero)}" style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;">Open staff ACM panel workspace</a>
         <div style="margin-top:8px;font-size:12px;color:#334155;">Sign in with your admin or subcontractor account. For carts with multiple lines, use the link on each row to open that line.</div>
       </div>`
-    : `<p style="margin:0 0 12px 0;font-size:12px;color:#64748b;">Configure <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">NEXT_PUBLIC_SITE_URL</code> on the server so workspace links appear in this email (Vercel also provides <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">VERCEL_URL</code>).</p>`;
+      : `<p style="margin:0 0 12px 0;font-size:12px;color:#64748b;">Configure <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">NEXT_PUBLIC_SITE_URL</code> on the server so workspace links appear in this email (Vercel also provides <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">VERCEL_URL</code>).</p>`;
   const rows = payload.items
     .map((i, rowIndex) => {
+      const isAccessory = i.productKind === "accessory";
       const color = getColorLabel(i.colorId);
       const thicknessLabel = getThicknessLabel(i.thicknessId);
       const finishLabel = getFinishLabel(i.finishId);
@@ -224,22 +229,26 @@ function buildCartEmailHtml(payload: CartQuotePayload, previewCids: (string | nu
             </div>`
           : "";
       const cid = previewCids[rowIndex] ?? null;
-      const previewBlock = cid
-        ? `<div style="margin-bottom:8px;"><img src="cid:${escapeHtml(cid)}" alt="3D panel preview" width="280" style="max-width:280px;height:auto;border:1px solid #ddd;border-radius:8px;background:#f4f5f7;display:block" /></div>`
-        : i.previewImageDataUrl
-          ? `<div style="margin-bottom:8px;font-size:12px;color:#666;">3D preview was submitted but could not be embedded (too large or unsupported format).</div>`
-          : "";
+      const previewBlock = isAccessory
+        ? ""
+        : cid
+          ? `<div style="margin-bottom:8px;"><img src="cid:${escapeHtml(cid)}" alt="3D panel preview" width="280" style="max-width:280px;height:auto;border:1px solid #ddd;border-radius:8px;background:#f4f5f7;display:block" /></div>`
+          : i.previewImageDataUrl
+            ? `<div style="margin-bottom:8px;font-size:12px;color:#666;">3D preview was submitted but could not be embedded (too large or unsupported format).</div>`
+            : "";
       const specRaw = typeof i.trayBuildSpec === "string" ? i.trayBuildSpec : "";
       const specTrimmed = specRaw ? truncateForEmail(specRaw, 12_000) : "";
       const specBlock = specTrimmed
         ? `<pre style="margin-top:8px;padding:8px;background:#f8f9fa;border-radius:6px;font-size:11px;line-height:1.35;white-space:pre-wrap;word-break:break-word;color:#333;max-height:280px;overflow:auto">${escapeHtml(specTrimmed)}</pre>`
         : "";
-      const measurementsBlock = trayMeasurementsHtml(i.boxTraySides);
-      const workspaceLine = staffAcmWorkspaceUrl(orderId, rowIndex);
+      const measurementsBlock = isAccessory ? "" : trayMeasurementsHtml(i.boxTraySides);
+      const workspaceLine = isAccessory ? null : staffAcmWorkspaceUrl(orderId, rowIndex);
       const workspaceLineBlock = workspaceLine
         ? `<div style="margin-top:8px;"><a href="${escapeHtml(workspaceLine)}" style="font-size:12px;color:#1d4ed8;text-decoration:underline;">Open this line in staff ACM workspace (3D)</a></div>`
         : "";
-      const productLabel = i.productLabel ?? (i.productKind === "flashing" ? "Flashing" : "ACM Panels");
+      const productLabel =
+        i.productLabel ??
+        (i.productKind === "flashing" ? "Flashing" : i.productKind === "accessory" ? "Accessory" : "ACM Panels");
       const perPanel =
         typeof i.clipsPerPanel === "number" && Number.isFinite(i.clipsPerPanel) && i.clipsPerPanel > 0
           ? Math.round(i.clipsPerPanel)
@@ -254,7 +263,18 @@ function buildCartEmailHtml(payload: CartQuotePayload, previewCids: (string | nu
           : total != null
             ? ` · ${total} clips total`
             : "";
-      const metaBlock = `<div style="margin-top:6px;font-size:12px;line-height:1.35;color:#111827;">
+      const metaBlock = isAccessory
+        ? `<div style="margin-top:6px;font-size:12px;line-height:1.35;color:#111827;">
+        <div><strong>${escapeHtml(productLabel)}</strong></div>
+        ${
+          i.accessoryDetail
+            ? `<div style="margin-top:8px;color:#4b5563;font-size:12px;white-space:pre-wrap;">${escapeHtml(truncateForEmail(i.accessoryDetail, 2400))}</div>`
+            : ""
+        }
+        <div style="margin-top:8px;">Qty ${i.quantity}</div>
+        <div style="margin-top:4px;color:#374151;">${escapeHtml(formatUSD(unit))} each (est.) · <strong>${escapeHtml(formatUSD(lineTotal))}</strong></div>
+      </div>`
+        : `<div style="margin-top:6px;font-size:12px;line-height:1.35;color:#111827;">
         <div><strong>${escapeHtml(color.name)}</strong>${color.code ? ` · ${escapeHtml(color.code)}` : ""}</div>
         <div><strong>${escapeHtml(productLabel)}</strong> · ${escapeHtml(thicknessLabel)} · ${escapeHtml(finishLabel)}${i.panelTypeLabel ? ` · ${escapeHtml(i.panelTypeLabel)}` : ""}${clipsLine}</div>
         <div>${i.widthIn}″ × ${i.heightIn}″ · Qty ${i.quantity}</div>
@@ -319,18 +339,21 @@ function buildCartCustomerEmailHtml(
 
   const itemsHtml = payload.items
     .map((i, rowIndex) => {
+      const isAccessory = i.productKind === "accessory";
       const color = getColorLabel(i.colorId);
       const thicknessLabel = getThicknessLabel(i.thicknessId);
       const finishLabel = getFinishLabel(i.finishId);
       const unit = i.unitPrice;
       const lineTotal = i.unitPrice * i.quantity;
       const cid = previewCids[rowIndex] ?? null;
-      const previewBlock = cid
-        ? `<div style="margin:0 0 10px 0;"><img src="cid:${escapeHtml(cid)}" alt="Panel preview" width="280" style="max-width:280px;height:auto;border:1px solid #e5e7eb;border-radius:8px;background:#f4f5f7;display:block" /></div>`
-        : i.previewImageDataUrl
-          ? `<div style="margin:0 0 10px 0;font-size:12px;color:#6b7280;">A panel preview was captured but could not be embedded in this email (too large or unsupported format).</div>`
-          : "";
-      const measurementsBlock = trayMeasurementsHtml(i.boxTraySides);
+      const previewBlock = isAccessory
+        ? ""
+        : cid
+          ? `<div style="margin:0 0 10px 0;"><img src="cid:${escapeHtml(cid)}" alt="Panel preview" width="280" style="max-width:280px;height:auto;border:1px solid #e5e7eb;border-radius:8px;background:#f4f5f7;display:block" /></div>`
+          : i.previewImageDataUrl
+            ? `<div style="margin:0 0 10px 0;font-size:12px;color:#6b7280;">A panel preview was captured but could not be embedded in this email (too large or unsupported format).</div>`
+            : "";
+      const measurementsBlock = isAccessory ? "" : trayMeasurementsHtml(i.boxTraySides);
       const customBlock =
         i.customColorReference || i.customColorSpecFileName
           ? `<div style="margin-top:8px;font-size:12px;color:#374151;">
@@ -342,7 +365,9 @@ function buildCartCustomerEmailHtml(
               }
             </div>`
           : "";
-      const productLabel = i.productLabel ?? (i.productKind === "flashing" ? "Flashing" : "ACM Panels");
+      const productLabel =
+        i.productLabel ??
+        (i.productKind === "flashing" ? "Flashing" : i.productKind === "accessory" ? "Accessory" : "ACM Panels");
       const perPanel =
         typeof i.clipsPerPanel === "number" && Number.isFinite(i.clipsPerPanel) && i.clipsPerPanel > 0
           ? Math.round(i.clipsPerPanel)
@@ -357,6 +382,20 @@ function buildCartCustomerEmailHtml(
           : total != null
             ? ` · ${total} clips total`
             : "";
+      if (isAccessory) {
+        return `<div style="padding:14px 0;border-bottom:1px solid #eef2f7;">
+        <div style="font-size:14px;color:#111827;">
+          <div style="font-weight:700;">${escapeHtml(productLabel)}</div>
+          ${
+            i.accessoryDetail
+              ? `<div style="margin-top:8px;font-size:13px;color:#4b5563;line-height:1.45;">${escapeHtml(truncateForEmail(i.accessoryDetail, 2400))}</div>`
+              : ""
+          }
+          <div style="margin-top:8px;color:#374151;">Qty ${i.quantity}</div>
+          <div style="margin-top:6px;color:#374151;">${escapeHtml(formatUSD(unit))} each (est.) · <strong>${escapeHtml(formatUSD(lineTotal))}</strong></div>
+        </div>
+      </div>`;
+      }
       return `<div style="padding:14px 0;border-bottom:1px solid #eef2f7;">
         ${previewBlock}
         <div style="font-size:14px;color:#111827;">

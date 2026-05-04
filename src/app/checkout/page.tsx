@@ -187,33 +187,47 @@ export default function CheckoutPage() {
             >
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-start gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setPreviewItemId(item.id)}
-                    className="group relative shrink-0 rounded-lg border border-gray-200 bg-[#f4f5f7] text-left shadow-sm transition hover:border-gray-400 hover:shadow focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-                    aria-label="Open enlarged 3D preview — drag to rotate"
-                  >
-                    {item.previewImageDataUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={item.previewImageDataUrl}
-                        alt=""
-                        className="h-28 w-44 rounded-lg object-cover"
-                      />
-                    ) : (
-                      <span className="flex h-28 w-44 items-center justify-center px-2 text-center text-[12px] font-medium text-gray-600">
-                        3D preview
+                  {item.productKind === "accessory" ? (
+                    <div
+                      className="flex h-28 w-44 shrink-0 flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 px-2 text-center"
+                      aria-hidden
+                    >
+                      <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">Accessory</span>
+                      <span className="mt-1 text-[10px] text-gray-500">No 3D preview</span>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setPreviewItemId(item.id)}
+                      className="group relative shrink-0 rounded-lg border border-gray-200 bg-[#f4f5f7] text-left shadow-sm transition hover:border-gray-400 hover:shadow focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                      aria-label="Open enlarged 3D preview — drag to rotate"
+                    >
+                      {item.previewImageDataUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={item.previewImageDataUrl}
+                          alt=""
+                          className="h-28 w-44 rounded-lg object-cover"
+                        />
+                      ) : (
+                        <span className="flex h-28 w-44 items-center justify-center px-2 text-center text-[12px] font-medium text-gray-600">
+                          3D preview
+                        </span>
+                      )}
+                      <span className="absolute bottom-1 left-1 right-1 rounded bg-black/55 px-1 py-0.5 text-center text-[10px] font-medium text-white backdrop-blur-sm">
+                        Click — zoom &amp; rotate
                       </span>
-                    )}
-                    <span className="absolute bottom-1 left-1 right-1 rounded bg-black/55 px-1 py-0.5 text-center text-[10px] font-medium text-white backdrop-blur-sm">
-                      Click — zoom &amp; rotate
-                    </span>
-                  </button>
+                    </button>
+                  )}
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-gray-900">
                       {describeCartLineItem(item)} <span className="text-gray-500">× {item.quantity}</span>
                     </p>
-                    <p className="mt-1 text-xs text-gray-500">{formatUSD(item.unitPrice)} per panel</p>
+                    <p className="mt-1 text-xs text-gray-500">
+                      {item.productKind === "accessory"
+                        ? `${formatUSD(item.unitPrice)} each (estimate)`
+                        : `${formatUSD(item.unitPrice)} per panel`}
+                    </p>
                     {item.trayBuildSpec ? (
                       <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap break-words rounded-md bg-gray-50 p-2 text-[11px] leading-snug text-gray-700">
                         {item.trayBuildSpec}

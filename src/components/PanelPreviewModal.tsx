@@ -37,6 +37,42 @@ export function PanelPreviewModal({
 
   if (!open || !item) return null;
 
+  if (item.productKind === "accessory") {
+    const accessoryModal = (
+      <div
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/55 p-4 backdrop-blur-[2px]"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Accessory details"
+        onClick={onClose}
+      >
+        <div
+          className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-gray-200 bg-white p-6 shadow-xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <p className="text-base font-semibold text-gray-900">{item.productLabel ?? "Accessory"}</p>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-800 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+            >
+              Close
+            </button>
+          </div>
+          {item.accessoryDetail ? (
+            <p className="text-[15px] leading-relaxed text-gray-600">{item.accessoryDetail}</p>
+          ) : null}
+          <p className="mt-4 text-sm text-gray-500">
+            There is no 3D preview for this item. Details appear on your cart and quote request.
+          </p>
+        </div>
+      </div>
+    );
+    if (typeof document === "undefined") return null;
+    return createPortal(accessoryModal, document.body);
+  }
+
   const color = colors.find((c) => c.id === item.colorId);
   const swatch =
     color && "swatchImage" in color && typeof (color as { swatchImage?: string }).swatchImage === "string"

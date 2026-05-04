@@ -25,6 +25,9 @@ export function enrichPortalOrder(
 }
 
 export type CartQuoteItemLike = {
+  productKind?: "acm" | "flashing" | "accessory";
+  productLabel?: string;
+  accessoryDetail?: string;
   widthIn: number;
   heightIn: number;
   standardId: string | null;
@@ -102,7 +105,9 @@ export function buildPortalOrderFromCartQuote(input: {
   const projectName =
     input.items.length > 1
       ? `Cart quote (${input.items.length} line items)`
-      : first.panelTypeLabel ?? "Quote request";
+      : first.productKind === "accessory"
+        ? first.productLabel ?? first.panelTypeLabel ?? "Accessory order"
+        : first.panelTypeLabel ?? "Quote request";
 
   return {
     id: input.orderId,

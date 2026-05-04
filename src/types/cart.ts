@@ -4,8 +4,10 @@ import type { BoxTraySideRow } from "@/types/boxTray";
 export interface CartItem {
   id: string;
   /** Product family for display + pricing context. */
-  productKind?: "acm" | "flashing";
+  productKind?: "acm" | "flashing" | "accessory";
   productLabel?: string;
+  /** Longer copy for accessory lines (clips, fasteners, etc.). */
+  accessoryDetail?: string;
   widthIn: number;
   heightIn: number;
   standardId: string | null;

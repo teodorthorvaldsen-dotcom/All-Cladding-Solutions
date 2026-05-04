@@ -10,6 +10,18 @@ import { getCartSizeLabel, getCartTrayLines } from "@/lib/describeCartLineItem";
 import type { CartItem } from "@/types/cart";
 
 export function CartItemMeasurementBlock({ item }: { item: CartItem }) {
+  if (item.productKind === "accessory") {
+    return (
+      <div className="space-y-2 text-gray-900">
+        <p className="text-base font-semibold text-gray-900">{item.productLabel ?? "Accessory"}</p>
+        {item.accessoryDetail ? (
+          <p className="text-[13px] leading-snug text-gray-600">{item.accessoryDetail}</p>
+        ) : null}
+        <p className="text-[12px] text-gray-500">Price shown is estimated per piece; final pricing on your quote.</p>
+      </div>
+    );
+  }
+
   const sizeLabel = getCartSizeLabel(item);
   const trayLines = getCartTrayLines(item);
   const color = colors.find((c) => c.id === item.colorId)?.name ?? item.colorId;

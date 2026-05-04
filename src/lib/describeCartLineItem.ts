@@ -10,6 +10,7 @@ function hemTypeLabel(t: string): string {
 }
 
 export function getCartSizeLabel(item: CartItem): string {
+  if (item.productKind === "accessory") return "Per unit";
   const widthLabel = item.standardId
     ? allWidths.find((w) => w.id === item.standardId)?.label ?? `${item.widthIn}"`
     : `${item.widthIn}"`;
@@ -49,6 +50,9 @@ export function getCartTrayLines(item: CartItem): string[] {
  * One-line summary for checkout / order rows and aria-labels (no full tray dump).
  */
 export function describeCartLineItem(item: CartItem): string {
+  if (item.productKind === "accessory") {
+    return item.productLabel ?? "Accessory";
+  }
   const sizeLabel = getCartSizeLabel(item);
   const productShort =
     item.productLabel ??
