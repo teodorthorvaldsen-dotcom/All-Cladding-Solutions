@@ -75,47 +75,32 @@ function sampleArc(C: Pt, R: number, a0: number, sweep: number, steps: number): 
   return out;
 }
 
-/** Tight 180° bend (flat hem): semicircle on chord S–E + inner semicircle offset. */
+/**
+ * Flat (closed) hem — single centerline like catalog section views.
+ * A double semicircle (outer + offset inner) read as a thick “pipe”; one 180° arc matches shop drawings.
+ */
 function flatHemStrokes(S: Pt, E: Pt, n: Pt): Pt[][] {
   const L = dist(S, E);
   const half = L / 2;
   const R = half;
   const M = midpoint(S, E);
   const C = M;
-  const g = Math.max(L * 0.045, 0.015);
   const outerOs = arcChordSweep(S, E, C, R, n, M);
-  const outer = sampleArc(C, R, outerOs.a0, outerOs.sweep, 26);
-  const S2 = { x: S.x + n.x * g, y: S.y + n.y * g };
-  const E2 = { x: E.x + n.x * g, y: E.y + n.y * g };
-  const M2 = midpoint(S2, E2);
-  const R2 = Math.max(R - g, L * 0.08);
-  const d2 = Math.sqrt(Math.max(0, R2 * R2 - half * half));
-  const C2 = { x: M2.x + n.x * d2, y: M2.y + n.y * d2 };
-  const innerOs = arcChordSweep(S2, E2, C2, R2, n, M2);
-  const inner = sampleArc(C2, R2, innerOs.a0, innerOs.sweep, 22);
-  return [outer, inner];
+  const outer = sampleArc(C, R, outerOs.a0, outerOs.sweep, 22);
+  return [outer];
 }
 
-/** Gentler bend + visible gap (open hem). */
+/** Open hem — shallow arc (large radius) so it reads like a slight break, not a balloon loop. */
 function openHemStrokes(S: Pt, E: Pt, n: Pt): Pt[][] {
   const L = dist(S, E);
   const M = midpoint(S, E);
   const half = L / 2;
-  const R = Math.max(L * 0.78, half + 1e-6);
+  const R = Math.max(L * 2.8, half + 1e-6);
   const dCent = Math.sqrt(Math.max(0, R * R - half * half));
   const C = { x: M.x + n.x * dCent, y: M.y + n.y * dCent };
-  const g = Math.max(L * 0.11, 0.02);
   const { a0, sweep } = arcChordSweep(S, E, C, R, n, M);
-  const outer = sampleArc(C, R, a0, sweep, 28);
-  const S2 = { x: S.x + n.x * g, y: S.y + n.y * g };
-  const E2 = { x: E.x + n.x * g, y: E.y + n.y * g };
-  const M2 = midpoint(S2, E2);
-  const R2 = Math.max(R - g, half * 0.52);
-  const d2 = Math.sqrt(Math.max(0, R2 * R2 - half * half));
-  const C2 = { x: M2.x + n.x * d2, y: M2.y + n.y * d2 };
-  const innerSweep = arcChordSweep(S2, E2, C2, R2, n, M2);
-  const inner = sampleArc(C2, R2, innerSweep.a0, innerSweep.sweep, 26);
-  return [outer, inner];
+  const outer = sampleArc(C, R, a0, sweep, 20);
+  return [outer];
 }
 
 function cubicSample(p0: Pt, p1: Pt, p2: Pt, p3: Pt, steps: number): Pt[] {
@@ -130,13 +115,13 @@ function cubicSample(p0: Pt, p1: Pt, p2: Pt, p3: Pt, steps: number): Pt[] {
   return out;
 }
 
-/** Bulb + tip landing near hem root (teardrop hem). */
+/** Teardrop hem — toned-down bulb vs old preview (closer to catalog line weights). */
 function teardropHemStroke(S: Pt, E: Pt, n: Pt, tu: Pt): Pt[] {
   const L = dist(S, E);
-  const tip = { x: S.x + tu.x * L * 0.22, y: S.y + tu.y * L * 0.22 };
-  const cp1 = { x: S.x + n.x * L * 1.08 + tu.x * L * 0.42, y: S.y + n.y * L * 1.08 + tu.y * L * 0.42 };
-  const cp2 = { x: tip.x + n.x * L * 0.52 + tu.x * L * 0.48, y: tip.y + n.y * L * 0.52 + tu.y * L * 0.48 };
-  return cubicSample(S, cp1, cp2, tip, 30);
+  const tip = { x: S.x + tu.x * L * 0.16, y: S.y + tu.y * L * 0.16 };
+  const cp1 = { x: S.x + n.x * L * 0.62 + tu.x * L * 0.28, y: S.y + n.y * L * 0.62 + tu.y * L * 0.28 };
+  const cp2 = { x: tip.x + n.x * L * 0.34 + tu.x * L * 0.36, y: tip.y + n.y * L * 0.34 + tu.y * L * 0.36 };
+  return cubicSample(S, cp1, cp2, tip, 24);
 }
 
 function hemPreviewStrokesWorld(S: Pt, E: Pt, prevPt: Pt, kind: "closed" | "open" | "teardrop"): Pt[][] {
@@ -270,7 +255,8 @@ export function AcmPanelLinePreview({
   boxSides = [],
   panelColorName,
   title = "Fold & bend preview",
-  subtitle = "Scaled detail view (no rotation). Use +, −, and 1× to zoom. Geometry reflects your fold inputs.",
+  subtitle =
+    "Scaled section-style preview (no rotation). Use +, −, and 1× to zoom. Hems use single centerlines like typical flashing drawings.",
   compact = false,
   scale = 1,
   canvasRef,
@@ -370,11 +356,15 @@ export function AcmPanelLinePreview({
 
     const screenPts = points.map(tx);
 
-    const strokeColor = "#0b1220";
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
+    const strokeColor = "#111827";
+    const mainLw = Math.max(2.25, 3.1 * Math.min(1.12, textZoom));
+    const hemLw = Math.max(1.35, 2 * Math.min(1.12, textZoom));
+
+    ctx.lineCap = "butt";
+    ctx.lineJoin = "miter";
+    ctx.miterLimit = 10;
     ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = Math.max(3, 4 * Math.min(1.15, textZoom));
+    ctx.lineWidth = mainLw;
 
     ctx.beginPath();
     const p0 = tx(points[0]!);
@@ -391,16 +381,18 @@ export function AcmPanelLinePreview({
       if (s && e) {
         const bg = "#f4f5f7";
         ctx.strokeStyle = bg;
-        ctx.lineWidth = 10 * Math.min(1.25, textZoom);
-        ctx.lineCap = "round";
-        ctx.lineJoin = "round";
+        ctx.lineWidth = mainLw + hemLw + 2;
+        ctx.lineCap = "butt";
+        ctx.lineJoin = "miter";
         ctx.beginPath();
         ctx.moveTo(s.x, s.y);
         ctx.lineTo(e.x, e.y);
         ctx.stroke();
 
         ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = Math.max(3, 4 * Math.min(1.15, textZoom));
+        ctx.lineWidth = hemLw;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
         for (const stroke of hemStrokesWorld) {
           if (stroke.length === 0) continue;
           ctx.beginPath();
@@ -419,7 +411,7 @@ export function AcmPanelLinePreview({
     for (const p of points) {
       const q = tx(p);
       ctx.beginPath();
-      ctx.arc(q.x, q.y, 3, 0, Math.PI * 2);
+      ctx.arc(q.x, q.y, 2.5, 0, Math.PI * 2);
       ctx.fill();
     }
   }, [outCanvasRef, viewportH, viewportW, points, zoomMul, hemRender, hemStrokesWorld, hemBoundsPts]);
