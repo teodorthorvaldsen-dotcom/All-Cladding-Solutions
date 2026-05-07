@@ -1,6 +1,14 @@
 /** Physical edge of the flat blank the flap attaches to (center base spans x ∈ [-W/2,W/2], y ∈ [0,L]). */
 export type BoxTrayEdge = "south" | "north" | "west" | "east";
 
+/** Canonical hem kinds; persisted `open_hem` replaces legacy `"open"` (normalized on load). */
+export type HemType = "none" | "open_hem" | "closed" | "teardrop";
+
+export interface HemSettings {
+  type: HemType;
+  size: number;
+}
+
 export interface BoxTraySideRow {
   id: string;
   edge: BoxTrayEdge;
@@ -11,7 +19,7 @@ export interface BoxTraySideRow {
   /** When set, this return continues from the free edge of the parent row (same edge); UI nests under that side. */
   parentId?: string | null;
   /** Optional hem on the free edge of this fold (only meaningful on leaf folds). */
-  hemType?: "none" | "open" | "closed" | "teardrop";
+  hemType?: HemType;
   /** Hem size (in). */
   hemSizeIn?: number;
 }

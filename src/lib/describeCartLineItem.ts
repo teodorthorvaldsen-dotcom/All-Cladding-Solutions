@@ -4,7 +4,7 @@ import type { CartItem } from "@/types/cart";
 
 function hemTypeLabel(t: string): string {
   if (t === "closed") return "flat";
-  if (t === "open") return "open";
+  if (t === "open_hem" || t === "open") return "open";
   if (t === "teardrop") return "teardrop";
   return t;
 }

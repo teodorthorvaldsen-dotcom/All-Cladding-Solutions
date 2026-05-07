@@ -1,5 +1,5 @@
 import { clampAngleDeg } from "@/lib/panelBends";
-import type { BoxTrayEdge, BoxTraySideRow } from "@/types/boxTray";
+import type { BoxTrayEdge, BoxTraySideRow, HemType } from "@/types/boxTray";
 
 const MAX_FLANGE_IN = 120;
 const MAX_FLANGE_FLASHING_IN = 120;
@@ -41,8 +41,9 @@ function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
-function normalizeHemType(raw: unknown): "none" | "open" | "closed" | "teardrop" | undefined {
-  if (raw === "open" || raw === "closed" || raw === "teardrop" || raw === "none") return raw;
+function normalizeHemType(raw: unknown): HemType | undefined {
+  if (raw === "open" || raw === "open_hem") return "open_hem";
+  if (raw === "closed" || raw === "teardrop" || raw === "none") return raw;
   return undefined;
 }
 

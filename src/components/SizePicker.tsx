@@ -8,7 +8,7 @@ import {
   MIN_LENGTH_IN,
 } from "@/data/acm";
 import type { ThicknessId } from "@/data/acm";
-import type { BoxTrayEdge, BoxTraySideRow } from "@/types/boxTray";
+import type { BoxTrayEdge, BoxTraySideRow, HemType } from "@/types/boxTray";
 import {
   defaultFullTraySides,
   MAX_TRAY_SIDE_ROWS,
@@ -44,7 +44,7 @@ interface SideDraft {
 }
 
 interface HemDraft {
-  type: "none" | "open" | "closed" | "teardrop";
+  type: HemType;
   size: string;
 }
 
@@ -160,7 +160,7 @@ export function SizePicker({
   const [hemDrafts, setHemDrafts] = useState<HemDraft[]>(() =>
     value.boxSides.map((s) => ({
       type:
-        s.hemType === "open" || s.hemType === "closed" || s.hemType === "teardrop"
+        s.hemType === "open_hem" || s.hemType === "closed" || s.hemType === "teardrop"
           ? s.hemType
           : "none",
       size:
@@ -180,7 +180,7 @@ export function SizePicker({
     setHemDrafts(
       value.boxSides.map((s) => ({
         type:
-        s.hemType === "open" || s.hemType === "closed" || s.hemType === "teardrop"
+        s.hemType === "open_hem" || s.hemType === "closed" || s.hemType === "teardrop"
           ? s.hemType
           : "none",
         size:
@@ -205,22 +205,27 @@ export function SizePicker({
     });
   };
 
-  const commitHemRow = (index: number) => {
+  const commitHemRowAt = (index: number, hem: { type: HemType; sizeStr: string }) => {
     const row = value.boxSides[index];
-    const draft = hemDrafts[index];
-    if (!row || !draft) return;
-    const t = draft.type;
-    const n = Number(draft.size);
+    if (!row) return;
+    const n = Number(hem.sizeStr);
     const hemSizeIn = Number.isFinite(n) ? Math.min(2, Math.max(0.25, n)) : 0.5;
     const next = value.boxSides.map((s, i) => {
       if (i !== index) return s;
       return {
         ...s,
-        hemType: t,
-        hemSizeIn: t === "none" ? undefined : hemSizeIn,
+        hemType: hem.type,
+        hemSizeIn: hem.type === "none" ? undefined : hemSizeIn,
       };
     });
     pushSides(next);
+  };
+
+  const commitHemRow = (index: number) => {
+    const draft = hemDrafts[index];
+    const row = value.boxSides[index];
+    if (!draft || !row) return;
+    commitHemRowAt(index, { type: draft.type, sizeStr: draft.size });
   };
 
   const handleWidthChange = (raw: string) => {
@@ -685,14 +690,16 @@ export function SizePicker({
                                   id={`hem-type-${side.id}`}
                                   value={hemDrafts[index]?.type ?? "none"}
                                   disabled={!isLeaf}
-                                  onChange={(e) =>
+                                  onChange={(e) => {
+                                    const t = (e.target.value as HemType) ?? "none";
+                                    const sizeStr = hemDrafts[index]?.size ?? "0.5";
                                     setHemDrafts((prev) => {
                                       const copy = [...prev];
-                                      const t = (e.target.value as "none" | "open" | "closed" | "teardrop") ?? "none";
                                       copy[index] = { ...(copy[index] ?? { type: "none", size: "0.5" }), type: t };
                                       return copy;
-                                    })
-                                  }
+                                    });
+                                    commitHemRowAt(index, { type: t, sizeStr });
+                                  }}
                                   onBlur={() => commitHemRow(index)}
                                   className={`mt-1 block h-9 w-full rounded-lg border border-gray-200 bg-white px-2 text-[13px] text-gray-800 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1 ${
                                     !isLeaf ? "opacity-60" : ""
@@ -700,7 +707,7 @@ export function SizePicker({
                                 >
                                   <option value="none">No hem</option>
                                   <option value="closed">Flat hem</option>
-                                  <option value="open">Open hem</option>
+                                  <option value="open_hem">Open hem</option>
                                   <option value="teardrop">Teardrop hem</option>
                                 </select>
                               </div>
@@ -717,13 +724,16 @@ export function SizePicker({
                                   step={0.01}
                                   disabled={!isLeaf || (hemDrafts[index]?.type ?? "none") === "none"}
                                   value={hemDrafts[index]?.size ?? "0.5"}
-                                  onChange={(e) =>
+                                  onChange={(e) => {
+                                    const sizeStr = e.target.value;
+                                    const t = hemDrafts[index]?.type ?? "none";
                                     setHemDrafts((prev) => {
                                       const copy = [...prev];
-                                      copy[index] = { ...(copy[index] ?? { type: "none", size: "0.5" }), size: e.target.value };
+                                      copy[index] = { ...(copy[index] ?? { type: "none", size: "0.5" }), size: sizeStr };
                                       return copy;
-                                    })
-                                  }
+                                    });
+                                    commitHemRowAt(index, { type: t, sizeStr });
+                                  }}
                                   onBlur={() => commitHemRow(index)}
                                   onKeyDown={(e) => {
                                     if (e.key === "Enter") (e.target as HTMLInputElement).blur();

@@ -90,17 +90,83 @@ function flatHemStrokes(S: Pt, E: Pt, n: Pt): Pt[][] {
   return [outer];
 }
 
-/** Open hem — shallow arc (large radius) so it reads like a slight break, not a balloon loop. */
-function openHemStrokes(S: Pt, E: Pt, n: Pt): Pt[][] {
-  const L = dist(S, E);
-  const M = midpoint(S, E);
-  const half = L / 2;
-  const R = Math.max(L * 2.8, half + 1e-6);
-  const dCent = Math.sqrt(Math.max(0, R * R - half * half));
-  const C = { x: M.x + n.x * dCent, y: M.y + n.y * dCent };
-  const { a0, sweep } = arcChordSweep(S, E, C, R, n, M);
-  const outer = sampleArc(C, R, a0, sweep, 20);
-  return [outer];
+const OPEN_HEM_GAP_IN = 0.048;
+
+/**
+ * Open hem — ~180° hook with a visible gap between outer and inner layers (shop-style J hem).
+ * Outer: bend arc (slightly open vs 180°) → return leg parallel to the flat (horizontal).
+ * Inner: offset stroke so the gap reads between layers.
+ */
+function openHemHookStrokes(S: Pt, E: Pt, prevPt: Pt, hemLegLen: number): Pt[][] {
+  const tf = vunit({ x: S.x - prevPt.x, y: S.y - prevPt.y });
+  const chord = vunit({ x: E.x - S.x, y: E.y - S.y });
+  const n = hemBendNormal(S, E, prevPt);
+  const R = clamp(hemLegLen * 0.32, 0.05, 0.14);
+  const gap = OPEN_HEM_GAP_IN;
+  const sweepOpenDeg = 176;
+  const sweep = (sweepOpenDeg * Math.PI) / 180;
+
+  const leftPerp = { x: -tf.y, y: tf.x };
+  const rightPerp = { x: tf.y, y: -tf.x };
+  const useLeft = cross2d(tf, chord) >= 0;
+  const perp = useLeft ? leftPerp : rightPerp;
+  const C: Pt = { x: S.x + perp.x * R, y: S.y + perp.y * R };
+
+  const aS = Math.atan2(S.y - C.y, S.x - C.x);
+  const tryNeg = sampleArc(C, R, aS, -sweep, 22);
+  const tryPos = sampleArc(C, R, aS, sweep, 22);
+  const midNeg = tryNeg[Math.floor(tryNeg.length / 2)]!;
+  const midPos = tryPos[Math.floor(tryPos.length / 2)]!;
+  const towardCavity = (P: Pt) => P.x * n.x + P.y * n.y;
+  const outerArc = towardCavity({ x: midNeg.x - S.x, y: midNeg.y - S.y }) >= towardCavity({ x: midPos.x - S.x, y: midPos.y - S.y }) ? tryNeg : tryPos;
+
+  const arcEnd = outerArc[outerArc.length - 1]!;
+  const legSign = arcEnd.x > 1e-6 ? -1 : arcEnd.x < -1e-6 ? 1 : chord.x >= 0 ? -1 : 1;
+  const legTan: Pt = { x: legSign, y: 0 };
+  const legEnd: Pt = {
+    x: arcEnd.x + legTan.x * hemLegLen,
+    y: arcEnd.y + legTan.y * hemLegLen,
+  };
+
+  const bendOut = vunit({ x: arcEnd.x - C.x, y: arcEnd.y - C.y });
+  const bendTan = { x: -bendOut.y, y: bendOut.x };
+  const bendSteps = 5;
+  const outer: Pt[] = outerArc.slice(0, -1);
+  for (let i = 1; i <= bendSteps; i++) {
+    const u = i / bendSteps;
+    outer.push({
+      x: arcEnd.x + (legTan.x - bendTan.x) * hemLegLen * 0.1 * u,
+      y: arcEnd.y + (legTan.y - bendTan.y) * hemLegLen * 0.1 * u,
+    });
+  }
+  outer.push(legEnd);
+
+  const cavityHint: Pt = { x: -(n.x + chord.x * 0.35), y: -(n.y + chord.y * 0.35) };
+  const inner = offsetStrokeTowardCavity(outer, gap, cavityHint);
+
+  return [outer, inner];
+}
+
+/** Offset polyline perpendicular to tangent, chosen side toward cavity (gap visualization). */
+function offsetStrokeTowardCavity(stroke: Pt[], gap: number, cavityHint: Pt): Pt[] {
+  const out: Pt[] = [];
+  for (let i = 0; i < stroke.length; i++) {
+    const prev = stroke[i - 1] ?? stroke[i]!;
+    const next = stroke[i + 1] ?? stroke[i]!;
+    const seg = { x: next.x - prev.x, y: next.y - prev.y };
+    let t = vunit(seg);
+    if (vlen(seg) < 1e-9) {
+      const fb = { x: stroke[i]!.x - prev.x, y: stroke[i]!.y - prev.y };
+      t = vlen(fb) >= 1e-9 ? vunit(fb) : { x: 1, y: 0 };
+    }
+    let inward = { x: -t.y, y: t.x };
+    if (inward.x * cavityHint.x + inward.y * cavityHint.y < 0) {
+      inward = { x: t.y, y: -t.x };
+    }
+    const p = stroke[i]!;
+    out.push({ x: p.x + inward.x * gap, y: p.y + inward.y * gap });
+  }
+  return out;
 }
 
 function cubicSample(p0: Pt, p1: Pt, p2: Pt, p3: Pt, steps: number): Pt[] {
@@ -124,11 +190,17 @@ function teardropHemStroke(S: Pt, E: Pt, n: Pt, tu: Pt): Pt[] {
   return cubicSample(S, cp1, cp2, tip, 24);
 }
 
-function hemPreviewStrokesWorld(S: Pt, E: Pt, prevPt: Pt, kind: "closed" | "open" | "teardrop"): Pt[][] {
+function hemPreviewStrokesWorld(
+  S: Pt,
+  E: Pt,
+  prevPt: Pt,
+  kind: "closed" | "open_hem" | "teardrop",
+  hemLegLen: number
+): Pt[][] {
   const tu = vunit({ x: E.x - S.x, y: E.y - S.y });
   const n = hemBendNormal(S, E, prevPt);
   if (kind === "closed") return flatHemStrokes(S, E, n);
-  if (kind === "open") return openHemStrokes(S, E, n);
+  if (kind === "open_hem") return openHemHookStrokes(S, E, prevPt, hemLegLen);
   return [teardropHemStroke(S, E, n, tu)];
 }
 
@@ -164,7 +236,7 @@ function buildProfilePolyline(
   labels: { text: string; at: Pt; angleRad: number }[];
   segmentLensIn: number[];
   vertexAnglesDeg: number[];
-  hemRender?: { type: "open" | "closed" | "teardrop"; startIndex: number; endIndex: number };
+  hemRender?: { type: "open_hem" | "closed" | "teardrop"; startIndex: number; endIndex: number };
   /** Hem outline samples (world inches) for fit bounds + drawing. */
   hemStrokesWorld?: Pt[][];
   hemBoundsPts?: Pt[];
@@ -202,7 +274,7 @@ function buildProfilePolyline(
   }
 
   // Hem is stored per-fold; only leaf folds have a free edge. Flashing is linear, so the last row is the leaf.
-  let hemRender: { type: "open" | "closed" | "teardrop"; startIndex: number; endIndex: number } | undefined;
+  let hemRender: { type: "open_hem" | "closed" | "teardrop"; startIndex: number; endIndex: number } | undefined;
   let hemStrokesWorld: Pt[][] | undefined;
   let hemBoundsPts: Pt[] | undefined;
   if (n.length > 0) {
@@ -210,7 +282,7 @@ function buildProfilePolyline(
     const hemType = last.hemType;
     const hemSize =
       typeof last.hemSizeIn === "number" && Number.isFinite(last.hemSizeIn) ? last.hemSizeIn : 0.5;
-    if (hemType === "open" || hemType === "closed" || hemType === "teardrop") {
+    if (hemType === "open_hem" || hemType === "closed" || hemType === "teardrop") {
       const a = 180;
       dir += (anchorRight ? 1 : -1) * degToRad(a);
       const p0 = pts[pts.length - 1]!;
@@ -224,7 +296,7 @@ function buildProfilePolyline(
         y: p0.y + (p1.y - p0.y) * 0.35,
       };
       const hemLabel =
-        hemType === "closed" ? "Flat hem" : hemType === "open" ? "Open hem" : "Teardrop hem";
+        hemType === "closed" ? "Flat hem" : hemType === "open_hem" ? "Open hem" : "Teardrop hem";
       labels.push({
         text: hemLabel,
         at: hemLabelAt,
@@ -233,7 +305,7 @@ function buildProfilePolyline(
       segmentLensIn.push(hemSize);
       vertexAnglesDeg.push(a);
       hemRender = { type: hemType, startIndex: pts.length - 2, endIndex: pts.length - 1 };
-      hemStrokesWorld = hemPreviewStrokesWorld(p0, p1, prevForHem, hemType);
+      hemStrokesWorld = hemPreviewStrokesWorld(p0, p1, prevForHem, hemType, hemSize);
       hemBoundsPts = flattenStrokes(hemStrokesWorld);
     }
   }
