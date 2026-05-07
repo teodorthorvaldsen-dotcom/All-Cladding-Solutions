@@ -388,11 +388,13 @@ export function AcmPanelLinePreview({
     hMinY -= pad;
     hMaxX += pad;
     hMaxY += pad;
-    const hemCx = (hMinX + hMaxX) / 2;
-    const hemCy = (hMinY + hMaxY) / 2;
     const hSpanX = Math.max(0.02, hMaxX - hMinX);
     const hSpanY = Math.max(0.02, hMaxY - hMinY);
-    return { hemCx, hemCy, hSpanX, hSpanY };
+    /** Anchor zoom/pan on the flange free edge (hem starts here). Centroid of the hem bbox can sit far from F1 when the hook extends sideways, which looked “disconnected.” */
+    const tip = points[hemRender.startIndex];
+    const focusX = tip?.x ?? (hMinX + hMaxX) / 2;
+    const focusY = tip?.y ?? (hMinY + hMaxY) / 2;
+    return { focusX, focusY, hSpanX, hSpanY };
   }, [hemBoundsPts, hemRender, points]);
 
   useEffect(() => {
@@ -467,7 +469,7 @@ export function AcmPanelLinePreview({
     let tx: (p: Pt) => Pt;
 
     if (hemFocusMeta) {
-      const { hemCx, hemCy, hSpanX, hSpanY } = hemFocusMeta;
+      const { focusX, focusY, hSpanX, hSpanY } = hemFocusMeta;
       const kHem = Math.min(availW / hSpanX, availH / hSpanY);
       const hemLargerAxisPx = Math.max(hSpanX, hSpanY) * scaleFit;
       const needHemFocus =
@@ -476,8 +478,8 @@ export function AcmPanelLinePreview({
         k = Math.min(kHem, scaleFit * MAX_HEM_FOCUS_VS_OVERVIEW);
         k = Math.max(k, MIN_HEM_AXIS_PX / Math.max(hSpanX, hSpanY, 0.01));
         tx = (p: Pt) => {
-          const x1 = (p.x - hemCx) * k;
-          const y1 = (p.y - hemCy) * k;
+          const x1 = (p.x - focusX) * k;
+          const y1 = (p.y - focusY) * k;
           return { x: cx + x1, y: cy - y1 };
         };
       } else {
