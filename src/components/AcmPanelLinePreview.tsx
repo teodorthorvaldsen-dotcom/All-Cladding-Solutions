@@ -9,6 +9,13 @@ const PREVIEW_H = 360;
 const PREVIEW_H_COMPACT = 240;
 const PREVIEW_W = 520;
 
+/** World-space padding around hem strokes when fitting the preview so the hook stays readable. */
+const HEM_FOCUS_PAD_IN = 0.38;
+/** Minimum on-screen size (px) for the hem bounding box’s larger axis when a hem is present. */
+const MIN_HEM_AXIS_PX = 52;
+/** Avoid extreme zoom when hem geometry is tiny (still prioritizes hem detail vs full overview). */
+const MAX_HEM_FOCUS_VS_OVERVIEW = 36;
+
 function clamp(n: number, a: number, b: number) {
   return Math.min(b, Math.max(a, n));
 }
@@ -328,7 +335,7 @@ export function AcmPanelLinePreview({
   panelColorName,
   title = "Fold & bend preview",
   subtitle =
-    "Scaled section-style preview (no rotation). Use +, −, and 1× to zoom. Hems use single centerlines like typical flashing drawings.",
+    "Scaled section-style preview (no rotation). Use +, −, and 1× for annotation zoom; when a hem is small vs the return, the view zooms to keep the hem outline readable.",
   compact = false,
   scale = 1,
   canvasRef,
@@ -348,6 +355,45 @@ export function AcmPanelLinePreview({
     () => buildProfilePolyline(panelWidthIn, boxSides),
     [panelWidthIn, boxSides]
   );
+
+  const hemFocusMeta = useMemo(() => {
+    if (!hemBoundsPts?.length || !hemRender) return null;
+    const hb = hemBoundsPts;
+    let hMinX = Infinity,
+      hMinY = Infinity,
+      hMaxX = -Infinity,
+      hMaxY = -Infinity;
+    for (const p of hb) {
+      hMinX = Math.min(hMinX, p.x);
+      hMinY = Math.min(hMinY, p.y);
+      hMaxX = Math.max(hMaxX, p.x);
+      hMaxY = Math.max(hMaxY, p.y);
+    }
+    const s = points[hemRender.startIndex];
+    const e = points[hemRender.endIndex];
+    if (s) {
+      hMinX = Math.min(hMinX, s.x);
+      hMinY = Math.min(hMinY, s.y);
+      hMaxX = Math.max(hMaxX, s.x);
+      hMaxY = Math.max(hMaxY, s.y);
+    }
+    if (e) {
+      hMinX = Math.min(hMinX, e.x);
+      hMinY = Math.min(hMinY, e.y);
+      hMaxX = Math.max(hMaxX, e.x);
+      hMaxY = Math.max(hMaxY, e.y);
+    }
+    const pad = HEM_FOCUS_PAD_IN;
+    hMinX -= pad;
+    hMinY -= pad;
+    hMaxX += pad;
+    hMaxY += pad;
+    const hemCx = (hMinX + hMaxX) / 2;
+    const hemCy = (hMinY + hMaxY) / 2;
+    const hSpanX = Math.max(0.02, hMaxX - hMinX);
+    const hSpanY = Math.max(0.02, hMaxY - hMinY);
+    return { hemCx, hemCy, hSpanX, hSpanY };
+  }, [hemBoundsPts, hemRender, points]);
 
   useEffect(() => {
     const canvas = outCanvasRef.current;
@@ -414,17 +460,48 @@ export function AcmPanelLinePreview({
     const rSpanY = Math.max(0.01, rMaxY - rMinY);
 
     const scaleFit = Math.min((rectW - pad * 2) / rSpanX, (rectH - pad * 2) / rSpanY);
-    const k = scaleFit;
+    const availW = rectW - pad * 2;
+    const availH = rectH - pad * 2;
 
-    const tx = (p: Pt): Pt => {
-      const x0 = p.x - midX;
-      const y0 = p.y - midY;
-      const xr = x0 * cosR - y0 * sinR;
-      const yr = x0 * sinR + y0 * cosR;
-      const x1 = (xr - (rMinX + rMaxX) / 2) * k;
-      const y1 = (yr - (rMinY + rMaxY) / 2) * k;
-      return { x: cx + x1, y: cy - y1 };
-    };
+    let k = scaleFit;
+    let tx: (p: Pt) => Pt;
+
+    if (hemFocusMeta) {
+      const { hemCx, hemCy, hSpanX, hSpanY } = hemFocusMeta;
+      const kHem = Math.min(availW / hSpanX, availH / hSpanY);
+      const hemLargerAxisPx = Math.max(hSpanX, hSpanY) * scaleFit;
+      const needHemFocus =
+        kHem > scaleFit * 1.06 || (Number.isFinite(hemLargerAxisPx) && hemLargerAxisPx < MIN_HEM_AXIS_PX);
+      if (needHemFocus) {
+        k = Math.min(kHem, scaleFit * MAX_HEM_FOCUS_VS_OVERVIEW);
+        k = Math.max(k, MIN_HEM_AXIS_PX / Math.max(hSpanX, hSpanY, 0.01));
+        tx = (p: Pt) => {
+          const x1 = (p.x - hemCx) * k;
+          const y1 = (p.y - hemCy) * k;
+          return { x: cx + x1, y: cy - y1 };
+        };
+      } else {
+        tx = (p: Pt) => {
+          const x0 = p.x - midX;
+          const y0 = p.y - midY;
+          const xr = x0 * cosR - y0 * sinR;
+          const yr = x0 * sinR + y0 * cosR;
+          const x1 = (xr - (rMinX + rMaxX) / 2) * k;
+          const y1 = (yr - (rMinY + rMaxY) / 2) * k;
+          return { x: cx + x1, y: cy - y1 };
+        };
+      }
+    } else {
+      tx = (p: Pt) => {
+        const x0 = p.x - midX;
+        const y0 = p.y - midY;
+        const xr = x0 * cosR - y0 * sinR;
+        const yr = x0 * sinR + y0 * cosR;
+        const x1 = (xr - (rMinX + rMaxX) / 2) * k;
+        const y1 = (yr - (rMinY + rMaxY) / 2) * k;
+        return { x: cx + x1, y: cy - y1 };
+      };
+    }
 
     const screenPts = points.map(tx);
 
@@ -486,7 +563,7 @@ export function AcmPanelLinePreview({
       ctx.arc(q.x, q.y, 2.5, 0, Math.PI * 2);
       ctx.fill();
     }
-  }, [outCanvasRef, viewportH, viewportW, points, zoomMul, hemRender, hemStrokesWorld, hemBoundsPts]);
+  }, [outCanvasRef, viewportH, viewportW, points, zoomMul, hemRender, hemStrokesWorld, hemBoundsPts, hemFocusMeta]);
 
   return (
     <section
