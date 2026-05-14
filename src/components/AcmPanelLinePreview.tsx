@@ -100,57 +100,23 @@ function flatHemStrokes(S: Pt, E: Pt, n: Pt): Pt[][] {
 const OPEN_HEM_GAP_IN = 0.048;
 
 /**
- * Open hem — ~180° hook with a visible gap between outer and inner layers (shop-style J hem).
- * Outer: bend arc (slightly open vs 180°) → return leg parallel to the flat (horizontal).
- * Inner: offset stroke so the gap reads between layers.
+ * Open hem — symmetric 180° U (same outer arc as a flat hem) with a second, offset stroke
+ * so a small clearance reads between layers; inner stroke is shortened at the hem root and
+ * tip so the opening is visible (catalog-style open hem section).
  */
-function openHemHookStrokes(S: Pt, E: Pt, prevPt: Pt, hemLegLen: number): Pt[][] {
-  const tf = vunit({ x: S.x - prevPt.x, y: S.y - prevPt.y });
-  const chord = vunit({ x: E.x - S.x, y: E.y - S.y });
+function openHemUStrokes(S: Pt, E: Pt, prevPt: Pt): Pt[][] {
+  const tu = vunit({ x: E.x - S.x, y: E.y - S.y });
   const n = hemBendNormal(S, E, prevPt);
-  const R = clamp(hemLegLen * 0.32, 0.05, 0.14);
   const gap = OPEN_HEM_GAP_IN;
-  const sweepOpenDeg = 176;
-  const sweep = (sweepOpenDeg * Math.PI) / 180;
-
-  const leftPerp = { x: -tf.y, y: tf.x };
-  const rightPerp = { x: tf.y, y: -tf.x };
-  const useLeft = cross2d(tf, chord) >= 0;
-  const perp = useLeft ? leftPerp : rightPerp;
-  const C: Pt = { x: S.x + perp.x * R, y: S.y + perp.y * R };
-
-  const aS = Math.atan2(S.y - C.y, S.x - C.x);
-  const tryNeg = sampleArc(C, R, aS, -sweep, 22);
-  const tryPos = sampleArc(C, R, aS, sweep, 22);
-  const midNeg = tryNeg[Math.floor(tryNeg.length / 2)]!;
-  const midPos = tryPos[Math.floor(tryPos.length / 2)]!;
-  const towardCavity = (P: Pt) => P.x * n.x + P.y * n.y;
-  const outerArc = towardCavity({ x: midNeg.x - S.x, y: midNeg.y - S.y }) >= towardCavity({ x: midPos.x - S.x, y: midPos.y - S.y }) ? tryNeg : tryPos;
-
-  const arcEnd = outerArc[outerArc.length - 1]!;
-  const legSign = arcEnd.x > 1e-6 ? -1 : arcEnd.x < -1e-6 ? 1 : chord.x >= 0 ? -1 : 1;
-  const legTan: Pt = { x: legSign, y: 0 };
-  const legEnd: Pt = {
-    x: arcEnd.x + legTan.x * hemLegLen,
-    y: arcEnd.y + legTan.y * hemLegLen,
-  };
-
-  const bendOut = vunit({ x: arcEnd.x - C.x, y: arcEnd.y - C.y });
-  const bendTan = { x: -bendOut.y, y: bendOut.x };
-  const bendSteps = 5;
-  const outer: Pt[] = outerArc.slice(0, -1);
-  for (let i = 1; i <= bendSteps; i++) {
-    const u = i / bendSteps;
-    outer.push({
-      x: arcEnd.x + (legTan.x - bendTan.x) * hemLegLen * 0.1 * u,
-      y: arcEnd.y + (legTan.y - bendTan.y) * hemLegLen * 0.1 * u,
-    });
-  }
-  outer.push(legEnd);
-
-  const cavityHint: Pt = { x: -(n.x + chord.x * 0.35), y: -(n.y + chord.y * 0.35) };
-  const inner = offsetStrokeTowardCavity(outer, gap, cavityHint);
-
+  const outer = flatHemStrokes(S, E, n)[0]!;
+  const cavityHint: Pt = { x: -(n.x + tu.x * 0.25), y: -(n.y + tu.y * 0.25) };
+  const innerFull = offsetStrokeTowardCavity(outer, gap, cavityHint);
+  const trimStart = Math.max(2, Math.floor(innerFull.length * 0.14));
+  const trimEnd = Math.max(1, Math.floor(innerFull.length * 0.1));
+  const inner =
+    innerFull.length > trimStart + trimEnd + 2
+      ? innerFull.slice(trimStart, innerFull.length - trimEnd)
+      : innerFull.slice(trimStart);
   return [outer, inner];
 }
 
@@ -207,7 +173,7 @@ function hemPreviewStrokesWorld(
   const tu = vunit({ x: E.x - S.x, y: E.y - S.y });
   const n = hemBendNormal(S, E, prevPt);
   if (kind === "closed") return flatHemStrokes(S, E, n);
-  if (kind === "open_hem") return openHemHookStrokes(S, E, prevPt, hemLegLen);
+  if (kind === "open_hem") return openHemUStrokes(S, E, prevPt);
   return [teardropHemStroke(S, E, n, tu)];
 }
 
