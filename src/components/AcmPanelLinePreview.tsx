@@ -97,49 +97,23 @@ function flatHemStrokes(S: Pt, E: Pt, n: Pt): Pt[][] {
   return [outer];
 }
 
-const OPEN_HEM_GAP_IN = 0.048;
-
 /**
- * Open hem — symmetric 180° U (same outer arc as a flat hem) with a second, offset stroke
- * so a small clearance reads between layers; inner stroke is shortened at the hem root and
- * tip so the opening is visible (catalog-style open hem section).
+ * Open hem — single centerline: same circle as a flat hem, but only half the bend angle
+ * (90° arc instead of 180°), then a straight segment to the hem tip.
  */
 function openHemUStrokes(S: Pt, E: Pt, prevPt: Pt): Pt[][] {
-  const tu = vunit({ x: E.x - S.x, y: E.y - S.y });
   const n = hemBendNormal(S, E, prevPt);
-  const gap = OPEN_HEM_GAP_IN;
-  const outer = flatHemStrokes(S, E, n)[0]!;
-  const cavityHint: Pt = { x: -(n.x + tu.x * 0.25), y: -(n.y + tu.y * 0.25) };
-  const innerFull = offsetStrokeTowardCavity(outer, gap, cavityHint);
-  const trimStart = Math.max(2, Math.floor(innerFull.length * 0.14));
-  const trimEnd = Math.max(1, Math.floor(innerFull.length * 0.1));
-  const inner =
-    innerFull.length > trimStart + trimEnd + 2
-      ? innerFull.slice(trimStart, innerFull.length - trimEnd)
-      : innerFull.slice(trimStart);
-  return [outer, inner];
-}
-
-/** Offset polyline perpendicular to tangent, chosen side toward cavity (gap visualization). */
-function offsetStrokeTowardCavity(stroke: Pt[], gap: number, cavityHint: Pt): Pt[] {
-  const out: Pt[] = [];
-  for (let i = 0; i < stroke.length; i++) {
-    const prev = stroke[i - 1] ?? stroke[i]!;
-    const next = stroke[i + 1] ?? stroke[i]!;
-    const seg = { x: next.x - prev.x, y: next.y - prev.y };
-    let t = vunit(seg);
-    if (vlen(seg) < 1e-9) {
-      const fb = { x: stroke[i]!.x - prev.x, y: stroke[i]!.y - prev.y };
-      t = vlen(fb) >= 1e-9 ? vunit(fb) : { x: 1, y: 0 };
-    }
-    let inward = { x: -t.y, y: t.x };
-    if (inward.x * cavityHint.x + inward.y * cavityHint.y < 0) {
-      inward = { x: t.y, y: -t.x };
-    }
-    const p = stroke[i]!;
-    out.push({ x: p.x + inward.x * gap, y: p.y + inward.y * gap });
-  }
-  return out;
+  const L = dist(S, E);
+  const R = L / 2;
+  const M = midpoint(S, E);
+  const C = M;
+  const { a0, sweep } = arcChordSweep(S, E, C, R, n, M);
+  const halfSweep = sweep * 0.5;
+  const arc = sampleArc(C, R, a0, halfSweep, 16);
+  const stroke = arc.slice();
+  const last = stroke[stroke.length - 1]!;
+  if (dist(last, E) > 1e-5) stroke.push(E);
+  return [stroke];
 }
 
 function cubicSample(p0: Pt, p1: Pt, p2: Pt, p3: Pt, steps: number): Pt[] {
