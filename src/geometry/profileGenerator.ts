@@ -47,7 +47,7 @@ function hemTypeFromHem(hem: Hem): HemType | null {
   if (!hem.enabled || hem.type === "none") return null;
   if (hem.type === "closed") return "closed";
   if (hem.type === "open") return "open";
-  return "teardrop";
+  return null;
 }
 
 export function generateProfile(profile: ProfileState): ProfileGeometry {

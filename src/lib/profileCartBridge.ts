@@ -7,8 +7,6 @@ function mapHemType(type: ProfileState["hems"][number]["type"]): HemType {
       return "closed";
     case "open":
       return "open_hem";
-    case "teardrop":
-      return "teardrop";
     default:
       return "none";
   }

@@ -1,6 +1,6 @@
 import { PIXELS_PER_INCH, type Point, vunit } from "./bendMath";
 
-export type HemType = "closed" | "open" | "teardrop";
+export type HemType = "closed" | "open";
 
 export interface HemOptions {
   startX: number;
@@ -11,7 +11,7 @@ export interface HemOptions {
   type: HemType;
 }
 
-/** Engineered ACM hem SVG path — closed, open, and teardrop only. */
+/** Engineered ACM hem SVG path — closed and open only. */
 export function createHemPath({
   startX,
   startY,
@@ -26,8 +26,7 @@ export function createHemPath({
   const radius = Math.max(t * 1.15, 7);
   const returnLength = legLength * scale;
 
-  const gap =
-    type === "closed" ? t * 0.15 : type === "open" ? radius * 0.9 : radius * 1.3;
+  const gap = type === "closed" ? t * 0.15 : radius * 0.9;
 
   const dir = direction === "right" ? 1 : -1;
 
@@ -40,23 +39,11 @@ export function createHemPath({
     `.trim();
   }
 
-  if (type === "open") {
-    return `
-      M ${startX} ${startY}
-      L ${startX + returnLength * dir} ${startY}
-      A ${radius} ${radius} 0 0 ${dir === 1 ? 1 : 0} ${startX + returnLength * dir} ${startY + radius * 2}
-      L ${startX + radius * dir} ${startY + radius * 2}
-    `.trim();
-  }
-
-  const controlX = startX + returnLength * 0.5 * dir;
-  const controlY = startY + radius * 3;
-
   return `
     M ${startX} ${startY}
     L ${startX + returnLength * dir} ${startY}
     A ${radius} ${radius} 0 0 ${dir === 1 ? 1 : 0} ${startX + returnLength * dir} ${startY + radius * 2}
-    Q ${controlX} ${controlY} ${startX + gap * dir} ${startY + radius * 2}
+    L ${startX + radius * dir} ${startY + radius * 2}
   `.trim();
 }
 
@@ -74,10 +61,9 @@ function localHemBounds(thickness: number, legLength: number, type: HemType) {
   const t = thickness * scale;
   const radius = Math.max(t * 1.15, 7);
   const returnLength = legLength * scale;
-  const gap =
-    type === "closed" ? t * 0.15 : type === "open" ? radius * 0.9 : radius * 1.3;
+  const gap = type === "closed" ? t * 0.15 : radius * 0.9;
 
-  const maxY = type === "teardrop" ? radius * 3 : radius * 2;
+  const maxY = radius * 2;
   const minX = Math.min(0, gap, radius, returnLength, -returnLength, -gap, -radius);
   const maxX = Math.max(0, gap, radius, returnLength, -returnLength, -gap, -radius);
 

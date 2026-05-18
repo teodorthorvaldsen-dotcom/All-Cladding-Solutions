@@ -130,7 +130,6 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
             >
               <option value="closed">Closed hem</option>
               <option value="open">Open hem</option>
-              <option value="teardrop">Teardrop hem</option>
             </select>
           </div>
           <div>
