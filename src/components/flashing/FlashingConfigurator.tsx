@@ -14,7 +14,6 @@ import { PriceSummary } from "../PriceSummary";
 import { QuantityPicker } from "../QuantityPicker";
 import ControlPanel from "./ControlPanel";
 import ProfileCanvas, { type ProfileCanvasHandle } from "./ProfileCanvas";
-import ThreePreview from "./ThreePreview";
 
 const DEBOUNCE_MS = 300;
 
@@ -179,14 +178,7 @@ export default function FlashingConfigurator({
               <p className="mb-2 px-1 text-[11px] font-medium uppercase tracking-wider text-gray-500">
                 Section view — {color.name}
               </p>
-              <ProfileCanvas canvasRef={previewRef} compact />
-            </section>
-
-            <section className="rounded-2xl border border-gray-200/80 bg-white p-3 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-              <p className="mb-2 px-1 text-[11px] font-medium uppercase tracking-wider text-gray-500">
-                3D preview
-              </p>
-              <ThreePreview compact />
+              <ProfileCanvas canvasRef={previewRef} large />
             </section>
 
             <PriceSummary pricing={pricing} loading={loading} error={priceError} compact />

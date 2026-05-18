@@ -90,3 +90,12 @@ export function generateHemPath(
   if (!last || dist(last, mergedTip) > 1e-5) path.push(mergedTip);
   return path;
 }
+
+/** Scale hem polyline about the free edge for clearer section-view rendering. */
+export function scaleHemPathAboutAnchor(path: Point[], anchor: Point, scale: number): Point[] {
+  if (scale === 1) return path;
+  return path.map((p) => ({
+    x: anchor.x + (p.x - anchor.x) * scale,
+    y: anchor.y + (p.y - anchor.y) * scale,
+  }));
+}

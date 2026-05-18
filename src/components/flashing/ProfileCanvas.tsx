@@ -7,7 +7,8 @@ import { generateProfile } from "@/geometry/profileGenerator";
 import { useConfiguratorStore } from "@/store/useConfiguratorStore";
 import DimensionLayer from "./DimensionLayer";
 
-const VIEW_PAD = 80;
+const VIEW_PAD_DEFAULT = 80;
+const VIEW_PAD_LARGE = 48;
 
 function polylinePoints(pts: { x: number; y: number }[]): string {
   return pts.map((p) => `${p.x},${p.y}`).join(" ");
@@ -19,10 +20,16 @@ export type ProfileCanvasHandle = {
 
 type ProfileCanvasProps = {
   canvasRef?: MutableRefObject<ProfileCanvasHandle | null>;
+  /** @deprecated Use `large` */
   compact?: boolean;
+  large?: boolean;
 };
 
-export default function ProfileCanvas({ canvasRef, compact = false }: ProfileCanvasProps) {
+export default function ProfileCanvas({
+  canvasRef,
+  compact = false,
+  large = false,
+}: ProfileCanvasProps) {
   const profile = useConfiguratorStore((s) => s.profile);
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -32,10 +39,13 @@ export default function ProfileCanvas({ canvasRef, compact = false }: ProfileCan
     [geometry.segments]
   );
 
+  const isLarge = large || !compact;
+
   const viewBox = useMemo(() => {
+    const pad = isLarge ? VIEW_PAD_LARGE : VIEW_PAD_DEFAULT;
     const { minX, minY, maxX, maxY } = geometry.bounds;
-    return `${minX - VIEW_PAD} ${minY - VIEW_PAD} ${maxX - minX + VIEW_PAD * 2} ${maxY - minY + VIEW_PAD * 2}`;
-  }, [geometry.bounds]);
+    return `${minX - pad} ${minY - pad} ${maxX - minX + pad * 2} ${maxY - minY + pad * 2}`;
+  }, [geometry.bounds, isLarge]);
 
   useEffect(() => {
     if (!canvasRef) return;
@@ -53,7 +63,11 @@ export default function ProfileCanvas({ canvasRef, compact = false }: ProfileCan
     };
   }, [canvasRef, geometry]);
 
-  const shellClass = compact ? "h-[220px] w-full" : "flex min-h-[420px] h-full w-full flex-col";
+  const shellClass = isLarge
+    ? "h-[min(420px,52vh)] min-h-[320px] w-full"
+    : "h-[220px] w-full";
+  const profileStroke = isLarge ? 4 : 5;
+  const hemStroke = isLarge ? 9 : 3.5;
 
   return (
     <div className={shellClass}>
@@ -74,7 +88,7 @@ export default function ProfileCanvas({ canvasRef, compact = false }: ProfileCan
                 x2={seg.end.x}
                 y2={seg.end.y}
                 stroke="#111827"
-                strokeWidth={5}
+                strokeWidth={profileStroke}
               />
             ))}
 
@@ -84,7 +98,9 @@ export default function ProfileCanvas({ canvasRef, compact = false }: ProfileCan
                 points={polylinePoints(hem.points)}
                 fill="none"
                 stroke="#111827"
-                strokeWidth={3.5}
+                strokeWidth={hemStroke}
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
             ))}
           </g>

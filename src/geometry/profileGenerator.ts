@@ -1,6 +1,9 @@
 import type { Hem, ProfileState } from "@/types/profile";
 import { degToRad, PIXELS_PER_INCH, type Point } from "./bendMath";
-import { generateHemPath, type HemKind } from "./hemGenerator";
+import { generateHemPath, scaleHemPathAboutAnchor, type HemKind } from "./hemGenerator";
+
+/** Section-view exaggeration so open vs flattened hems read clearly. */
+export const HEM_PREVIEW_DISPLAY_SCALE = 3.25;
 
 export type GeneratedSegment = {
   index: number;
@@ -97,7 +100,8 @@ export function generateProfile(profile: ProfileState): ProfileGeometry {
     const S = foldSeg.end;
     const prevPt = foldSeg.start;
     const path = generateHemPath(S, prevPt, profile.thickness, kind, hem.length, hem.gap);
-    hems.push({ segmentIndex, points: path });
+    const displayPath = scaleHemPathAboutAnchor(path, S, HEM_PREVIEW_DISPLAY_SCALE);
+    hems.push({ segmentIndex, points: displayPath });
   }
 
   const allPts = [

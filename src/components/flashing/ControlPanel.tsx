@@ -2,6 +2,7 @@
 
 import type { HemType } from "@/types/profile";
 import { useConfiguratorStore } from "@/store/useConfiguratorStore";
+import BlankDimensionInput from "./BlankDimensionInput";
 
 const HEM_OPTIONS: { value: HemType; label: string }[] = [
   { value: "none", label: "None" },
@@ -40,42 +41,34 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
       <section>
         <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Blank</h2>
         <div className={compact ? "grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3" : "space-y-3"}>
-          <label className="block text-sm font-medium text-gray-800">
-            Flat width (in)
-            <input
-              type="number"
-              min={0}
-              max={48}
-              step={0.25}
-              value={profile.baseWidth}
-              onChange={(e) => setBaseWidth(Number(e.target.value))}
-              className={inputClass}
-            />
-          </label>
-          <label className="block text-sm font-medium text-gray-800">
-            Piece length (in)
-            <input
-              type="number"
-              min={0}
-              max={10}
-              step={0.25}
-              value={profile.pieceLength}
-              onChange={(e) => setPieceLength(Number(e.target.value))}
-              className={inputClass}
-            />
-          </label>
-          <label className="block text-sm font-medium text-gray-800">
-            Material thickness (in)
-            <input
-              type="number"
-              min={0}
-              max={0.25}
-              step={0.001}
-              value={Math.round(profile.thickness * 1000) / 1000}
-              onChange={(e) => setThickness(Number(e.target.value))}
-              className={inputClass}
-            />
-          </label>
+          <BlankDimensionInput
+            label="Flat width (in)"
+            value={profile.baseWidth}
+            onChange={setBaseWidth}
+            min={0}
+            max={48}
+            step={0.25}
+            className={inputClass}
+          />
+          <BlankDimensionInput
+            label="Piece length (in)"
+            value={profile.pieceLength}
+            onChange={setPieceLength}
+            min={0}
+            max={10}
+            step={0.25}
+            className={inputClass}
+          />
+          <BlankDimensionInput
+            label="Material thickness (in)"
+            value={profile.thickness}
+            onChange={setThickness}
+            min={0}
+            max={0.25}
+            step={0.001}
+            decimals={3}
+            className={inputClass}
+          />
         </div>
       </section>
 

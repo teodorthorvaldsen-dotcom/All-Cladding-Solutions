@@ -30,3 +30,11 @@ export function cross2d(a: Point, b: Point): number {
 export function midpoint(a: Point, b: Point): Point {
   return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
 }
+
+/** Parse dimension text; strips leading zeros (e.g. "010" → 10). */
+export function parseInchInput(raw: string): number {
+  const t = raw.trim();
+  if (t === "" || t === ".") return 0;
+  const n = Number(t);
+  return Number.isFinite(n) ? Math.max(0, n) : 0;
+}
