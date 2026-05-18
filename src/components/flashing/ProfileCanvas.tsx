@@ -10,10 +10,6 @@ import DimensionLayer from "./DimensionLayer";
 const VIEW_PAD_DEFAULT = 80;
 const VIEW_PAD_LARGE = 48;
 
-function polylinePoints(pts: { x: number; y: number }[]): string {
-  return pts.map((p) => `${p.x},${p.y}`).join(" ");
-}
-
 export type ProfileCanvasHandle = {
   toSvgDataUrl: () => string | undefined;
 };
@@ -67,7 +63,7 @@ export default function ProfileCanvas({
     ? "h-[min(420px,52vh)] min-h-[320px] w-full"
     : "h-[220px] w-full";
   const profileStroke = isLarge ? 4 : 5;
-  const hemStroke = isLarge ? 9 : 3.5;
+  const hemStroke = isLarge ? 4 : 3.5;
 
   return (
     <div className={shellClass}>
@@ -93,15 +89,19 @@ export default function ProfileCanvas({
             ))}
 
             {geometry.hems.map((hem) => (
-              <polyline
+              <g
                 key={`hem-${hem.segmentIndex}`}
-                points={polylinePoints(hem.points)}
-                fill="none"
-                stroke="#111827"
-                strokeWidth={hemStroke}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+                transform={`translate(${hem.x},${hem.y}) rotate(${hem.rotate})`}
+              >
+                <path
+                  d={hem.pathD}
+                  fill="none"
+                  stroke="#111827"
+                  strokeWidth={hemStroke}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </g>
             ))}
           </g>
 

@@ -4,13 +4,6 @@ import type { HemType } from "@/types/profile";
 import { useConfiguratorStore } from "@/store/useConfiguratorStore";
 import BlankDimensionInput from "./BlankDimensionInput";
 
-const HEM_OPTIONS: { value: HemType; label: string }[] = [
-  { value: "none", label: "None" },
-  { value: "flattened", label: "Flattened" },
-  { value: "open", label: "Open" },
-  { value: "teardrop", label: "Teardrop" },
-];
-
 type ControlPanelProps = {
   compact?: boolean;
 };
@@ -120,58 +113,45 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500">
           Hem — F{leafIndex + 1}
         </h2>
-        <div className={compact ? "space-y-2 rounded-lg border border-gray-200 p-3" : "space-y-3 rounded-xl border border-gray-200 p-4"}>
-          <label className="block text-sm font-medium text-gray-800">
-            Type
+        <div className="space-y-4 rounded-lg border border-gray-200 p-3 md:p-4">
+          <div>
+            <label className="text-sm font-medium text-gray-800">Hem type</label>
             <select
-              value={leafHem?.type ?? "none"}
+              value={
+                leafHem?.enabled && leafHem.type !== "none" ? leafHem.type : "open"
+              }
               onChange={(e) =>
                 updateHem(leafIndex, {
                   type: e.target.value as HemType,
-                  enabled: e.target.value !== "none",
+                  enabled: true,
                 })
               }
-              className={inputClass}
+              className={`${inputClass} mt-1`}
             >
-              {HEM_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
+              <option value="flattened">Flattened hem</option>
+              <option value="open">Open hem</option>
+              <option value="teardrop">Teardrop hem</option>
             </select>
-          </label>
-          {leafHem?.enabled && leafHem.type !== "none" ? (
-            <>
-              <label className="block text-sm font-medium text-gray-800">
-                Hem leg (in)
-                <input
-                  type="number"
-                  min={0.25}
-                  max={2}
-                  step={0.25}
-                  value={leafHem.length}
-                  onChange={(e) => updateHem(leafIndex, { length: Number(e.target.value) })}
-                  className={inputClass}
-                />
-              </label>
-              <label className="block text-sm font-medium text-gray-800">
-                Gap (in)
-                <input
-                  type="number"
-                  min={0}
-                  max={0.5}
-                  step={0.01}
-                  value={leafHem.gap}
-                  onChange={(e) => updateHem(leafIndex, { gap: Number(e.target.value) })}
-                  className={inputClass}
-                />
-              </label>
-            </>
-          ) : null}
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-800">Hem leg</label>
+            <input
+              type="number"
+              min={0}
+              max={2}
+              step={0.125}
+              value={leafHem?.length ?? 0.5}
+              onChange={(e) =>
+                updateHem(leafIndex, {
+                  length: Number(e.target.value),
+                  enabled: true,
+                })
+              }
+              className={`${inputClass} mt-1`}
+            />
+          </div>
         </div>
       </section>
     </div>
   );
 }
-
-

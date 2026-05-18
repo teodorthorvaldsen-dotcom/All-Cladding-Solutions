@@ -1,9 +1,10 @@
 import type { Hem, ProfileState } from "@/types/profile";
 import { degToRad, PIXELS_PER_INCH, type Point } from "./bendMath";
-import { generateHemPath, scaleHemPathAboutAnchor, type HemKind } from "./hemGenerator";
-
-/** Section-view exaggeration so open vs flattened hems read clearly. */
-export const HEM_PREVIEW_DISPLAY_SCALE = 3.25;
+import {
+  buildHemSvgPath,
+  hemWorldBounds,
+  type AcmHemType,
+} from "./hemGenerator";
 
 export type GeneratedSegment = {
   index: number;
@@ -16,7 +17,10 @@ export type GeneratedSegment = {
 
 export type GeneratedHem = {
   segmentIndex: number;
-  points: Point[];
+  pathD: string;
+  x: number;
+  y: number;
+  rotate: number;
 };
 
 export type ProfileGeometry = {
@@ -43,7 +47,7 @@ function boundsFromPoints(pts: Point[]) {
   return { minX, minY, maxX, maxY };
 }
 
-function hemKindFromHem(hem: Hem): HemKind | null {
+function hemTypeFromHem(hem: Hem): AcmHemType | null {
   if (!hem.enabled || hem.type === "none") return null;
   if (hem.type === "flattened") return "flattened";
   if (hem.type === "open") return "open";
@@ -89,26 +93,32 @@ export function generateProfile(profile: ProfileState): ProfileGeometry {
     current = next;
   });
 
+  const boundPts: Point[] = [...vertices];
+
   for (const [key, hem] of Object.entries(profile.hems)) {
     const segmentIndex = Number(key);
-    const kind = hemKindFromHem(hem);
-    if (kind === null || segmentIndex < 0 || segmentIndex >= profile.segments.length) continue;
+    const type = hemTypeFromHem(hem);
+    if (type === null || segmentIndex < 0 || segmentIndex >= profile.segments.length) continue;
 
     const foldSeg = segments.find((s) => s.index === segmentIndex);
     if (!foldSeg) continue;
 
     const S = foldSeg.end;
     const prevPt = foldSeg.start;
-    const path = generateHemPath(S, prevPt, profile.thickness, kind, hem.length, hem.gap);
-    const displayPath = scaleHemPathAboutAnchor(path, S, HEM_PREVIEW_DISPLAY_SCALE);
-    hems.push({ segmentIndex, points: displayPath });
+    const legLength = Math.max(0, hem.length);
+
+    const { pathD, x, y, rotate } = buildHemSvgPath(
+      S,
+      prevPt,
+      profile.thickness,
+      legLength,
+      type
+    );
+    hems.push({ segmentIndex, pathD, x, y, rotate });
+    boundPts.push(...hemWorldBounds(S, prevPt, profile.thickness, legLength, type));
   }
 
-  const allPts = [
-    ...vertices,
-    ...hems.flatMap((h) => h.points),
-  ];
-  const bounds = boundsFromPoints(allPts);
+  const bounds = boundsFromPoints(boundPts);
 
   return { segments, hems, vertices, bounds };
 }
