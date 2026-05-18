@@ -1,17 +1,10 @@
-import { Configurator } from "@/components/Configurator";
+import FlashingConfigurator from "@/components/flashing/FlashingConfigurator";
 
 export default function FlashingConfiguratorPage() {
   return (
-    <Configurator
+    <FlashingConfigurator
       title="Flashing Configurator"
-      subtitle="Configure your flashing. Pricing updates automatically."
-      productLabel="Flashing"
-      returnUrl="/flashing-configurator"
-      variant="flashing"
-      defaultWidthIn={10}
-      defaultLengthIn={10}
-      hideSizeMinimums
+      subtitle="Configure folds, hems, and blank size. Pricing updates automatically."
     />
   );
 }
-
