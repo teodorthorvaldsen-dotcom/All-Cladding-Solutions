@@ -8,10 +8,14 @@ import type { CartItem } from "@/types/cart";
 import { TrayInteractivePreview } from "./AcmPanel3DPreview";
 import { AcmPanelLinePreview } from "./AcmPanelLinePreview";
 
-function previewDepthInFromThicknessId(thicknessId: string): number {
+function metalThicknessInFromThicknessId(thicknessId: string): number {
   const mm = Number(thicknessId.replace("mm", ""));
-  if (Number.isNaN(mm)) return 0.12;
-  const metalThicknessIn = mm / 25.4;
+  if (Number.isNaN(mm)) return 4 / 25.4;
+  return mm / 25.4;
+}
+
+function previewDepthInFromThicknessId(thicknessId: string): number {
+  const metalThicknessIn = metalThicknessInFromThicknessId(thicknessId);
   return Math.min(3, Math.max(0.5, metalThicknessIn * 1.45 + 0.4));
 }
 
@@ -112,6 +116,7 @@ export function PanelPreviewModal({
               boxSides={normalizeBoxTraySides(item.boxTraySides ?? [])}
               panelColorName={color?.name ?? item.colorId}
               scale={1}
+              materialThicknessIn={metalThicknessInFromThicknessId(item.thicknessId)}
             />
           </div>
         ) : (

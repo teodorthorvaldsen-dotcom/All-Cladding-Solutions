@@ -507,6 +507,7 @@ export function Configurator({
                   compact
                   scale={2}
                   canvasRef={previewGlCanvasRef}
+                  materialThicknessIn={metalThicknessIn}
                 />
               ) : (
                 <AcmPanel3DPreview
