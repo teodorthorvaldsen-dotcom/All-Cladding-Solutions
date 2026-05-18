@@ -17,6 +17,7 @@ export type GeneratedHem = {
   x: number;
   y: number;
   rotate: number;
+  type: HemType;
 };
 
 export type ProfileGeometry = {
@@ -103,14 +104,14 @@ export function generateProfile(profile: ProfileState): ProfileGeometry {
     const prevPt = foldSeg.start;
     const legLength = Math.max(hem.length, 0.375);
 
-    const { pathD, x, y, rotate } = buildHemSvgPath(
+    const { pathD, x, y, rotate, type: hemType } = buildHemSvgPath(
       S,
       prevPt,
       profile.thickness,
       legLength,
       type
     );
-    hems.push({ segmentIndex, pathD, x, y, rotate });
+    hems.push({ segmentIndex, pathD, x, y, rotate, type: hemType });
     boundPts.push(...hemWorldBounds(S, prevPt, profile.thickness, legLength, type));
   }
 

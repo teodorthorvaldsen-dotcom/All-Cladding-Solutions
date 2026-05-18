@@ -50,21 +50,31 @@ export function createHemPath({
     `.trim();
   }
 
+  const openRadius = Math.max(t * 0.9, 6);
+  const uDepth = openRadius * 2.1;
+  const inwardReturn = openRadius * 1.4;
+
+  const outerX = startX;
+  const outerY = startY;
+  const inwardX = startX - inwardReturn * dir;
+  const bottomY = startY + uDepth;
+
   return `
-    M ${startX} ${startY}
-    L ${startX + returnLength * dir} ${startY}
-    A ${radius} ${radius} 0 0 ${dir === 1 ? 1 : 0} ${startX + returnLength * dir} ${startY + radius * 2}
-    L ${startX + radius * dir} ${startY + radius * 2}
+    M ${outerX} ${outerY}
+    A ${openRadius} ${openRadius} 0 0 ${dir === 1 ? 1 : 0} ${outerX} ${bottomY}
+    L ${inwardX} ${bottomY}
+    A ${openRadius * 0.7} ${openRadius * 0.7} 0 0 ${dir === 1 ? 0 : 1} ${inwardX} ${bottomY - openRadius * 0.9}
   `.trim();
 }
 
 export function hemAttachTransform(
   S: Point,
   prevPt: Point
-): { x: number; y: number; rotate: number } {
+): { x: number; y: number; rotate: number; direction: "left" | "right" } {
   const f = vunit({ x: S.x - prevPt.x, y: S.y - prevPt.y });
-  const rotate = (Math.atan2(-f.y, -f.x) * 180) / Math.PI;
-  return { x: S.x, y: S.y, rotate };
+  const rotate = (Math.atan2(f.y, f.x) * 180) / Math.PI;
+  const direction: "left" | "right" = S.x >= 0 ? "left" : "right";
+  return { x: S.x, y: S.y, rotate, direction };
 }
 
 function localHemBounds(thickness: number, legLength: number, type: HemType) {
@@ -86,12 +96,15 @@ function localHemBounds(thickness: number, legLength: number, type: HemType) {
     return { minX, maxX, minY: 0, maxY: Math.max(bottomY, returnY) };
   }
 
-  const gap = radius * 0.9;
-  const maxY = radius * 2;
-  const minX = Math.min(0, gap, radius, returnLength, -returnLength, -gap, -radius);
-  const maxX = Math.max(0, gap, radius, returnLength, -returnLength, -gap, -radius);
+  const openRadius = Math.max(t * 0.9, 6);
+  const uDepth = openRadius * 2.1;
+  const inwardReturn = openRadius * 1.4;
+  const bottomY = uDepth;
+  const endY = bottomY - openRadius * 0.9;
+  const minX = Math.min(0, -inwardReturn, inwardReturn);
+  const maxX = Math.max(0, -inwardReturn, inwardReturn);
 
-  return { minX, maxX, minY: 0, maxY };
+  return { minX, maxX, minY: 0, maxY: Math.max(bottomY, endY) };
 }
 
 function transformPoint(p: Point, origin: Point, rotateDeg: number): Point {
@@ -129,15 +142,15 @@ export function buildHemSvgPath(
   thickness: number,
   legLength: number,
   type: HemType
-): { pathD: string; x: number; y: number; rotate: number } {
+): { pathD: string; x: number; y: number; rotate: number; type: HemType } {
   const attach = hemAttachTransform(S, prevPt);
   const pathD = createHemPath({
     startX: 0,
     startY: 0,
-    direction: "right",
+    direction: attach.direction,
     thickness,
     legLength,
     type,
   });
-  return { pathD, x: attach.x, y: attach.y, rotate: attach.rotate };
+  return { pathD, x: attach.x, y: attach.y, rotate: attach.rotate, type };
 }
