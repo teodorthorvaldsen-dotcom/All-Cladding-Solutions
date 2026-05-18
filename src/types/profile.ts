@@ -1,4 +1,4 @@
-export type HemType = "none" | "flattened" | "open" | "teardrop";
+export type HemType = "none" | "closed" | "open" | "teardrop";
 
 export type Segment = {
   id: string;

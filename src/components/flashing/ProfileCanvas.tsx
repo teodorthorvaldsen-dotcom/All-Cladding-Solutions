@@ -63,7 +63,6 @@ export default function ProfileCanvas({
     ? "h-[min(420px,52vh)] min-h-[320px] w-full"
     : "h-[220px] w-full";
   const profileStroke = isLarge ? 4 : 5;
-  const hemStroke = isLarge ? 4 : 3.5;
 
   return (
     <div className={shellClass}>
@@ -75,7 +74,7 @@ export default function ProfileCanvas({
           preserveAspectRatio="xMidYMid meet"
           aria-label="Flashing profile"
         >
-          <g strokeLinecap="butt" strokeLinejoin="miter">
+          <g id="profile-lines" strokeLinecap="butt" strokeLinejoin="miter">
             {geometry.segments.map((seg) => (
               <line
                 key={seg.isBase ? "base" : `fold-${seg.index}`}
@@ -87,7 +86,16 @@ export default function ProfileCanvas({
                 strokeWidth={profileStroke}
               />
             ))}
+            {geometry.vertices.map((v, i) => (
+              <circle key={`v-${i}`} cx={v.x} cy={v.y} r={3.5} fill="#111827" />
+            ))}
+          </g>
 
+          <g id="dimensions">
+            <DimensionLayer dimensions={dimensions} />
+          </g>
+
+          <g id="hem-lines">
             {geometry.hems.map((hem) => (
               <g
                 key={`hem-${hem.segmentIndex}`}
@@ -97,19 +105,13 @@ export default function ProfileCanvas({
                   d={hem.pathD}
                   fill="none"
                   stroke="#111827"
-                  strokeWidth={hemStroke}
+                  strokeWidth={4}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
               </g>
             ))}
           </g>
-
-          <DimensionLayer dimensions={dimensions} />
-
-          {geometry.vertices.map((v, i) => (
-            <circle key={`v-${i}`} cx={v.x} cy={v.y} r={3.5} fill="#111827" />
-          ))}
         </svg>
       </div>
     </div>

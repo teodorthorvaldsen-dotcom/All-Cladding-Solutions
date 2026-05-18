@@ -1,17 +1,17 @@
 import { PIXELS_PER_INCH, type Point, vunit } from "./bendMath";
 
-export type AcmHemType = "flattened" | "open" | "teardrop";
+export type HemType = "closed" | "open" | "teardrop";
 
-export interface HemPathOptions {
+export interface HemOptions {
   startX: number;
   startY: number;
-  direction: "left" | "right" | "up" | "down";
+  direction: "left" | "right";
   thickness: number;
   legLength: number;
-  type: AcmHemType;
+  type: HemType;
 }
 
-/** Production-style ACM hem SVG path (explicit lines + arc; teardrop uses one quadratic). */
+/** Engineered ACM hem SVG path — closed, open, and teardrop only. */
 export function createHemPath({
   startX,
   startY,
@@ -19,122 +19,69 @@ export function createHemPath({
   thickness,
   legLength,
   type,
-}: HemPathOptions): string {
-  const t = thickness * PIXELS_PER_INCH;
-  const radius = Math.max(t * 1.1, 6);
-  const returnLength = legLength * PIXELS_PER_INCH;
+}: HemOptions): string {
+  const scale = PIXELS_PER_INCH;
+
+  const t = thickness * scale;
+  const radius = Math.max(t * 1.15, 7);
+  const returnLength = legLength * scale;
 
   const gap =
-    type === "flattened" ? t * 0.15 : type === "open" ? t * 1.25 : t * 2.2;
+    type === "closed" ? t * 0.15 : type === "open" ? radius * 0.9 : radius * 1.3;
 
-  const teardropOffset = type === "teardrop" ? radius * 0.45 : 0;
+  const dir = direction === "right" ? 1 : -1;
 
-  if (direction === "right") {
-    if (type !== "teardrop") {
-      return `
-        M ${startX} ${startY}
-        L ${startX + returnLength} ${startY}
-        A ${radius} ${radius} 0 0 1 ${startX + returnLength} ${startY + radius * 2}
-        L ${startX + gap} ${startY + radius * 2}
-      `.trim();
-    }
-
+  if (type === "closed") {
     return `
       M ${startX} ${startY}
-      L ${startX + returnLength} ${startY}
-      A ${radius} ${radius} 0 0 1 ${startX + returnLength} ${startY + radius * 2}
-      Q ${startX + returnLength * 0.5} ${startY + radius * 2 + teardropOffset} ${startX + gap} ${startY + radius * 2}
+      L ${startX + returnLength * dir} ${startY}
+      A ${radius} ${radius} 0 0 ${dir === 1 ? 1 : 0} ${startX + returnLength * dir} ${startY + radius * 2}
+      L ${startX + gap * dir} ${startY + radius * 2}
     `.trim();
   }
 
-  if (direction === "left") {
-    if (type !== "teardrop") {
-      return `
-        M ${startX} ${startY}
-        L ${startX - returnLength} ${startY}
-        A ${radius} ${radius} 0 0 0 ${startX - returnLength} ${startY + radius * 2}
-        L ${startX - gap} ${startY + radius * 2}
-      `.trim();
-    }
-
+  if (type === "open") {
     return `
       M ${startX} ${startY}
-      L ${startX - returnLength} ${startY}
-      A ${radius} ${radius} 0 0 0 ${startX - returnLength} ${startY + radius * 2}
-      Q ${startX - returnLength * 0.5} ${startY + radius * 2 + teardropOffset} ${startX - gap} ${startY + radius * 2}
+      L ${startX + returnLength * dir} ${startY}
+      A ${radius} ${radius} 0 0 ${dir === 1 ? 1 : 0} ${startX + returnLength * dir} ${startY + radius * 2}
+      L ${startX + radius * dir} ${startY + radius * 2}
     `.trim();
   }
 
-  if (direction === "down") {
-    if (type !== "teardrop") {
-      return `
-        M ${startX} ${startY}
-        L ${startX} ${startY + returnLength}
-        A ${radius} ${radius} 0 0 1 ${startX + radius * 2} ${startY + returnLength}
-        L ${startX + radius * 2} ${startY + gap}
-      `.trim();
-    }
+  const controlX = startX + returnLength * 0.5 * dir;
+  const controlY = startY + radius * 3;
 
-    return `
-      M ${startX} ${startY}
-      L ${startX} ${startY + returnLength}
-      A ${radius} ${radius} 0 0 1 ${startX + radius * 2} ${startY + returnLength}
-      Q ${startX + radius * 2 + teardropOffset} ${startY + returnLength * 0.5} ${startX + radius * 2} ${startY + gap}
-    `.trim();
-  }
-
-  if (direction === "up") {
-    if (type !== "teardrop") {
-      return `
-        M ${startX} ${startY}
-        L ${startX} ${startY - returnLength}
-        A ${radius} ${radius} 0 0 0 ${startX + radius * 2} ${startY - returnLength}
-        L ${startX + radius * 2} ${startY - gap}
-      `.trim();
-    }
-
-    return `
-      M ${startX} ${startY}
-      L ${startX} ${startY - returnLength}
-      A ${radius} ${radius} 0 0 0 ${startX + radius * 2} ${startY - returnLength}
-      Q ${startX + radius * 2 + teardropOffset} ${startY - returnLength * 0.5} ${startX + radius * 2} ${startY - gap}
-    `.trim();
-  }
-
-  return "";
+  return `
+    M ${startX} ${startY}
+    L ${startX + returnLength * dir} ${startY}
+    A ${radius} ${radius} 0 0 ${dir === 1 ? 1 : 0} ${startX + returnLength * dir} ${startY + radius * 2}
+    Q ${controlX} ${controlY} ${startX + gap * dir} ${startY + radius * 2}
+  `.trim();
 }
 
 export function hemAttachTransform(
   S: Point,
   prevPt: Point
-): { x: number; y: number; rotate: number; direction: HemPathOptions["direction"] } {
+): { x: number; y: number; rotate: number } {
   const f = vunit({ x: S.x - prevPt.x, y: S.y - prevPt.y });
   const rotate = (Math.atan2(-f.y, -f.x) * 180) / Math.PI;
-
-  let direction: HemPathOptions["direction"] = "right";
-  if (Math.abs(f.x) >= Math.abs(f.y)) {
-    direction = f.x >= 0 ? "left" : "right";
-  } else {
-    direction = f.y >= 0 ? "up" : "down";
-  }
-
-  return { x: S.x, y: S.y, rotate, direction };
+  return { x: S.x, y: S.y, rotate };
 }
 
-function localHemBounds(thickness: number, legLength: number, type: AcmHemType) {
-  const t = thickness * PIXELS_PER_INCH;
-  const radius = Math.max(t * 1.1, 6);
-  const returnLength = legLength * PIXELS_PER_INCH;
+function localHemBounds(thickness: number, legLength: number, type: HemType) {
+  const scale = PIXELS_PER_INCH;
+  const t = thickness * scale;
+  const radius = Math.max(t * 1.15, 7);
+  const returnLength = legLength * scale;
   const gap =
-    type === "flattened" ? t * 0.15 : type === "open" ? t * 1.25 : t * 2.2;
-  const maxY = radius * 2 + (type === "teardrop" ? radius * 0.45 : 0);
+    type === "closed" ? t * 0.15 : type === "open" ? radius * 0.9 : radius * 1.3;
 
-  return {
-    minX: Math.min(0, gap, returnLength, -returnLength),
-    maxX: Math.max(0, gap, returnLength, -returnLength),
-    minY: 0,
-    maxY,
-  };
+  const maxY = type === "teardrop" ? radius * 3 : radius * 2;
+  const minX = Math.min(0, gap, radius, returnLength, -returnLength, -gap, -radius);
+  const maxX = Math.max(0, gap, radius, returnLength, -returnLength, -gap, -radius);
+
+  return { minX, maxX, minY: 0, maxY };
 }
 
 function transformPoint(p: Point, origin: Point, rotateDeg: number): Point {
@@ -147,13 +94,12 @@ function transformPoint(p: Point, origin: Point, rotateDeg: number): Point {
   };
 }
 
-/** World-space bounds for a hem attached at the free edge. */
 export function hemWorldBounds(
   S: Point,
   prevPt: Point,
   thickness: number,
   legLength: number,
-  type: AcmHemType
+  type: HemType
 ): Point[] {
   const { rotate } = hemAttachTransform(S, prevPt);
   const local = localHemBounds(thickness, legLength, type);
@@ -172,7 +118,7 @@ export function buildHemSvgPath(
   prevPt: Point,
   thickness: number,
   legLength: number,
-  type: AcmHemType
+  type: HemType
 ): { pathD: string; x: number; y: number; rotate: number } {
   const attach = hemAttachTransform(S, prevPt);
   const pathD = createHemPath({

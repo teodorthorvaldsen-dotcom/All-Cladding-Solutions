@@ -128,7 +128,7 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
               }
               className={`${inputClass} mt-1`}
             >
-              <option value="flattened">Flattened hem</option>
+              <option value="closed">Closed hem</option>
               <option value="open">Open hem</option>
               <option value="teardrop">Teardrop hem</option>
             </select>

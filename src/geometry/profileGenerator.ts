@@ -1,10 +1,6 @@
 import type { Hem, ProfileState } from "@/types/profile";
 import { degToRad, PIXELS_PER_INCH, type Point } from "./bendMath";
-import {
-  buildHemSvgPath,
-  hemWorldBounds,
-  type AcmHemType,
-} from "./hemGenerator";
+import { buildHemSvgPath, hemWorldBounds, type HemType } from "./hemGenerator";
 
 export type GeneratedSegment = {
   index: number;
@@ -47,9 +43,9 @@ function boundsFromPoints(pts: Point[]) {
   return { minX, minY, maxX, maxY };
 }
 
-function hemTypeFromHem(hem: Hem): AcmHemType | null {
+function hemTypeFromHem(hem: Hem): HemType | null {
   if (!hem.enabled || hem.type === "none") return null;
-  if (hem.type === "flattened") return "flattened";
+  if (hem.type === "closed") return "closed";
   if (hem.type === "open") return "open";
   return "teardrop";
 }

@@ -3,7 +3,7 @@ import type { ProfileState } from "@/types/profile";
 
 function mapHemType(type: ProfileState["hems"][number]["type"]): HemType {
   switch (type) {
-    case "flattened":
+    case "closed":
       return "closed";
     case "open":
       return "open_hem";
