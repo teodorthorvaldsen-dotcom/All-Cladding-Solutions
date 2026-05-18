@@ -139,10 +139,10 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
                       Hem leg (in)
                       <input
                         type="number"
-                        min={0}
+                        min={0.375}
                         max={2}
                         step={0.125}
-                        value={foldHem?.length ?? 0.5}
+                        value={Math.max(foldHem?.length ?? 0.5, 0.375)}
                         onChange={(e) =>
                           updateHem(index, {
                             length: Number(e.target.value),

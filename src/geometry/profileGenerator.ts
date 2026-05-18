@@ -101,7 +101,7 @@ export function generateProfile(profile: ProfileState): ProfileGeometry {
 
     const S = foldSeg.end;
     const prevPt = foldSeg.start;
-    const legLength = Math.max(0, hem.length);
+    const legLength = Math.max(hem.length, 0.375);
 
     const { pathD, x, y, rotate } = buildHemSvgPath(
       S,

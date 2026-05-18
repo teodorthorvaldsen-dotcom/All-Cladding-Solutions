@@ -22,20 +22,23 @@ export function createHemPath({
 }: HemOptions): string {
   const scale = PIXELS_PER_INCH;
 
+  const safeLegLength = Math.max(legLength, 0.375);
   const t = thickness * scale;
-  const radius = Math.max(t * 1.15, 7);
-  const returnLength = legLength * scale;
-
-  const gap = type === "closed" ? t * 0.15 : radius * 0.9;
+  const radius = Math.max(t * 0.9, 5);
+  const returnLength = safeLegLength * scale;
 
   const dir = direction === "right" ? 1 : -1;
 
   if (type === "closed") {
+    const closedGap = t * 0.08;
+    const closedReturn = Math.max(returnLength * 0.65, radius * 1.8);
+
     return `
       M ${startX} ${startY}
       L ${startX + returnLength * dir} ${startY}
       A ${radius} ${radius} 0 0 ${dir === 1 ? 1 : 0} ${startX + returnLength * dir} ${startY + radius * 2}
-      L ${startX + gap * dir} ${startY + radius * 2}
+      L ${startX + closedReturn * dir} ${startY + radius * 2}
+      L ${startX + closedReturn * dir} ${startY + radius * 2 - closedGap}
     `.trim();
   }
 
@@ -58,11 +61,21 @@ export function hemAttachTransform(
 
 function localHemBounds(thickness: number, legLength: number, type: HemType) {
   const scale = PIXELS_PER_INCH;
+  const safeLegLength = Math.max(legLength, 0.375);
   const t = thickness * scale;
-  const radius = Math.max(t * 1.15, 7);
-  const returnLength = legLength * scale;
-  const gap = type === "closed" ? t * 0.15 : radius * 0.9;
+  const radius = Math.max(t * 0.9, 5);
+  const returnLength = safeLegLength * scale;
 
+  if (type === "closed") {
+    const closedGap = t * 0.08;
+    const closedReturn = Math.max(returnLength * 0.65, radius * 1.8);
+    const maxY = radius * 2;
+    const minX = Math.min(0, closedReturn, returnLength);
+    const maxX = Math.max(0, closedReturn, returnLength);
+    return { minX, maxX, minY: 0, maxY: Math.max(maxY, maxY - closedGap) };
+  }
+
+  const gap = radius * 0.9;
   const maxY = radius * 2;
   const minX = Math.min(0, gap, radius, returnLength, -returnLength, -gap, -radius);
   const maxX = Math.max(0, gap, radius, returnLength, -returnLength, -gap, -radius);
