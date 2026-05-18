@@ -135,26 +135,25 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
                   </select>
 
                   {hemActive ? (
-                    <label className="mt-3 block text-sm font-medium text-gray-800">
-                      Hem leg (in)
-                      <input
-                        type="number"
-                        min={0.375}
-                        max={2}
-                        step={0.125}
-                        value={Math.max(foldHem?.length ?? 0.5, 0.375)}
-                        onChange={(e) =>
+                    <div className="mt-3">
+                      <BlankDimensionInput
+                        label="Hem leg (in)"
+                        value={foldHem?.length ?? 0.5}
+                        onChange={(length) =>
                           updateHem(index, {
-                            length: Number(e.target.value),
+                            length,
                             enabled: true,
                             type: (foldHem?.type === "closed" || foldHem?.type === "open"
                               ? foldHem.type
                               : "open") as HemType,
                           })
                         }
+                        min={0}
+                        max={2}
+                        step={0.125}
                         className={inputClass}
                       />
-                    </label>
+                    </div>
                   ) : null}
                 </div>
               </div>
