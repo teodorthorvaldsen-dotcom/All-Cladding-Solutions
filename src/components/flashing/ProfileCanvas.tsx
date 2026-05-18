@@ -95,7 +95,7 @@ export default function ProfileCanvas({
             <DimensionLayer dimensions={dimensions} />
           </g>
 
-          <g id="hem-lines">
+          <g id="hems">
             {geometry.hems.map((hem) => (
               <g
                 key={`hem-${hem.segmentIndex}`}
@@ -105,8 +105,8 @@ export default function ProfileCanvas({
                   d={hem.pathD}
                   fill="none"
                   stroke="#111827"
-                  strokeWidth={4}
-                  strokeLinecap="round"
+                  strokeWidth={3}
+                  strokeLinecap="butt"
                   strokeLinejoin="round"
                 />
               </g>

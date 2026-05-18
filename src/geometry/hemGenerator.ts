@@ -30,15 +30,23 @@ export function createHemPath({
   const dir = direction === "right" ? 1 : -1;
 
   if (type === "closed") {
-    const closedGap = t * 0.08;
-    const closedReturn = Math.max(returnLength * 0.65, radius * 1.8);
+    const closedGap = Math.max(t * 0.12, 2);
+    const closedRadius = Math.max(t * 0.8, 5);
+    const returnInset = closedRadius * 1.6;
+
+    const outerX = startX + returnLength * dir;
+    const innerX = startX + returnInset * dir;
+    const topY = startY;
+    const bottomY = startY + closedRadius * 2;
+    const returnY = bottomY - closedGap;
 
     return `
-      M ${startX} ${startY}
-      L ${startX + returnLength * dir} ${startY}
-      A ${radius} ${radius} 0 0 ${dir === 1 ? 1 : 0} ${startX + returnLength * dir} ${startY + radius * 2}
-      L ${startX + closedReturn * dir} ${startY + radius * 2}
-      L ${startX + closedReturn * dir} ${startY + radius * 2 - closedGap}
+      M ${startX} ${topY}
+      L ${outerX} ${topY}
+      A ${closedRadius} ${closedRadius} 0 0 ${dir === 1 ? 1 : 0} ${outerX} ${bottomY}
+      L ${innerX} ${bottomY}
+      L ${innerX} ${returnY}
+      L ${startX + closedRadius * 1.2 * dir} ${returnY}
     `.trim();
   }
 
@@ -67,12 +75,15 @@ function localHemBounds(thickness: number, legLength: number, type: HemType) {
   const returnLength = safeLegLength * scale;
 
   if (type === "closed") {
-    const closedGap = t * 0.08;
-    const closedReturn = Math.max(returnLength * 0.65, radius * 1.8);
-    const maxY = radius * 2;
-    const minX = Math.min(0, closedReturn, returnLength);
-    const maxX = Math.max(0, closedReturn, returnLength);
-    return { minX, maxX, minY: 0, maxY: Math.max(maxY, maxY - closedGap) };
+    const closedGap = Math.max(t * 0.12, 2);
+    const closedRadius = Math.max(t * 0.8, 5);
+    const returnInset = closedRadius * 1.6;
+    const bottomY = closedRadius * 2;
+    const returnY = bottomY - closedGap;
+    const endX = closedRadius * 1.2;
+    const minX = Math.min(0, returnLength, returnInset, endX, -returnLength, -returnInset, -endX);
+    const maxX = Math.max(0, returnLength, returnInset, endX, -returnLength, -returnInset, -endX);
+    return { minX, maxX, minY: 0, maxY: Math.max(bottomY, returnY) };
   }
 
   const gap = radius * 0.9;
