@@ -106,7 +106,7 @@ export default function ProfileCanvas({
                   fill="none"
                   stroke="#111827"
                   strokeWidth={3}
-                  strokeLinecap={hem.type === "open" ? "round" : "butt"}
+                  strokeLinecap="round"
                   strokeLinejoin="round"
                 />
               </g>
