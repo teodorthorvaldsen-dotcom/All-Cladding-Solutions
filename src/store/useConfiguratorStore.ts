@@ -93,16 +93,16 @@ export const useConfiguratorStore = create<ConfiguratorStore>((set) => ({
 
   setThickness: (value) =>
     set((state) => ({
-      profile: { ...state.profile, thickness: Math.max(0.008, value) },
+      profile: { ...state.profile, thickness: Math.max(0, Number.isFinite(value) ? value : 0) },
     })),
 
   setBaseWidth: (value) =>
     set((state) => ({
-      profile: { ...state.profile, baseWidth: Math.max(0.25, value) },
+      profile: { ...state.profile, baseWidth: Math.max(0, Number.isFinite(value) ? value : 0) },
     })),
 
   setPieceLength: (value) =>
     set((state) => ({
-      profile: { ...state.profile, pieceLength: Math.max(0.25, value) },
+      profile: { ...state.profile, pieceLength: Math.max(0, Number.isFinite(value) ? value : 0) },
     })),
 }));

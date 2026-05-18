@@ -44,7 +44,7 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
             Flat width (in)
             <input
               type="number"
-              min={0.25}
+              min={0}
               max={48}
               step={0.25}
               value={profile.baseWidth}
@@ -56,7 +56,7 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
             Piece length (in)
             <input
               type="number"
-              min={0.25}
+              min={0}
               max={10}
               step={0.25}
               value={profile.pieceLength}
@@ -68,7 +68,7 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
             Material thickness (in)
             <input
               type="number"
-              min={0.008}
+              min={0}
               max={0.25}
               step={0.001}
               value={Math.round(profile.thickness * 1000) / 1000}

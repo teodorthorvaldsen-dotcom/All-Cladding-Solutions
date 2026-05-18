@@ -38,8 +38,8 @@ export async function POST(request: NextRequest) {
     } = body;
 
     const kind: "acm" | "flashing" = productKind === "flashing" ? "flashing" : "acm";
-    const minWidthIn = kind === "flashing" ? 1 : CUSTOM_WIDTH_MIN_IN;
-    const minLengthIn = kind === "flashing" ? 1 : MIN_LENGTH_IN;
+    const minWidthIn = kind === "flashing" ? 0 : CUSTOM_WIDTH_MIN_IN;
+    const minLengthIn = kind === "flashing" ? 0 : MIN_LENGTH_IN;
     const maxWidthIn = kind === "flashing" ? 48 : CUSTOM_WIDTH_MAX_IN;
     const maxLengthIn = kind === "flashing" ? 10 : undefined;
 
