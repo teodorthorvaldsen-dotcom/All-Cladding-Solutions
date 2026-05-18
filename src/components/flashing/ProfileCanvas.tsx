@@ -99,7 +99,11 @@ export default function ProfileCanvas({
             {geometry.hems.map((hem) => (
               <g
                 key={`hem-${hem.segmentIndex}`}
-                transform={`translate(${hem.x},${hem.y}) rotate(${hem.rotate})`}
+                transform={
+                  hem.x !== 0 || hem.y !== 0 || hem.rotate !== 0
+                    ? `translate(${hem.x},${hem.y}) rotate(${hem.rotate})`
+                    : undefined
+                }
               >
                 <path
                   d={hem.pathD}
