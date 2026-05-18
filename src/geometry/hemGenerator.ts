@@ -47,21 +47,25 @@ export function createHemPath({
     `.trim();
   }
 
-  const drop = radius * 1.5;
-  const returnLeg = Math.max(safeLegLength * scale * 2, radius * 1.5);
+  const openRadius = 5;
+  const hemLegPx = safeLegLength * scale;
+  const returnLeg = Math.max(hemLegPx * 3, 14);
+  const inward = dir === 1 ? -1 : 1;
 
   const x0 = startX;
   const y0 = startY;
-  const y1 = y0 + drop;
-  const x2 = x0 + radius * dirSign;
-  const y2 = y1 + radius;
-  const x3 = x2 + returnLeg * dirSign;
+  const x1 = x0;
+  const y1 = y0 + openRadius;
+  const x2 = x1 + openRadius * inward;
+  const y2 = y1 + openRadius;
+  const x3 = x2 + returnLeg * inward;
+  const y3 = y2;
 
   return `
     M ${x0} ${y0}
-    L ${x0} ${y1}
-    Q ${x0} ${y1 + radius} ${x2} ${y2}
-    L ${x3} ${y2}
+    L ${x1} ${y1}
+    Q ${x1} ${y2} ${x2} ${y2}
+    L ${x3} ${y3}
   `.trim();
 }
 
@@ -92,12 +96,13 @@ function localHemBounds(legLength: number, type: HemType) {
     return { minX: Math.min(...xs), maxX: Math.max(...xs), minY: 0, maxY: y2 };
   }
 
-  const drop = radius * 1.5;
-  const returnLeg = Math.max(safeLegLength * scale * 2, radius * 1.5);
-  const y1 = drop;
-  const x2 = radius * dirSign;
-  const y2 = y1 + radius;
-  const x3 = x2 + returnLeg * dirSign;
+  const openRadius = 5;
+  const hemLegPx = safeLegLength * scale;
+  const returnLeg = Math.max(hemLegPx * 3, 14);
+  const inward = -1;
+  const y2 = openRadius + openRadius;
+  const x2 = openRadius * inward;
+  const x3 = x2 + returnLeg * inward;
   const xs = [0, x2, x3, -x2, -x3];
   return { minX: Math.min(...xs), maxX: Math.max(...xs), minY: 0, maxY: y2 };
 }
