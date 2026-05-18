@@ -14,7 +14,6 @@ function mapHemType(type: ProfileState["hems"][number]["type"]): HemType {
 
 /** Convert new profile model → legacy `boxTraySides` for cart / quote emails. */
 export function profileToBoxTraySides(profile: ProfileState): BoxTraySideRow[] {
-  const leafIndex = profile.segments.length - 1;
   return profile.segments.map((seg, index) => {
     const hem = profile.hems[index];
     const hemEnabled = hem?.enabled && hem.type !== "none";
@@ -29,9 +28,7 @@ export function profileToBoxTraySides(profile: ProfileState): BoxTraySideRow[] {
             hemType: mapHemType(hem.type),
             hemSizeIn: hem.length,
           }
-        : index === leafIndex && hem
-          ? { hemType: "none" as const }
-          : {}),
+        : {}),
     };
   });
 }

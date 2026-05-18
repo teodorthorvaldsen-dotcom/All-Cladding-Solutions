@@ -9,7 +9,6 @@ import { profileToBoxTraySides } from "@/lib/profileCartBridge";
 import { useCart } from "@/context/CartContext";
 import { useConfiguratorStore } from "@/store/useConfiguratorStore";
 import { ColorSwatches } from "../ColorSwatches";
-import { PanelTypePicker } from "../PanelTypePicker";
 import { PriceSummary } from "../PriceSummary";
 import { QuantityPicker } from "../QuantityPicker";
 import ControlPanel from "./ControlPanel";
@@ -44,7 +43,7 @@ export default function FlashingConfigurator({
   const [customColorSpecFile, setCustomColorSpecFile] = useState<File | null>(null);
   const [thicknessId] = useState<ThicknessId>("4mm");
   const [quantity, setQuantity] = useState(1);
-  const [panelType, setPanelType] = useState<PanelType>("basic");
+  const panelType: PanelType = "basic";
   const [pricing, setPricing] = useState<PriceResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [priceError, setPriceError] = useState<string | null>(null);
@@ -142,15 +141,12 @@ export default function FlashingConfigurator({
                 Configuration
               </h2>
               <p className="mt-0.5 text-sm text-gray-500">
-                Blank size, folds, hems, panel type, and color.
+                Blank size, folds, optional hems, and color.
               </p>
             </div>
             <div className="divide-y divide-gray-100 px-5 py-5 md:px-6">
               <div className="pb-5">
                 <ControlPanel compact />
-              </div>
-              <div className="py-5">
-                <PanelTypePicker value={panelType} onChange={setPanelType} variant="flashing" />
               </div>
               <div className="py-5">
                 <QuantityPicker value={quantity} onChange={setQuantity} unitLabel="pieces" />

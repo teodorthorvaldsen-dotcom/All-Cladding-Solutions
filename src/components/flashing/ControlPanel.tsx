@@ -8,6 +8,11 @@ type ControlPanelProps = {
   compact?: boolean;
 };
 
+function hemSelectValue(hem: { enabled?: boolean; type?: HemType } | undefined): string {
+  if (hem?.enabled && hem.type && hem.type !== "none") return hem.type;
+  return "none";
+}
+
 export default function ControlPanel({ compact = false }: ControlPanelProps) {
   const profile = useConfiguratorStore((s) => s.profile);
   const updateSegment = useConfiguratorStore((s) => s.updateSegment);
@@ -16,9 +21,6 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
   const updateHem = useConfiguratorStore((s) => s.updateHem);
   const setBaseWidth = useConfiguratorStore((s) => s.setBaseWidth);
   const setPieceLength = useConfiguratorStore((s) => s.setPieceLength);
-
-  const leafIndex = Math.max(0, profile.segments.length - 1);
-  const leafHem = profile.hems[leafIndex];
 
   const sectionGap = compact ? "space-y-4" : "space-y-6";
   const inputClass = compact
@@ -65,91 +67,100 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
             + Fold
           </button>
         </div>
-        {profile.segments.map((segment, index) => (
-          <div key={segment.id} className={foldCardClass}>
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-semibold text-gray-900">F{index + 1}</span>
-              {profile.segments.length > 1 ? (
-                <button
-                  type="button"
-                  onClick={() => removeSegment(index)}
-                  className="text-xs text-red-600 hover:underline"
-                >
-                  Remove
-                </button>
-              ) : null}
-            </div>
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-800">
-                Return length (in)
-                <input
-                  type="number"
-                  min={0.25}
-                  max={120}
-                  step={0.25}
-                  value={segment.length}
-                  onChange={(e) => updateSegment(index, { length: Number(e.target.value) })}
-                  className={inputClass}
-                />
-              </label>
-              <label className="block text-sm font-medium text-gray-800">
-                Bend angle (°)
-                <input
-                  type="number"
-                  min={-180}
-                  max={180}
-                  step={1}
-                  value={segment.angle}
-                  onChange={(e) => updateSegment(index, { angle: Number(e.target.value) })}
-                  className={inputClass}
-                />
-              </label>
-            </div>
-          </div>
-        ))}
-      </section>
+        {profile.segments.map((segment, index) => {
+          const foldHem = profile.hems[index];
+          const hemActive = hemSelectValue(foldHem) !== "none";
 
-      <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500">
-          Hem — F{leafIndex + 1}
-        </h2>
-        <div className="space-y-4 rounded-lg border border-gray-200 p-3 md:p-4">
-          <div>
-            <label className="text-sm font-medium text-gray-800">Hem type</label>
-            <select
-              value={
-                leafHem?.enabled && leafHem.type !== "none" ? leafHem.type : "open"
-              }
-              onChange={(e) =>
-                updateHem(leafIndex, {
-                  type: e.target.value as HemType,
-                  enabled: true,
-                })
-              }
-              className={`${inputClass} mt-1`}
-            >
-              <option value="closed">Closed hem</option>
-              <option value="open">Open hem</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-800">Hem leg</label>
-            <input
-              type="number"
-              min={0}
-              max={2}
-              step={0.125}
-              value={leafHem?.length ?? 0.5}
-              onChange={(e) =>
-                updateHem(leafIndex, {
-                  length: Number(e.target.value),
-                  enabled: true,
-                })
-              }
-              className={`${inputClass} mt-1`}
-            />
-          </div>
-        </div>
+          return (
+            <div key={segment.id} className={foldCardClass}>
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-sm font-semibold text-gray-900">F{index + 1}</span>
+                {profile.segments.length > 1 ? (
+                  <button
+                    type="button"
+                    onClick={() => removeSegment(index)}
+                    className="text-xs text-red-600 hover:underline"
+                  >
+                    Remove
+                  </button>
+                ) : null}
+              </div>
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-gray-800">
+                  Return length (in)
+                  <input
+                    type="number"
+                    min={0.25}
+                    max={120}
+                    step={0.25}
+                    value={segment.length}
+                    onChange={(e) => updateSegment(index, { length: Number(e.target.value) })}
+                    className={inputClass}
+                  />
+                </label>
+                <label className="block text-sm font-medium text-gray-800">
+                  Bend angle (°)
+                  <input
+                    type="number"
+                    min={-180}
+                    max={180}
+                    step={1}
+                    value={segment.angle}
+                    onChange={(e) => updateSegment(index, { angle: Number(e.target.value) })}
+                    className={inputClass}
+                  />
+                </label>
+
+                <div className="border-t border-gray-100 pt-3">
+                  <label className="text-sm font-medium text-gray-800">Hem</label>
+                  <select
+                    value={hemSelectValue(foldHem)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === "none") {
+                        updateHem(index, { enabled: false, type: "none" });
+                        return;
+                      }
+                      updateHem(index, {
+                        enabled: true,
+                        type: value as HemType,
+                        length: foldHem?.length ?? 0.5,
+                      });
+                    }}
+                    className={`${inputClass} mt-1`}
+                  >
+                    <option value="none">None</option>
+                    <option value="closed">Closed hem</option>
+                    <option value="open">Open hem</option>
+                  </select>
+
+                  {hemActive ? (
+                    <label className="mt-3 block text-sm font-medium text-gray-800">
+                      Hem leg (in)
+                      <input
+                        type="number"
+                        min={0}
+                        max={2}
+                        step={0.125}
+                        value={foldHem?.length ?? 0.5}
+                        onChange={(e) =>
+                          updateHem(index, {
+                            length: Number(e.target.value),
+                            enabled: true,
+                            type: (foldHem?.type === "closed" || foldHem?.type === "open"
+                              ? foldHem.type
+                              : "open") as HemType,
+                          })
+                        }
+                        className={inputClass}
+                      />
+                    </label>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </section>
     </div>
   );

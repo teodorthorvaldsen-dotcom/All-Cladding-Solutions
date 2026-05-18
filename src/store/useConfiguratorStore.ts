@@ -24,20 +24,8 @@ export const useConfiguratorStore = create<ConfiguratorStore>((set) => ({
     thickness: DEFAULT_THICKNESS_IN,
     baseWidth: 10,
     pieceLength: 10,
-    segments: [
-      { id: "a", length: 4, angle: 90, radius: 0.08 },
-      { id: "b", length: 5.25, angle: -45, radius: 0.08 },
-      { id: "c", length: 1, angle: 0, radius: 0.08 },
-    ],
-    hems: {
-      2: {
-        enabled: true,
-        type: "open",
-        length: 0.75,
-        radius: DEFAULT_THICKNESS_IN,
-        gap: DEFAULT_THICKNESS_IN * 1.2,
-      },
-    },
+    segments: [{ id: "a", length: 4, angle: 90, radius: 0.08 }],
+    hems: {},
   },
 
   updateSegment: (index, data) =>
