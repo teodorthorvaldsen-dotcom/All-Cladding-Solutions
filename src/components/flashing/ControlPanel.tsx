@@ -21,7 +21,6 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
   const addSegment = useConfiguratorStore((s) => s.addSegment);
   const removeSegment = useConfiguratorStore((s) => s.removeSegment);
   const updateHem = useConfiguratorStore((s) => s.updateHem);
-  const setThickness = useConfiguratorStore((s) => s.setThickness);
   const setBaseWidth = useConfiguratorStore((s) => s.setBaseWidth);
   const setPieceLength = useConfiguratorStore((s) => s.setPieceLength);
 
@@ -40,7 +39,7 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
     <div className={sectionGap}>
       <section>
         <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Blank</h2>
-        <div className={compact ? "grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3" : "space-y-3"}>
+        <div className={compact ? "grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3" : "space-y-3"}>
           <BlankDimensionInput
             label="Flat width (in)"
             value={profile.baseWidth}
@@ -57,16 +56,6 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
             min={0}
             max={10}
             step={0.25}
-            className={inputClass}
-          />
-          <BlankDimensionInput
-            label="Material thickness (in)"
-            value={profile.thickness}
-            onChange={setThickness}
-            min={0}
-            max={0.25}
-            step={0.001}
-            decimals={3}
             className={inputClass}
           />
         </div>
