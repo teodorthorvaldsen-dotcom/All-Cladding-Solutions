@@ -10,7 +10,11 @@ const HEM_OPTIONS: { value: HemType; label: string }[] = [
   { value: "teardrop", label: "Teardrop" },
 ];
 
-export default function ControlPanel() {
+type ControlPanelProps = {
+  compact?: boolean;
+};
+
+export default function ControlPanel({ compact = false }: ControlPanelProps) {
   const profile = useConfiguratorStore((s) => s.profile);
   const updateSegment = useConfiguratorStore((s) => s.updateSegment);
   const addSegment = useConfiguratorStore((s) => s.addSegment);
@@ -23,11 +27,19 @@ export default function ControlPanel() {
   const leafIndex = Math.max(0, profile.segments.length - 1);
   const leafHem = profile.hems[leafIndex];
 
+  const sectionGap = compact ? "space-y-4" : "space-y-6";
+  const inputClass = compact
+    ? "mt-1 w-full rounded-lg border border-gray-200 px-2.5 py-1.5 text-sm"
+    : "mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm";
+  const foldCardClass = compact
+    ? "mb-2 rounded-lg border border-gray-200 p-3"
+    : "mb-3 rounded-xl border border-gray-200 p-4";
+
   return (
-    <div className="space-y-6">
+    <div className={sectionGap}>
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500">Blank</h2>
-        <div className="space-y-3">
+        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Blank</h2>
+        <div className={compact ? "grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3" : "space-y-3"}>
           <label className="block text-sm font-medium text-gray-800">
             Flat width (in)
             <input
@@ -37,7 +49,7 @@ export default function ControlPanel() {
               step={0.25}
               value={profile.baseWidth}
               onChange={(e) => setBaseWidth(Number(e.target.value))}
-              className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              className={inputClass}
             />
           </label>
           <label className="block text-sm font-medium text-gray-800">
@@ -49,7 +61,7 @@ export default function ControlPanel() {
               step={0.25}
               value={profile.pieceLength}
               onChange={(e) => setPieceLength(Number(e.target.value))}
-              className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              className={inputClass}
             />
           </label>
           <label className="block text-sm font-medium text-gray-800">
@@ -61,7 +73,7 @@ export default function ControlPanel() {
               step={0.001}
               value={Math.round(profile.thickness * 1000) / 1000}
               onChange={(e) => setThickness(Number(e.target.value))}
-              className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              className={inputClass}
             />
           </label>
         </div>
@@ -79,7 +91,7 @@ export default function ControlPanel() {
           </button>
         </div>
         {profile.segments.map((segment, index) => (
-          <div key={segment.id} className="mb-3 rounded-xl border border-gray-200 p-4">
+          <div key={segment.id} className={foldCardClass}>
             <div className="mb-2 flex items-center justify-between">
               <span className="text-sm font-semibold text-gray-900">F{index + 1}</span>
               {profile.segments.length > 1 ? (
@@ -102,7 +114,7 @@ export default function ControlPanel() {
                   step={0.25}
                   value={segment.length}
                   onChange={(e) => updateSegment(index, { length: Number(e.target.value) })}
-                  className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+                  className={inputClass}
                 />
               </label>
               <label className="block text-sm font-medium text-gray-800">
@@ -114,7 +126,7 @@ export default function ControlPanel() {
                   step={1}
                   value={segment.angle}
                   onChange={(e) => updateSegment(index, { angle: Number(e.target.value) })}
-                  className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+                  className={inputClass}
                 />
               </label>
             </div>
@@ -126,7 +138,7 @@ export default function ControlPanel() {
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500">
           Hem — F{leafIndex + 1}
         </h2>
-        <div className="space-y-3 rounded-xl border border-gray-200 p-4">
+        <div className={compact ? "space-y-2 rounded-lg border border-gray-200 p-3" : "space-y-3 rounded-xl border border-gray-200 p-4"}>
           <label className="block text-sm font-medium text-gray-800">
             Type
             <select
@@ -137,7 +149,7 @@ export default function ControlPanel() {
                   enabled: e.target.value !== "none",
                 })
               }
-              className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              className={inputClass}
             >
               {HEM_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
@@ -157,7 +169,7 @@ export default function ControlPanel() {
                   step={0.25}
                   value={leafHem.length}
                   onChange={(e) => updateHem(leafIndex, { length: Number(e.target.value) })}
-                  className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+                  className={inputClass}
                 />
               </label>
               <label className="block text-sm font-medium text-gray-800">
@@ -169,7 +181,7 @@ export default function ControlPanel() {
                   step={0.01}
                   value={leafHem.gap}
                   onChange={(e) => updateHem(leafIndex, { gap: Number(e.target.value) })}
-                  className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+                  className={inputClass}
                 />
               </label>
             </>

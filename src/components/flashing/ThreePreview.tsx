@@ -44,9 +44,14 @@ function FlashingMesh() {
   );
 }
 
-export default function ThreePreview() {
+type ThreePreviewProps = {
+  compact?: boolean;
+};
+
+export default function ThreePreview({ compact = false }: ThreePreviewProps) {
+  const heightClass = compact ? "h-[180px]" : "min-h-[280px] h-full";
   return (
-    <div className="h-full min-h-[280px] w-full overflow-hidden rounded-xl border border-gray-200 bg-white">
+    <div className={`${heightClass} w-full overflow-hidden rounded-lg bg-[#fafafa]`}>
       <Canvas camera={{ position: [6, 6, 6], fov: 42 }}>
         <ambientLight intensity={0.85} />
         <directionalLight position={[5, 10, 5]} intensity={1.4} />

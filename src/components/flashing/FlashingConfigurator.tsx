@@ -34,7 +34,7 @@ export type FlashingConfiguratorProps = {
 
 export default function FlashingConfigurator({
   title = "Flashing Configurator",
-  subtitle = "Professional fold & hem editor. Pricing updates automatically.",
+  subtitle = "Configure folds, hems, and blank size. Pricing updates automatically.",
 }: FlashingConfiguratorProps) {
   const router = useRouter();
   const { addItem } = useCart();
@@ -129,23 +129,34 @@ export default function FlashingConfigurator({
   const color = colors.find((c) => c.id === colorId)!;
 
   return (
-    <div className="min-h-screen bg-[#f3f4f6]">
-      <div className="mx-auto max-w-[1600px] px-4 py-6 md:px-6 md:py-8">
-        <header className="mb-6">
-          <h1 className="text-2xl font-semibold tracking-tight text-gray-900 md:text-3xl">{title}</h1>
-          <p className="mt-1 text-sm text-gray-600">{subtitle}</p>
-        </header>
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pb-10">
+      <header className="mb-6 md:mb-8">
+        <h1 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">{title}</h1>
+        <p className="mt-2 text-[15px] text-gray-500">{subtitle}</p>
+      </header>
 
-        <div className="grid min-h-[calc(100vh-10rem)] grid-cols-1 gap-4 lg:grid-cols-12 lg:gap-6">
-          <aside className="lg:col-span-3 flex flex-col gap-4">
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm overflow-auto max-h-[50vh] lg:max-h-none lg:flex-1">
-              <ControlPanel />
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:gap-8 lg:gap-12">
+        <div className="md:col-span-7 min-w-0">
+          <section className="rounded-2xl border border-gray-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <div className="border-b border-gray-100 px-5 py-4 md:px-6">
+              <h2 className="text-[15px] font-medium uppercase tracking-wider text-gray-500">
+                Configuration
+              </h2>
+              <p className="mt-0.5 text-sm text-gray-500">
+                Blank size, folds, hems, panel type, and color.
+              </p>
             </div>
-
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-4">
-              <PanelTypePicker value={panelType} onChange={setPanelType} variant="flashing" />
-              <div>
-                <p className="mb-2 text-sm font-medium text-gray-800">Color</p>
+            <div className="divide-y divide-gray-100 px-5 py-5 md:px-6">
+              <div className="pb-5">
+                <ControlPanel compact />
+              </div>
+              <div className="py-5">
+                <PanelTypePicker value={panelType} onChange={setPanelType} variant="flashing" />
+              </div>
+              <div className="py-5">
+                <QuantityPicker value={quantity} onChange={setQuantity} unitLabel="pieces" />
+              </div>
+              <div className="pt-5">
                 <ColorSwatches
                   value={colorId}
                   onChange={setColorId}
@@ -155,30 +166,39 @@ export default function FlashingConfigurator({
                   onCustomColorSpecFileChange={setCustomColorSpecFile}
                 />
               </div>
-              <QuantityPicker value={quantity} onChange={setQuantity} unitLabel="pieces" />
-              <PriceSummary pricing={pricing} loading={loading} error={priceError} compact />
-              <button
-                type="button"
-                disabled={!pricing || loading}
-                onClick={handleAddToCart}
-                className="w-full rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Add to cart
-              </button>
             </div>
-          </aside>
+          </section>
+        </div>
 
-          <main className="lg:col-span-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm min-h-[420px]">
-            <p className="mb-2 text-xs font-medium uppercase tracking-wider text-gray-500">
-              Section view — {color.name}
-            </p>
-            <ProfileCanvas canvasRef={previewRef} />
-          </main>
+        <div
+          id="estimate"
+          className="md:col-span-5 md:self-start md:sticky md:top-6 lg:top-8"
+        >
+          <div className="flex flex-col gap-3 lg:gap-4">
+            <section className="rounded-2xl border border-gray-200/80 bg-white p-3 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+              <p className="mb-2 px-1 text-[11px] font-medium uppercase tracking-wider text-gray-500">
+                Section view — {color.name}
+              </p>
+              <ProfileCanvas canvasRef={previewRef} compact />
+            </section>
 
-          <aside className="lg:col-span-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm min-h-[280px]">
-            <p className="mb-2 text-xs font-medium uppercase tracking-wider text-gray-500">3D preview</p>
-            <ThreePreview />
-          </aside>
+            <section className="rounded-2xl border border-gray-200/80 bg-white p-3 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+              <p className="mb-2 px-1 text-[11px] font-medium uppercase tracking-wider text-gray-500">
+                3D preview
+              </p>
+              <ThreePreview compact />
+            </section>
+
+            <PriceSummary pricing={pricing} loading={loading} error={priceError} compact />
+            <button
+              type="button"
+              disabled={!pricing || loading}
+              onClick={handleAddToCart}
+              className="w-full rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Add to cart
+            </button>
+          </div>
         </div>
       </div>
     </div>

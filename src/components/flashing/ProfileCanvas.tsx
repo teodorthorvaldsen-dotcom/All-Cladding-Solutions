@@ -19,9 +19,10 @@ export type ProfileCanvasHandle = {
 
 type ProfileCanvasProps = {
   canvasRef?: MutableRefObject<ProfileCanvasHandle | null>;
+  compact?: boolean;
 };
 
-export default function ProfileCanvas({ canvasRef }: ProfileCanvasProps) {
+export default function ProfileCanvas({ canvasRef, compact = false }: ProfileCanvasProps) {
   const profile = useConfiguratorStore((s) => s.profile);
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -52,10 +53,18 @@ export default function ProfileCanvas({ canvasRef }: ProfileCanvasProps) {
     };
   }, [canvasRef, geometry]);
 
+  const shellClass = compact ? "h-[220px] w-full" : "flex min-h-[420px] h-full w-full flex-col";
+
   return (
-    <div className="flex h-full min-h-[420px] w-full flex-col">
-      <div className="flex h-full w-full flex-1 items-center justify-center overflow-hidden rounded-xl bg-[#fafafa]">
-        <svg ref={svgRef} viewBox={viewBox} className="h-full w-full max-h-full" aria-label="Flashing profile">
+    <div className={shellClass}>
+      <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-lg bg-[#fafafa]">
+        <svg
+          ref={svgRef}
+          viewBox={viewBox}
+          className="h-full w-full"
+          preserveAspectRatio="xMidYMid meet"
+          aria-label="Flashing profile"
+        >
           <g strokeLinecap="butt" strokeLinejoin="miter">
             {geometry.segments.map((seg) => (
               <line
