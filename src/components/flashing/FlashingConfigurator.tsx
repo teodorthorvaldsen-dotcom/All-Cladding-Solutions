@@ -41,6 +41,8 @@ export default function FlashingConfigurator({
   const profile = useConfiguratorStore((s) => s.profile);
 
   const [colorId, setColorId] = useState<ColorId>("classic-white");
+  const [customColorReference, setCustomColorReference] = useState("");
+  const [customColorSpecFile, setCustomColorSpecFile] = useState<File | null>(null);
   const [thicknessId] = useState<ThicknessId>("4mm");
   const [quantity, setQuantity] = useState(1);
   const [panelType, setPanelType] = useState<PanelType>("basic");
@@ -114,6 +116,12 @@ export default function FlashingConfigurator({
       ...(boxTraySides.length > 0 ? { boxTraySides } : {}),
       ...(trayBuildSpec ? { trayBuildSpec } : {}),
       ...(previewImageDataUrl ? { previewImageDataUrl } : {}),
+      ...(colorId === "custom-color-match"
+        ? {
+            customColorReference: customColorReference.trim() || undefined,
+            customColorSpecFileName: customColorSpecFile?.name,
+          }
+        : {}),
     });
     router.push("/cart");
   };
@@ -138,7 +146,14 @@ export default function FlashingConfigurator({
               <PanelTypePicker value={panelType} onChange={setPanelType} variant="flashing" />
               <div>
                 <p className="mb-2 text-sm font-medium text-gray-800">Color</p>
-                <ColorSwatches value={colorId} onChange={setColorId} />
+                <ColorSwatches
+                  value={colorId}
+                  onChange={setColorId}
+                  customColorReference={customColorReference}
+                  onCustomColorReferenceChange={setCustomColorReference}
+                  customColorSpecFile={customColorSpecFile}
+                  onCustomColorSpecFileChange={setCustomColorSpecFile}
+                />
               </div>
               <QuantityPicker value={quantity} onChange={setQuantity} unitLabel="pieces" />
               <PriceSummary pricing={pricing} loading={loading} error={priceError} compact />
