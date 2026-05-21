@@ -24,7 +24,8 @@ function FlashingMesh({ colorHex = "#b8bcc4" }: FlashingMeshProps) {
     if (verts.length < 2) {
       shape.moveTo(0, 0);
       shape.lineTo(1, 0);
-      return { shape, depth: profile.pieceLength / 12 };
+      const depth = Math.max(0.08, profile.pieceLength / 12);
+      return { shape, depth, center: { x: 0, z: 0, span: 1 } };
     }
 
     let minX = Infinity;
@@ -47,8 +48,13 @@ function FlashingMesh({ colorHex = "#b8bcc4" }: FlashingMeshProps) {
     }
 
     const depth = Math.max(0.08, profile.pieceLength / 12);
+    const span = Math.max(maxX - minX, maxY - minY) * unitScale;
 
-    return { shape, depth };
+    return {
+      shape,
+      depth,
+      center: { x: 0, z: 0, span: Math.max(span, depth, 1) },
+    };
   }, [profile]);
 
   const extrudeSettings = useMemo(
@@ -60,7 +66,7 @@ function FlashingMesh({ colorHex = "#b8bcc4" }: FlashingMeshProps) {
   );
 
   return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, depth / 2, 0]}>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[center.x, depth / 2, center.z]}>
       <extrudeGeometry args={[shape, extrudeSettings]} />
       <meshStandardMaterial color={colorHex} metalness={0.35} roughness={0.5} />
     </mesh>
