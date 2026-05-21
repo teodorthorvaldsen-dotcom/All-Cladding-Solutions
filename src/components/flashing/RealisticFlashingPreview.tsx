@@ -46,12 +46,23 @@ function appendHemToContour(
     return;
   }
 
-  outer.push(new THREE.Vector2(last.x + nx * drop, last.y + ny * drop));
-  outer.push(new THREE.Vector2(last.x + nx * (drop - gap), last.y + ny * (drop - gap)));
+  // Closed hem: tight perpendicular bend, then 180° fold back flush with panel face.
+  const bendRadius = Math.max(sheetThickness * 1.1, 0.045);
+  const flushReturn = Math.max(sheetThickness * 2.4, bendRadius * 2);
+  const gap = Math.max(sheetThickness * 0.15, 0.012);
+  const bendX = last.x + nx * bendRadius;
+  const bendY = last.y + ny * bendRadius;
+  outer.push(new THREE.Vector2(bendX, bendY));
   outer.push(
     new THREE.Vector2(
-      last.x + tx * leg * 0.35 + nx * (drop - gap),
-      last.y + ty * leg * 0.35 + ny * (drop - gap)
+      bendX - tx * flushReturn,
+      bendY - ty * flushReturn
+    )
+  );
+  outer.push(
+    new THREE.Vector2(
+      bendX - tx * flushReturn + nx * gap,
+      bendY - ty * flushReturn + ny * gap
     )
   );
 }
