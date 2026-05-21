@@ -20,48 +20,35 @@ function formatInches(lengthIn: number): string {
   return `${rounded}"`;
 }
 
-function pushLengthDimension(
-  out: DimensionAnnotation[],
-  seg: GeneratedSegment,
-  offsetIndex: number
-) {
-  const dx = seg.end.x - seg.start.x;
-  const dy = seg.end.y - seg.start.y;
-  const len = Math.hypot(dx, dy) || 1;
-  const nx = -dy / len;
-  const ny = dx / len;
-  const off = DIM_OFFSET + (offsetIndex % 2) * 10;
-
-  const x1 = seg.start.x + nx * off;
-  const y1 = seg.start.y + ny * off;
-  const x2 = seg.end.x + nx * off;
-  const y2 = seg.end.y + ny * off;
-  const mid = midpoint({ x: x1, y: y1 }, { x: x2, y: y2 });
-
-  out.push({
-    id: seg.isBase ? "len-base" : `len-${seg.index}`,
-    x1,
-    y1,
-    x2,
-    y2,
-    labelX: mid.x,
-    labelY: mid.y - 6,
-    text: formatInches(seg.lengthIn),
-    kind: "length",
-  });
-}
-
 export function buildDimensionAnnotations(segments: GeneratedSegment[]): DimensionAnnotation[] {
   const out: DimensionAnnotation[] = [];
 
-  const baseSeg = segments.find((s) => s.isBase);
-  if (baseSeg) {
-    pushLengthDimension(out, baseSeg, 0);
-  }
-
   segments.forEach((seg, i) => {
     if (seg.isBase) return;
-    pushLengthDimension(out, seg, i + 1);
+    const dx = seg.end.x - seg.start.x;
+    const dy = seg.end.y - seg.start.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const nx = -dy / len;
+    const ny = dx / len;
+    const off = DIM_OFFSET + (i % 2) * 10;
+
+    const x1 = seg.start.x + nx * off;
+    const y1 = seg.start.y + ny * off;
+    const x2 = seg.end.x + nx * off;
+    const y2 = seg.end.y + ny * off;
+    const mid = midpoint({ x: x1, y: y1 }, { x: x2, y: y2 });
+
+    out.push({
+      id: `len-${seg.index}`,
+      x1,
+      y1,
+      x2,
+      y2,
+      labelX: mid.x,
+      labelY: mid.y - 6,
+      text: formatInches(seg.lengthIn),
+      kind: "length",
+    });
 
     if (Math.abs(seg.angleDeg) > 0.01) {
       out.push({
