@@ -21,7 +21,7 @@ const RealisticFlashingPreview = dynamic(
     ssr: false,
     loading: () => (
       <div
-        className="flex h-[min(360px,42vh)] min-h-[280px] w-full items-center justify-center rounded-lg bg-[#dcdcdc] text-sm text-gray-500"
+        className="flex h-[min(360px,42vh)] min-h-[280px] w-full items-center justify-center rounded-lg bg-white text-sm text-gray-500"
         aria-hidden
       >
         Loading 3D preview…

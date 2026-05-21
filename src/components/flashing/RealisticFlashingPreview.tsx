@@ -2,7 +2,7 @@
 
 import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
-import { ContactShadows, Environment, OrbitControls } from "@react-three/drei";
+import { Bounds, ContactShadows, Environment, OrbitControls } from "@react-three/drei";
 import { useMemo } from "react";
 import { useConfiguratorStore } from "@/store/useConfiguratorStore";
 
@@ -57,6 +57,7 @@ function FlashingModel({
     });
     geo.rotateX(Math.PI / 2);
     geo.center();
+    geo.computeBoundingBox();
     return geo;
   }, [pieceLength, segments, thickness]);
 
@@ -97,41 +98,51 @@ export default function RealisticFlashingPreview({
     };
   }, [profile.baseWidth, profile.pieceLength, profile.segments, profile.thickness, colorHex]);
 
+  const fitKey = `${flashing.pieceLength}-${flashing.segments.map((s) => `${s.length}:${s.angle}`).join(",")}`;
+
   return (
-    <div className="h-[min(360px,42vh)] min-h-[280px] w-full overflow-hidden rounded-lg bg-[#dcdcdc]">
+    <div className="h-[min(360px,42vh)] min-h-[280px] w-full overflow-hidden rounded-lg bg-white">
       <Canvas
         shadows
-        camera={{
-          position: [18, 8, 16],
-          fov: 28,
-        }}
+        dpr={[1, 2]}
+        camera={{ fov: 32, near: 0.1, far: 5000 }}
+        gl={{ antialias: true }}
+        style={{ background: "#ffffff" }}
       >
-        <Environment preset="warehouse" />
-        <ambientLight intensity={0.5} />
+        <color attach="background" args={["#ffffff"]} />
+        <Environment preset="studio" />
+        <ambientLight intensity={0.65} />
         <directionalLight
           castShadow
           position={[15, 20, 10]}
-          intensity={2.5}
+          intensity={1.8}
           shadow-mapSize-width={2048}
           shadow-mapSize-height={2048}
         />
-        <directionalLight position={[-10, 5, -5]} intensity={0.6} />
-        <group rotation={[0, THREE.MathUtils.degToRad(-18), 0]}>
-          <FlashingModel {...flashing} />
-        </group>
+        <directionalLight position={[-10, 5, -5]} intensity={0.45} />
+
+        <Bounds key={fitKey} fit clip observe margin={1.35} maxDuration={0.25}>
+          <group rotation={[0, THREE.MathUtils.degToRad(-18), 0]}>
+            <FlashingModel {...flashing} />
+          </group>
+        </Bounds>
+
         <ContactShadows
-          position={[0, -2.8, 0]}
-          opacity={0.35}
-          scale={40}
-          blur={2.5}
-          far={10}
+          position={[0, -0.05, 0]}
+          opacity={0.2}
+          scale={50}
+          blur={2}
+          far={20}
+          color="#000000"
         />
+
         <OrbitControls
+          makeDefault
           enablePan={false}
-          minDistance={8}
-          maxDistance={40}
           enableDamping
           dampingFactor={0.08}
+          minDistance={0.5}
+          maxDistance={500}
         />
       </Canvas>
       {colorName ? <p className="sr-only">3D preview color: {colorName}</p> : null}
