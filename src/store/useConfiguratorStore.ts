@@ -23,8 +23,8 @@ export const useConfiguratorStore = create<ConfiguratorStore>((set) => ({
   profile: {
     thickness: DEFAULT_THICKNESS_IN,
     baseWidth: 10,
-    pieceLength: 10,
-    segments: [{ id: "a", length: 4, angle: 90, radius: 0.08 }],
+    pieceLength: 120,
+    segments: [{ id: "a", length: 0.5, angle: 90, radius: 0.08 }],
     hems: {},
   },
 
@@ -38,15 +38,17 @@ export const useConfiguratorStore = create<ConfiguratorStore>((set) => ({
 
   addSegment: () =>
     set((state) => {
+      if (state.profile.segments.length >= 1) return state;
       const segments = [
         ...state.profile.segments,
-        { id: newSegmentId(), length: 1, angle: 90, radius: state.profile.thickness },
+        { id: newSegmentId(), length: 0.5, angle: 90, radius: state.profile.thickness },
       ];
       return { profile: { ...state.profile, segments } };
     }),
 
   removeSegment: (index) =>
     set((state) => {
+      if (state.profile.segments.length <= 1) return state;
       const segments = state.profile.segments.filter((_, i) => i !== index);
       const hems = { ...state.profile.hems };
       delete hems[index];
