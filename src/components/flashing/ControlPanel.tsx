@@ -1,7 +1,7 @@
 "use client";
 
 import type { HemType } from "@/types/profile";
-import { useConfiguratorStore } from "@/store/useConfiguratorStore";
+import { MAX_FLASHING_FOLDS, useConfiguratorStore } from "@/store/useConfiguratorStore";
 import BlankDimensionInput from "./BlankDimensionInput";
 
 type ControlPanelProps = {
@@ -16,6 +16,8 @@ function hemSelectValue(hem: { enabled?: boolean; type?: HemType } | undefined):
 export default function ControlPanel({ compact = false }: ControlPanelProps) {
   const profile = useConfiguratorStore((s) => s.profile);
   const updateSegment = useConfiguratorStore((s) => s.updateSegment);
+  const addSegment = useConfiguratorStore((s) => s.addSegment);
+  const removeSegment = useConfiguratorStore((s) => s.removeSegment);
   const updateHem = useConfiguratorStore((s) => s.updateHem);
   const setBaseWidth = useConfiguratorStore((s) => s.setBaseWidth);
   const setPieceLength = useConfiguratorStore((s) => s.setPieceLength);
@@ -25,12 +27,10 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
     ? "mt-1 w-full rounded-lg border border-gray-200 px-2.5 py-1.5 text-sm"
     : "mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm";
   const foldCardClass = compact
-    ? "rounded-lg border border-gray-200 p-3"
-    : "rounded-xl border border-gray-200 p-4";
+    ? "mb-2 rounded-lg border border-gray-200 p-3"
+    : "mb-3 rounded-xl border border-gray-200 p-4";
 
-  const segment = profile.segments[0];
-  const foldHem = profile.hems[0];
-  const hemActive = hemSelectValue(foldHem) !== "none";
+  const canAddFold = profile.segments.length < MAX_FLASHING_FOLDS;
 
   return (
     <div className={sectionGap}>
@@ -58,87 +58,112 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
         </div>
       </section>
 
-      {segment ? (
-        <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500">
-            Return (one side)
-          </h2>
-          <div className={foldCardClass}>
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-800">
-                Return length (in)
-                <input
-                  type="number"
-                  min={0.25}
-                  max={120}
-                  step={0.25}
-                  value={segment.length}
-                  onChange={(e) => updateSegment(0, { length: Number(e.target.value) })}
-                  className={inputClass}
-                />
-              </label>
-              <label className="block text-sm font-medium text-gray-800">
-                Bend angle (°)
-                <input
-                  type="number"
-                  min={-180}
-                  max={180}
-                  step={1}
-                  value={segment.angle}
-                  onChange={(e) => updateSegment(0, { angle: Number(e.target.value) })}
-                  className={inputClass}
-                />
-              </label>
+      <section>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">Folds</h2>
+          <button
+            type="button"
+            onClick={addSegment}
+            disabled={!canAddFold}
+            className="rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            + Fold
+          </button>
+        </div>
+        {profile.segments.map((segment, index) => {
+          const foldHem = profile.hems[index];
+          const hemActive = hemSelectValue(foldHem) !== "none";
 
-              <div className="border-t border-gray-100 pt-3">
-                <label className="text-sm font-medium text-gray-800">Hem</label>
-                <select
-                  value={hemSelectValue(foldHem)}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (value === "none") {
-                      updateHem(0, { enabled: false, type: "none" });
-                      return;
-                    }
-                    updateHem(0, {
-                      enabled: true,
-                      type: value as HemType,
-                      length: foldHem?.length ?? 0.5,
-                    });
-                  }}
-                  className={`${inputClass} mt-1`}
-                >
-                  <option value="none">None</option>
-                  <option value="closed">Closed hem</option>
-                  <option value="open">Open hem</option>
-                </select>
-
-                {hemActive ? (
-                  <div className="mt-3">
-                    <BlankDimensionInput
-                      label="Hem leg (in)"
-                      value={foldHem?.length ?? 0.5}
-                      onChange={(length) =>
-                        updateHem(0, {
-                          length,
-                          enabled: true,
-                          type: (foldHem?.type === "closed" || foldHem?.type === "open"
-                            ? foldHem.type
-                            : "open") as HemType,
-                        })
-                      }
-                      min={0}
-                      max={2}
-                      step={0.125}
-                      className={inputClass}
-                    />
-                  </div>
+          return (
+            <div key={segment.id} className={foldCardClass}>
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-sm font-semibold text-gray-900">F{index + 1}</span>
+                {profile.segments.length > 1 ? (
+                  <button
+                    type="button"
+                    onClick={() => removeSegment(index)}
+                    className="text-xs text-red-600 hover:underline"
+                  >
+                    Remove
+                  </button>
                 ) : null}
               </div>
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-gray-800">
+                  Return length (in)
+                  <input
+                    type="number"
+                    min={0.25}
+                    max={120}
+                    step={0.25}
+                    value={segment.length}
+                    onChange={(e) => updateSegment(index, { length: Number(e.target.value) })}
+                    className={inputClass}
+                  />
+                </label>
+                <label className="block text-sm font-medium text-gray-800">
+                  Bend angle (°)
+                  <input
+                    type="number"
+                    min={-180}
+                    max={180}
+                    step={1}
+                    value={segment.angle}
+                    onChange={(e) => updateSegment(index, { angle: Number(e.target.value) })}
+                    className={inputClass}
+                  />
+                </label>
+
+                <div className="border-t border-gray-100 pt-3">
+                  <label className="text-sm font-medium text-gray-800">Hem</label>
+                  <select
+                    value={hemSelectValue(foldHem)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === "none") {
+                        updateHem(index, { enabled: false, type: "none" });
+                        return;
+                      }
+                      updateHem(index, {
+                        enabled: true,
+                        type: value as HemType,
+                        length: foldHem?.length ?? 0.5,
+                      });
+                    }}
+                    className={`${inputClass} mt-1`}
+                  >
+                    <option value="none">None</option>
+                    <option value="closed">Closed hem</option>
+                    <option value="open">Open hem</option>
+                  </select>
+
+                  {hemActive ? (
+                    <div className="mt-3">
+                      <BlankDimensionInput
+                        label="Hem leg (in)"
+                        value={foldHem?.length ?? 0.5}
+                        onChange={(length) =>
+                          updateHem(index, {
+                            length,
+                            enabled: true,
+                            type: (foldHem?.type === "closed" || foldHem?.type === "open"
+                              ? foldHem.type
+                              : "open") as HemType,
+                          })
+                        }
+                        min={0}
+                        max={2}
+                        step={0.125}
+                        className={inputClass}
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              </div>
             </div>
-          </div>
-        </section>
-      ) : null}
+          );
+        })}
+      </section>
     </div>
   );
 }

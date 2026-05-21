@@ -48,7 +48,7 @@ export type FlashingConfiguratorProps = {
 
 export default function FlashingConfigurator({
   title = "Flashing Configurator",
-  subtitle = "Configure one return, optional hem, and blank size (default 120 in length). Pricing updates automatically.",
+  subtitle = "Configure folds, optional hems, and blank size (default 120 in length). Pricing updates automatically.",
 }: FlashingConfiguratorProps) {
   const router = useRouter();
   const { addItem } = useCart();
@@ -157,7 +157,7 @@ export default function FlashingConfigurator({
                 Configuration
               </h2>
               <p className="mt-0.5 text-sm text-gray-500">
-                Blank size, one return, optional hem, and color.
+                Blank size, folds, optional hems, and color.
               </p>
             </div>
             <div className="divide-y divide-gray-100 px-5 py-5 md:px-6">
@@ -198,7 +198,7 @@ export default function FlashingConfigurator({
                 3D preview — {color.name}
               </p>
               <p className="mb-2 px-1 text-xs text-gray-500">
-                Drag to rotate. Updates with blank size, return, and piece length.
+                Drag to rotate. Updates with blank size, folds, and piece length.
               </p>
               <RealisticFlashingPreview colorHex={color.swatchHex} colorName={color.name} />
             </section>

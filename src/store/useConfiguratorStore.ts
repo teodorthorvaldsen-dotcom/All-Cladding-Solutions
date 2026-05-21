@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { Hem, ProfileState, Segment } from "@/types/profile";
 
 const DEFAULT_THICKNESS_IN = 4 / 25.4;
+export const MAX_FLASHING_FOLDS = 16;
 
 function newSegmentId(): string {
   return `seg-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
@@ -38,10 +39,10 @@ export const useConfiguratorStore = create<ConfiguratorStore>((set) => ({
 
   addSegment: () =>
     set((state) => {
-      if (state.profile.segments.length >= 1) return state;
+      if (state.profile.segments.length >= MAX_FLASHING_FOLDS) return state;
       const segments = [
         ...state.profile.segments,
-        { id: newSegmentId(), length: 0.5, angle: 90, radius: state.profile.thickness },
+        { id: newSegmentId(), length: 1, angle: 90, radius: state.profile.thickness },
       ];
       return { profile: { ...state.profile, segments } };
     }),
