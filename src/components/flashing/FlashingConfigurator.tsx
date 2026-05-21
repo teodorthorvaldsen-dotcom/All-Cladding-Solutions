@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { colors, finishes, type ColorId, type ThicknessId } from "@/data/acm";
@@ -13,6 +14,18 @@ import { PriceSummary } from "../PriceSummary";
 import { QuantityPicker } from "../QuantityPicker";
 import ControlPanel from "./ControlPanel";
 import ProfileCanvas, { type ProfileCanvasHandle } from "./ProfileCanvas";
+
+const ThreePreview = dynamic(() => import("./ThreePreview"), {
+  ssr: false,
+  loading: () => (
+    <div
+      className="flex h-[min(280px,40vh)] min-h-[220px] w-full items-center justify-center rounded-lg bg-[#fafafa] text-sm text-gray-400"
+      aria-hidden
+    >
+      Loading 3D preview…
+    </div>
+  ),
+});
 
 const DEBOUNCE_MS = 300;
 
@@ -175,6 +188,16 @@ export default function FlashingConfigurator({
                 Section view — {color.name}
               </p>
               <ProfileCanvas canvasRef={previewRef} large />
+            </section>
+
+            <section className="rounded-2xl border border-gray-200/80 bg-white p-3 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+              <p className="mb-2 px-1 text-[11px] font-medium uppercase tracking-wider text-gray-500">
+                3D preview — {color.name}
+              </p>
+              <p className="mb-2 px-1 text-xs text-gray-500">
+                Drag to rotate. Updates with blank size, folds, and piece length.
+              </p>
+              <ThreePreview colorHex={color.swatchHex} colorName={color.name} />
             </section>
 
             <PriceSummary pricing={pricing} loading={loading} error={priceError} compact />
