@@ -2,175 +2,59 @@
 
 import * as THREE from "three";
 import { Canvas, useThree } from "@react-three/fiber";
-import {
-  Bounds,
-  ContactShadows,
-  Environment,
-  OrbitControls,
-  useTexture,
-} from "@react-three/drei";
-import { forwardRef, Suspense, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef } from "react";
+import { Bounds, Environment, OrbitControls } from "@react-three/drei";
+import { forwardRef, Suspense, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import type { ProfileState } from "@/types/profile";
 import { useConfiguratorStore } from "@/store/useConfiguratorStore";
+import { SwatchPreviewMaterial } from "@/components/three/SwatchPreviewMaterial";
 
 export type RealisticFlashingPreviewHandle = {
   toPngDataUrl: () => string | undefined;
 };
 
-type SegmentInput = {
-  length: number;
-  angle: number;
+const PREVIEW_KEY_LIGHT = "#fff7f2";
+const PREVIEW_FILL_LIGHT = "#ffffff";
+
+type FlashingPart = {
+  position: [number, number, number];
+  rotation: [number, number, number];
+  args: [number, number, number];
 };
 
-type HemKind = "open" | "closed";
+/** One box per flange so swatch images map per face like ACM panel 3D preview. */
+function buildFlashingParts(profile: ProfileState): FlashingPart[] {
+  const pieceLength = Math.max(0.1, profile.pieceLength);
+  const thickness = Math.max(0.02, profile.thickness);
+  const parts: FlashingPart[] = [];
 
-function appendHemToContour(
-  outer: THREE.Vector2[],
-  hemType: HemKind,
-  headingDeg: number,
-  sheetThickness: number
-) {
-  const last = outer[outer.length - 1]!;
-  const rad = THREE.MathUtils.degToRad(headingDeg);
-  const tx = Math.cos(rad);
-  const ty = Math.sin(rad);
-  const nx = -ty;
-  const ny = tx;
-  const drop = 0.14;
-  const leg = 0.28;
-
-  if (hemType === "open") {
-    const hemGap = Math.max(sheetThickness * 0.6, 0.03);
-    outer.push(new THREE.Vector2(last.x + nx * drop, last.y + ny * drop));
-    outer.push(
-      new THREE.Vector2(
-        last.x + nx * (drop + leg),
-        last.y + ny * (drop + leg)
-      )
-    );
-    outer.push(
-      new THREE.Vector2(
-        last.x + tx * leg * 0.45 + nx * (drop + leg + hemGap),
-        last.y + ty * leg * 0.45 + ny * (drop + leg + hemGap)
-      )
-    );
-    return;
-  }
-
-  // Closed hem: 0° — fold straight back parallel to flange (flush, no extra bend).
-  const offset = Math.max(sheetThickness, 0.04);
-  const hemReturn = Math.max(sheetThickness * 2.5, 0.08);
-  outer.push(new THREE.Vector2(last.x + nx * offset, last.y + ny * offset));
-  outer.push(
-    new THREE.Vector2(
-      last.x + nx * offset - tx * hemReturn,
-      last.y + ny * offset - ty * hemReturn
-    )
-  );
-}
-
-function buildProfile(
-  baseWidth: number,
-  foldSegments: SegmentInput[],
-  hems: ProfileState["hems"],
-  thickness: number
-): THREE.Shape {
-  const outer: THREE.Vector2[] = [new THREE.Vector2(0, 0)];
-  let x = 0;
-  let y = 0;
   let headingDeg = 0;
+  let hingeX = 0;
+  let hingeZ = 0;
 
-  const walk = (seg: SegmentInput) => {
-    headingDeg += seg.angle;
-    const r = THREE.MathUtils.degToRad(headingDeg);
-    x += Math.cos(r) * seg.length;
-    y += Math.sin(r) * seg.length;
-    outer.push(new THREE.Vector2(x, y));
+  const addFlange = (length: number) => {
+    const flangeLen = Math.max(0, length);
+    if (flangeLen <= 0) return;
+    const rad = THREE.MathUtils.degToRad(headingDeg);
+    const midX = hingeX + (Math.cos(rad) * flangeLen) / 2;
+    const midZ = hingeZ + (Math.sin(rad) * flangeLen) / 2;
+    parts.push({
+      position: [midX, pieceLength / 2, midZ],
+      rotation: [0, rad, 0],
+      args: [flangeLen, pieceLength, thickness],
+    });
+    hingeX += Math.cos(rad) * flangeLen;
+    hingeZ += Math.sin(rad) * flangeLen;
   };
 
-  walk({ length: Math.max(0, baseWidth), angle: 0 });
+  const walk = (seg: { length: number; angle: number }) => {
+    headingDeg += seg.angle;
+    addFlange(seg.length);
+  };
 
-  foldSegments.forEach((seg, foldIndex) => {
-    walk(seg);
-    const hem = hems[foldIndex];
-    if (hem?.enabled && (hem.type === "open" || hem.type === "closed")) {
-      appendHemToContour(outer, hem.type, headingDeg, thickness);
-    }
-  });
+  walk({ length: profile.baseWidth, angle: 0 });
+  profile.segments.forEach((seg) => walk(seg));
 
-  const inner: THREE.Vector2[] = [];
-  for (let i = outer.length - 1; i >= 0; i--) {
-    const p = outer[i]!;
-    inner.push(new THREE.Vector2(p.x, p.y - thickness));
-  }
-
-  return new THREE.Shape([...outer, ...inner]);
-}
-
-/** World-space UVs so swatch textures tile on extruded sheet faces (matches ACM panel preview). */
-function applySheetUvs(geometry: THREE.BufferGeometry, tilesPerInch = 3.5) {
-  const pos = geometry.attributes.position;
-  if (!pos) return;
-  const uvs = new Float32Array(pos.count * 2);
-  for (let i = 0; i < pos.count; i++) {
-    uvs[i * 2] = pos.getX(i) * tilesPerInch;
-    uvs[i * 2 + 1] = pos.getY(i) * tilesPerInch;
-  }
-  geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
-}
-
-function SwatchTexturedMaterial({ mapUrl }: { mapUrl: string }) {
-  const tex = useTexture(mapUrl);
-  useLayoutEffect(() => {
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.wrapS = THREE.RepeatWrapping;
-    tex.wrapT = THREE.RepeatWrapping;
-    tex.generateMipmaps = true;
-    tex.minFilter = THREE.LinearMipmapLinearFilter;
-    tex.magFilter = THREE.LinearFilter;
-  }, [tex]);
-  return (
-    <meshStandardMaterial
-      color="#ffffff"
-      map={tex}
-      metalness={0}
-      roughness={0.82}
-      envMapIntensity={0.42}
-    />
-  );
-}
-
-function FlashingFinishMaterial({
-  colorHex,
-  mapUrl,
-}: {
-  colorHex: string;
-  mapUrl?: string;
-}) {
-  if (mapUrl) {
-    return (
-      <Suspense
-        fallback={
-          <meshStandardMaterial
-            color={colorHex}
-            metalness={0}
-            roughness={0.82}
-            envMapIntensity={0.42}
-          />
-        }
-      >
-        <SwatchTexturedMaterial mapUrl={mapUrl} />
-      </Suspense>
-    );
-  }
-  return (
-    <meshStandardMaterial
-      color={colorHex}
-      metalness={0}
-      roughness={0.82}
-      envMapIntensity={0.42}
-    />
-  );
+  return parts;
 }
 
 function GlCapture({
@@ -194,7 +78,7 @@ function GlCapture({
   return null;
 }
 
-function FlashingModel({
+function FlashingPanelMesh({
   profile,
   colorHex = "#5a5a5a",
   mapUrl,
@@ -203,28 +87,19 @@ function FlashingModel({
   colorHex?: string;
   mapUrl?: string;
 }) {
-  const geometry = useMemo(() => {
-    const foldSegments = profile.segments.map((seg) => ({
-      length: Math.max(0, seg.length),
-      angle: seg.angle,
-    }));
-    const thickness = Math.max(0.02, profile.thickness);
-    const shape = buildProfile(profile.baseWidth, foldSegments, profile.hems, thickness);
-    const geo = new THREE.ExtrudeGeometry(shape, {
-      depth: Math.max(0.1, profile.pieceLength),
-      bevelEnabled: false,
-      steps: 1,
-    });
-    geo.rotateX(Math.PI / 2);
-    geo.center();
-    applySheetUvs(geo);
-    return geo;
-  }, [profile]);
+  const parts = useMemo(() => buildFlashingParts(profile), [profile]);
 
   return (
-    <mesh geometry={geometry} castShadow receiveShadow>
-      <FlashingFinishMaterial colorHex={colorHex} mapUrl={mapUrl} />
-    </mesh>
+    <group>
+      {parts.map((p, i) => (
+        <group key={i} position={p.position} rotation={p.rotation}>
+          <mesh castShadow={false} receiveShadow={false}>
+            <boxGeometry args={p.args} />
+            <SwatchPreviewMaterial colorHex={colorHex} mapUrl={mapUrl} />
+          </mesh>
+        </group>
+      ))}
+    </group>
   );
 }
 
@@ -259,50 +134,52 @@ const RealisticFlashingPreview = forwardRef<
   }, [profile]);
 
   return (
-    <div className="h-[min(360px,42vh)] min-h-[280px] w-full overflow-hidden rounded-lg bg-white">
+    <div className="h-[min(360px,42vh)] min-h-[280px] w-full overflow-hidden rounded-lg bg-[#f4f5f7]">
       <Canvas
-        shadows
         dpr={[1, 2]}
-        camera={{ fov: 32, near: 0.1, far: 5000 }}
-        gl={{ antialias: true, preserveDrawingBuffer: true }}
-        style={{ background: "#ffffff" }}
+        camera={{ fov: 38, near: 0.1, far: 5000, position: [2.3, 1.8, 2.5] }}
+        shadows={false}
+        gl={{
+          antialias: true,
+          preserveDrawingBuffer: true,
+          toneMapping: THREE.NeutralToneMapping,
+          toneMappingExposure: 1.08,
+          outputColorSpace: THREE.SRGBColorSpace,
+        }}
+        style={{ background: "#f4f5f7" }}
       >
-        <color attach="background" args={["#ffffff"]} />
+        <color attach="background" args={["#f4f5f7"]} />
         <GlCapture onReady={(fn) => { captureRef.current = fn; }} />
+        <hemisphereLight color="#ffffff" groundColor="#ebe6e1" intensity={0.48} />
+        <ambientLight intensity={0.32} color="#fefefe" />
+        <directionalLight
+          castShadow={false}
+          color={PREVIEW_KEY_LIGHT}
+          position={[6, 11, 8]}
+          intensity={1.38}
+        />
+        <directionalLight
+          castShadow={false}
+          color={PREVIEW_FILL_LIGHT}
+          position={[-6, 5, 6]}
+          intensity={0.62}
+        />
         <Suspense fallback={null}>
           <Environment preset="apartment" environmentIntensity={0.5} />
         </Suspense>
-        <ambientLight intensity={0.72} />
-        <directionalLight
-          castShadow
-          position={[15, 20, 10]}
-          intensity={1.15}
-          color="#fff7f2"
-          shadow-mapSize-width={2048}
-          shadow-mapSize-height={2048}
-        />
-        <directionalLight position={[-10, 5, -5]} intensity={0.38} color="#ffffff" />
 
         <Bounds key={fitKey} fit clip observe margin={1.35} maxDuration={0.25}>
           <group rotation={[0, THREE.MathUtils.degToRad(-18), 0]}>
-            <FlashingModel profile={profile} colorHex={colorHex} mapUrl={mapUrl} />
+            <FlashingPanelMesh profile={profile} colorHex={colorHex} mapUrl={mapUrl} />
           </group>
         </Bounds>
-
-        <ContactShadows
-          position={[0, -0.05, 0]}
-          opacity={0.2}
-          scale={50}
-          blur={2}
-          far={20}
-          color="#000000"
-        />
 
         <OrbitControls
           makeDefault
           enablePan={false}
           enableDamping
           dampingFactor={0.08}
+          rotateSpeed={0.78}
           minDistance={0.5}
           maxDistance={500}
         />

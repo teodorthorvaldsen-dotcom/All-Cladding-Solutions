@@ -3,7 +3,8 @@
 import type { MutableRefObject } from "react";
 import { Suspense, useLayoutEffect, useMemo, useState } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
-import { Edges, Environment, OrbitControls, Text, useTexture } from "@react-three/drei";
+import { Edges, Environment, OrbitControls, Text } from "@react-three/drei";
+import { SwatchPreviewMaterial } from "@/components/three/SwatchPreviewMaterial";
 import * as THREE from "three";
 import type { BoxTrayEdge, BoxTraySideRow } from "@/types/boxTray";
 import {
@@ -416,27 +417,6 @@ function buildBoxTrayParts(
   return parts;
 }
 
-function SwatchTexturedMaterial({ mapUrl }: { mapUrl: string }) {
-  const tex = useTexture(mapUrl);
-  useLayoutEffect(() => {
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.wrapS = THREE.ClampToEdgeWrapping;
-    tex.wrapT = THREE.ClampToEdgeWrapping;
-    tex.generateMipmaps = true;
-    tex.minFilter = THREE.LinearMipmapLinearFilter;
-    tex.magFilter = THREE.LinearFilter;
-  }, [tex]);
-  return (
-    <meshStandardMaterial
-      color="#ffffff"
-      map={tex}
-      metalness={0}
-      roughness={0.82}
-      envMapIntensity={0.42}
-    />
-  );
-}
-
 /** Label on the outer broad face of each box (+Z local = sheet “top” before hinge rotation). */
 function PartSurfaceLabel({
   label,
@@ -496,13 +476,7 @@ function FoldedPanelMesh({
           <group position={p.position} rotation={p.rotation}>
             <mesh castShadow={false} receiveShadow={false}>
               <boxGeometry args={p.args} />
-              {mapUrl ? (
-                <Suspense fallback={<meshStandardMaterial color={colorHex} metalness={0} roughness={0.82} envMapIntensity={0.42} />}>
-                  <SwatchTexturedMaterial mapUrl={mapUrl} />
-                </Suspense>
-              ) : (
-                <meshStandardMaterial color={colorHex} metalness={0} roughness={0.82} envMapIntensity={0.42} />
-              )}
+              <SwatchPreviewMaterial colorHex={colorHex} mapUrl={mapUrl} />
               <Edges color="#555" threshold={12} />
             </mesh>
             <Suspense fallback={null}>
