@@ -42,8 +42,8 @@ function boundsFromPoints(pts: Point[]) {
   return { minX, minY, maxX, maxY };
 }
 
-function hemTypeFromHem(hem: Hem): "open" | "closed" | null {
-  if (!hem.enabled || hem.type === "none") return null;
+function hemTypeFromHem(hem: Hem | undefined): "open" | "closed" | null {
+  if (!hem || hem.type === "none") return null;
   if (hem.type === "closed") return "closed";
   if (hem.type === "open") return "open";
   return null;
@@ -85,28 +85,31 @@ export function generateProfile(profile: ProfileState): ProfileGeometry {
       angleDeg: segment.angle,
     });
     vertices.push(next);
+
+    const hem = profile.hems[index];
+    const hemType = hemTypeFromHem(hem);
+    if (hemType) {
+      const dx = next.x - current.x;
+      const dy = next.y - current.y;
+      const segLen = Math.hypot(dx, dy);
+      const labelOffset = 22;
+      let labelX: number;
+      let labelY: number;
+      if (segLen > 1e-6) {
+        labelX = next.x + (-dy / segLen) * labelOffset;
+        labelY = next.y + (dx / segLen) * labelOffset;
+      } else {
+        const rad = degToRad(headingDeg);
+        labelX = next.x + -Math.sin(rad) * labelOffset;
+        labelY = next.y + Math.cos(rad) * labelOffset;
+      }
+      hems.push({ segmentIndex: index, type: hemType, label: hemType, x: labelX, y: labelY });
+    }
+
     current = next;
   });
 
-  const boundPts: Point[] = [...vertices];
-
-  for (const [key, hem] of Object.entries(profile.hems)) {
-    const segmentIndex = Number(key);
-    const type = hemTypeFromHem(hem);
-    if (type === null || segmentIndex < 0 || segmentIndex >= profile.segments.length) continue;
-
-    const foldSeg = segments.find((s) => s.index === segmentIndex);
-    if (!foldSeg) continue;
-
-    const S = foldSeg.end;
-    const labelOffset = 14;
-    const labelX = S.x + (S.x >= 0 ? -labelOffset : labelOffset);
-    const labelY = S.y + labelOffset;
-
-    hems.push({ segmentIndex, type, label: type, x: labelX, y: labelY });
-    boundPts.push(S, { x: labelX, y: labelY });
-  }
-
+  const boundPts: Point[] = [...vertices, ...hems.map((h) => ({ x: h.x, y: h.y }))];
   const bounds = boundsFromPoints(boundPts);
 
   return { segments, hems, vertices, bounds };

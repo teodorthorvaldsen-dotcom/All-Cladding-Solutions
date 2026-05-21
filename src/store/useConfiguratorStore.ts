@@ -33,7 +33,14 @@ export const useConfiguratorStore = create<ConfiguratorStore>((set) => ({
     set((state) => {
       const segments = [...state.profile.segments];
       if (!segments[index]) return state;
-      segments[index] = { ...segments[index]!, ...data };
+      const next = { ...segments[index]!, ...data };
+      if (data.length !== undefined) {
+        next.length = Math.max(0, Number.isFinite(data.length) ? data.length : 0);
+      }
+      if (data.angle !== undefined) {
+        next.angle = Number.isFinite(data.angle) ? data.angle : 0;
+      }
+      segments[index] = next;
       return { profile: { ...state.profile, segments } };
     }),
 
@@ -49,7 +56,7 @@ export const useConfiguratorStore = create<ConfiguratorStore>((set) => ({
 
   removeSegment: (index) =>
     set((state) => {
-      if (state.profile.segments.length <= 1) return state;
+      if (index === 0 || state.profile.segments.length <= 1) return state;
       const segments = state.profile.segments.filter((_, i) => i !== index);
       const hems = { ...state.profile.hems };
       delete hems[index];

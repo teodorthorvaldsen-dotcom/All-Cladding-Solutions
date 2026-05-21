@@ -8,8 +8,8 @@ type ControlPanelProps = {
   compact?: boolean;
 };
 
-function hemSelectValue(hem: { enabled?: boolean; type?: HemType } | undefined): string {
-  if (hem?.enabled && hem.type && hem.type !== "none") return hem.type;
+function hemSelectValue(hem: { type?: HemType } | undefined): string {
+  if (hem?.type === "closed" || hem?.type === "open") return hem.type;
   return "none";
 }
 
@@ -30,7 +30,7 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
     ? "mb-2 rounded-lg border border-gray-200 p-3"
     : "mb-3 rounded-xl border border-gray-200 p-4";
 
-  const canAddFold = profile.segments.length < MAX_FLASHING_FOLDS;
+  const canAddToF1 = profile.segments.length < MAX_FLASHING_FOLDS;
 
   return (
     <div className={sectionGap}>
@@ -59,42 +59,48 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
       </section>
 
       <section>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">Folds</h2>
-          <button
-            type="button"
-            onClick={addSegment}
-            disabled={!canAddFold}
-            className="rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            + Fold
-          </button>
-        </div>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500">Folds</h2>
         {profile.segments.map((segment, index) => {
           const foldHem = profile.hems[index];
+          const isF1 = index === 0;
 
           return (
             <div key={segment.id} className={foldCardClass}>
-              <div className="mb-2 flex items-center justify-between">
+              <div className="mb-2 flex items-center justify-between gap-2">
                 <span className="text-sm font-semibold text-gray-900">F{index + 1}</span>
-                {profile.segments.length > 1 ? (
-                  <button
-                    type="button"
-                    onClick={() => removeSegment(index)}
-                    className="text-xs text-red-600 hover:underline"
-                  >
-                    Remove
-                  </button>
-                ) : null}
+                <div className="flex items-center gap-2">
+                  {isF1 ? (
+                    <button
+                      type="button"
+                      onClick={addSegment}
+                      disabled={!canAddToF1}
+                      className="rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      + Fold
+                    </button>
+                  ) : null}
+                  {!isF1 ? (
+                    <button
+                      type="button"
+                      onClick={() => removeSegment(index)}
+                      className="text-xs text-red-600 hover:underline"
+                    >
+                      Remove
+                    </button>
+                  ) : null}
+                </div>
               </div>
+              {isF1 ? (
+                <p className="mb-2 text-xs text-gray-500">
+                  Add folds continue from F1 (F2, F3, …).
+                </p>
+              ) : null}
               <div className="space-y-3">
                 <BlankDimensionInput
                   label="Return length (in)"
                   value={segment.length}
-                  onChange={(length) =>
-                    updateSegment(index, { length: Math.max(0.25, length) })
-                  }
-                  min={0.25}
+                  onChange={(length) => updateSegment(index, { length })}
+                  min={0}
                   max={120}
                   step={0.25}
                   className={inputClass}
@@ -102,11 +108,7 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
                 <BlankDimensionInput
                   label="Bend angle (°)"
                   value={segment.angle}
-                  onChange={(angle) =>
-                    updateSegment(index, {
-                      angle: Math.min(180, Math.max(-180, angle)),
-                    })
-                  }
+                  onChange={(angle) => updateSegment(index, { angle })}
                   min={-180}
                   max={180}
                   step={1}

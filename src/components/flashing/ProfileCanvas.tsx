@@ -103,9 +103,12 @@ export default function ProfileCanvas({
                 y={hem.y}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                fontSize={isLarge ? 15 : 13}
-                fontWeight={600}
+                fontSize={isLarge ? 14 : 12}
+                fontWeight={700}
                 fill="#111827"
+                stroke="#ffffff"
+                strokeWidth={3}
+                paintOrder="stroke"
                 className="select-none"
               >
                 {hem.label}

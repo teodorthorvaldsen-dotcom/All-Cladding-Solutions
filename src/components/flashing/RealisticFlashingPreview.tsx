@@ -51,23 +51,14 @@ function appendHemToContour(
     return;
   }
 
-  // Closed hem: tight perpendicular bend, then 180° fold back flush with panel face.
-  const bendRadius = Math.max(sheetThickness * 1.1, 0.045);
-  const flushReturn = Math.max(sheetThickness * 2.4, bendRadius * 2);
-  const gap = Math.max(sheetThickness * 0.15, 0.012);
-  const bendX = last.x + nx * bendRadius;
-  const bendY = last.y + ny * bendRadius;
-  outer.push(new THREE.Vector2(bendX, bendY));
+  // Closed hem: 0° — fold straight back parallel to flange (flush, no extra bend).
+  const offset = Math.max(sheetThickness, 0.04);
+  const hemReturn = Math.max(sheetThickness * 2.5, 0.08);
+  outer.push(new THREE.Vector2(last.x + nx * offset, last.y + ny * offset));
   outer.push(
     new THREE.Vector2(
-      bendX - tx * flushReturn,
-      bendY - ty * flushReturn
-    )
-  );
-  outer.push(
-    new THREE.Vector2(
-      bendX - tx * flushReturn + nx * gap,
-      bendY - ty * flushReturn + ny * gap
+      last.x + nx * offset - tx * hemReturn,
+      last.y + ny * offset - ty * hemReturn
     )
   );
 }
