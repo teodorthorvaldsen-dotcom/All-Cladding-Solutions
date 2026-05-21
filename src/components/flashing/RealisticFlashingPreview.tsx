@@ -2,8 +2,14 @@
 
 import * as THREE from "three";
 import { Canvas, useThree } from "@react-three/fiber";
-import { Bounds, ContactShadows, Environment, OrbitControls } from "@react-three/drei";
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from "react";
+import {
+  Bounds,
+  ContactShadows,
+  Environment,
+  OrbitControls,
+  useTexture,
+} from "@react-three/drei";
+import { forwardRef, Suspense, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef } from "react";
 import type { ProfileState } from "@/types/profile";
 import { useConfiguratorStore } from "@/store/useConfiguratorStore";
 
@@ -101,6 +107,72 @@ function buildProfile(
   return new THREE.Shape([...outer, ...inner]);
 }
 
+/** World-space UVs so swatch textures tile on extruded sheet faces (matches ACM panel preview). */
+function applySheetUvs(geometry: THREE.BufferGeometry, tilesPerInch = 3.5) {
+  const pos = geometry.attributes.position;
+  if (!pos) return;
+  const uvs = new Float32Array(pos.count * 2);
+  for (let i = 0; i < pos.count; i++) {
+    uvs[i * 2] = pos.getX(i) * tilesPerInch;
+    uvs[i * 2 + 1] = pos.getY(i) * tilesPerInch;
+  }
+  geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
+}
+
+function SwatchTexturedMaterial({ mapUrl }: { mapUrl: string }) {
+  const tex = useTexture(mapUrl);
+  useLayoutEffect(() => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.generateMipmaps = true;
+    tex.minFilter = THREE.LinearMipmapLinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+  }, [tex]);
+  return (
+    <meshStandardMaterial
+      color="#ffffff"
+      map={tex}
+      metalness={0}
+      roughness={0.82}
+      envMapIntensity={0.42}
+    />
+  );
+}
+
+function FlashingFinishMaterial({
+  colorHex,
+  mapUrl,
+}: {
+  colorHex: string;
+  mapUrl?: string;
+}) {
+  if (mapUrl) {
+    return (
+      <Suspense
+        fallback={
+          <meshStandardMaterial
+            color={colorHex}
+            metalness={0}
+            roughness={0.82}
+            envMapIntensity={0.42}
+          />
+        }
+      >
+        <SwatchTexturedMaterial mapUrl={mapUrl} />
+      </Suspense>
+    );
+  }
+  return (
+    <meshStandardMaterial
+      color={colorHex}
+      metalness={0}
+      roughness={0.82}
+      envMapIntensity={0.42}
+    />
+  );
+}
+
 function GlCapture({
   onReady,
 }: {
@@ -124,10 +196,12 @@ function GlCapture({
 
 function FlashingModel({
   profile,
-  color = "#5a5a5a",
+  colorHex = "#5a5a5a",
+  mapUrl,
 }: {
   profile: ProfileState;
-  color?: string;
+  colorHex?: string;
+  mapUrl?: string;
 }) {
   const geometry = useMemo(() => {
     const foldSegments = profile.segments.map((seg) => ({
@@ -143,32 +217,34 @@ function FlashingModel({
     });
     geo.rotateX(Math.PI / 2);
     geo.center();
+    applySheetUvs(geo);
     return geo;
   }, [profile]);
 
   return (
     <mesh geometry={geometry} castShadow receiveShadow>
-      <meshPhysicalMaterial
-        color={color}
-        metalness={0.85}
-        roughness={0.42}
-        reflectivity={0.5}
-      />
+      <FlashingFinishMaterial colorHex={colorHex} mapUrl={mapUrl} />
     </mesh>
   );
 }
 
 type RealisticFlashingPreviewProps = {
   colorHex?: string;
+  colorSwatchImage?: string;
   colorName?: string;
 };
 
 const RealisticFlashingPreview = forwardRef<
   RealisticFlashingPreviewHandle,
   RealisticFlashingPreviewProps
->(function RealisticFlashingPreview({ colorHex = "#5a5a5a", colorName }, ref) {
+>(function RealisticFlashingPreview(
+  { colorHex = "#5a5a5a", colorSwatchImage, colorName },
+  ref
+) {
   const profile = useConfiguratorStore((s) => s.profile);
   const captureRef = useRef<(() => string | undefined) | null>(null);
+  const mapUrl =
+    colorSwatchImage && colorSwatchImage.length > 0 ? colorSwatchImage : undefined;
 
   useImperativeHandle(ref, () => ({
     toPngDataUrl: () => captureRef.current?.(),
@@ -193,20 +269,23 @@ const RealisticFlashingPreview = forwardRef<
       >
         <color attach="background" args={["#ffffff"]} />
         <GlCapture onReady={(fn) => { captureRef.current = fn; }} />
-        <Environment preset="studio" />
-        <ambientLight intensity={0.65} />
+        <Suspense fallback={null}>
+          <Environment preset="apartment" environmentIntensity={0.5} />
+        </Suspense>
+        <ambientLight intensity={0.72} />
         <directionalLight
           castShadow
           position={[15, 20, 10]}
-          intensity={1.8}
+          intensity={1.15}
+          color="#fff7f2"
           shadow-mapSize-width={2048}
           shadow-mapSize-height={2048}
         />
-        <directionalLight position={[-10, 5, -5]} intensity={0.45} />
+        <directionalLight position={[-10, 5, -5]} intensity={0.38} color="#ffffff" />
 
         <Bounds key={fitKey} fit clip observe margin={1.35} maxDuration={0.25}>
           <group rotation={[0, THREE.MathUtils.degToRad(-18), 0]}>
-            <FlashingModel profile={profile} color={colorHex} />
+            <FlashingModel profile={profile} colorHex={colorHex} mapUrl={mapUrl} />
           </group>
         </Bounds>
 

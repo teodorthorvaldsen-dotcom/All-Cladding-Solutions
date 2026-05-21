@@ -206,6 +206,12 @@ export default function FlashingConfigurator({
               <RealisticFlashingPreview
                 ref={preview3dRef}
                 colorHex={color.swatchHex}
+                colorSwatchImage={
+                  "swatchImage" in color &&
+                  typeof (color as { swatchImage?: string }).swatchImage === "string"
+                    ? (color as { swatchImage: string }).swatchImage
+                    : undefined
+                }
                 colorName={color.name}
               />
             </section>
