@@ -2,11 +2,18 @@
 
 import * as THREE from "three";
 import { Canvas, useThree } from "@react-three/fiber";
-import { Bounds, Environment, OrbitControls } from "@react-three/drei";
+import { Bounds, Environment, Line, OrbitControls, Text } from "@react-three/drei";
 import { forwardRef, Suspense, useEffect, useImperativeHandle, useMemo, useRef } from "react";
+import { buildDimensionAnnotations } from "@/geometry/dimensionEngine";
+import { generateProfile } from "@/geometry/profileGenerator";
+import {
+  buildFlashingParts,
+  dimensionToWorld,
+  type FlashingPart,
+} from "@/geometry/flashing3DLayout";
 import type { ProfileState } from "@/types/profile";
 import { useConfiguratorStore } from "@/store/useConfiguratorStore";
-import { SwatchPreviewMaterial } from "@/components/three/SwatchPreviewMaterial";
+import { FlangeBoxMesh } from "@/components/three/SwatchPreviewMaterial";
 
 export type RealisticFlashingPreviewHandle = {
   toPngDataUrl: () => string | undefined;
@@ -14,48 +21,6 @@ export type RealisticFlashingPreviewHandle = {
 
 const PREVIEW_KEY_LIGHT = "#fff7f2";
 const PREVIEW_FILL_LIGHT = "#ffffff";
-
-type FlashingPart = {
-  position: [number, number, number];
-  rotation: [number, number, number];
-  args: [number, number, number];
-};
-
-/** One box per flange so swatch images map per face like ACM panel 3D preview. */
-function buildFlashingParts(profile: ProfileState): FlashingPart[] {
-  const pieceLength = Math.max(0.1, profile.pieceLength);
-  const thickness = Math.max(0.02, profile.thickness);
-  const parts: FlashingPart[] = [];
-
-  let headingDeg = 0;
-  let hingeX = 0;
-  let hingeZ = 0;
-
-  const addFlange = (length: number) => {
-    const flangeLen = Math.max(0, length);
-    if (flangeLen <= 0) return;
-    const rad = THREE.MathUtils.degToRad(headingDeg);
-    const midX = hingeX + (Math.cos(rad) * flangeLen) / 2;
-    const midZ = hingeZ + (Math.sin(rad) * flangeLen) / 2;
-    parts.push({
-      position: [midX, pieceLength / 2, midZ],
-      rotation: [0, rad, 0],
-      args: [flangeLen, pieceLength, thickness],
-    });
-    hingeX += Math.cos(rad) * flangeLen;
-    hingeZ += Math.sin(rad) * flangeLen;
-  };
-
-  const walk = (seg: { length: number; angle: number }) => {
-    headingDeg += seg.angle;
-    addFlange(seg.length);
-  };
-
-  walk({ length: profile.baseWidth, angle: 0 });
-  profile.segments.forEach((seg) => walk(seg));
-
-  return parts;
-}
 
 function GlCapture({
   onReady,
@@ -79,24 +44,68 @@ function GlCapture({
 }
 
 function FlashingPanelMesh({
-  profile,
+  parts,
   colorHex = "#5a5a5a",
   mapUrl,
 }: {
-  profile: ProfileState;
+  parts: FlashingPart[];
   colorHex?: string;
   mapUrl?: string;
 }) {
-  const parts = useMemo(() => buildFlashingParts(profile), [profile]);
-
   return (
     <group>
       {parts.map((p, i) => (
         <group key={i} position={p.position} rotation={p.rotation}>
-          <mesh castShadow={false} receiveShadow={false}>
-            <boxGeometry args={p.args} />
-            <SwatchPreviewMaterial colorHex={colorHex} mapUrl={mapUrl} />
-          </mesh>
+          <FlangeBoxMesh args={p.args} colorHex={colorHex} mapUrl={mapUrl} />
+        </group>
+      ))}
+    </group>
+  );
+}
+
+function FlashingDimensions3D({
+  profile,
+}: {
+  profile: ProfileState;
+}) {
+  const { dimensions, worldDims } = useMemo(() => {
+    const geometry = generateProfile(profile);
+    const dims = buildDimensionAnnotations(geometry.segments);
+    const world = dims.map((d) =>
+      dimensionToWorld(d, profile.pieceLength, profile.thickness)
+    );
+    return { dimensions: dims, worldDims: world };
+  }, [profile]);
+
+  const fontSize = useMemo(
+    () => THREE.MathUtils.clamp(Math.max(profile.baseWidth, profile.pieceLength) * 0.014, 0.1, 0.22),
+    [profile.baseWidth, profile.pieceLength]
+  );
+
+  return (
+    <group>
+      {worldDims.map((d, i) => (
+        <group key={dimensions[i]?.id ?? i}>
+          <Line
+            points={[d.lineStart, d.lineEnd]}
+            color="#9ca3af"
+            lineWidth={1}
+            transparent
+            opacity={0.95}
+          />
+          <Text
+            position={d.label}
+            fontSize={fontSize}
+            color="#374151"
+            fontWeight={700}
+            anchorX="center"
+            anchorY="middle"
+            outlineWidth={fontSize * 0.12}
+            outlineColor="#ffffff"
+            maxWidth={2.5}
+          >
+            {d.text}
+          </Text>
         </group>
       ))}
     </group>
@@ -120,6 +129,8 @@ const RealisticFlashingPreview = forwardRef<
   const captureRef = useRef<(() => string | undefined) | null>(null);
   const mapUrl =
     colorSwatchImage && colorSwatchImage.length > 0 ? colorSwatchImage : undefined;
+
+  const parts = useMemo(() => buildFlashingParts(profile), [profile]);
 
   useImperativeHandle(ref, () => ({
     toPngDataUrl: () => captureRef.current?.(),
@@ -170,7 +181,10 @@ const RealisticFlashingPreview = forwardRef<
 
         <Bounds key={fitKey} fit clip observe margin={1.35} maxDuration={0.25}>
           <group rotation={[0, THREE.MathUtils.degToRad(-18), 0]}>
-            <FlashingPanelMesh profile={profile} colorHex={colorHex} mapUrl={mapUrl} />
+            <FlashingPanelMesh parts={parts} colorHex={colorHex} mapUrl={mapUrl} />
+            <Suspense fallback={null}>
+              <FlashingDimensions3D profile={profile} />
+            </Suspense>
           </group>
         </Bounds>
 
