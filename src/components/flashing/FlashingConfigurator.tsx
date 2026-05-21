@@ -14,6 +14,7 @@ import { PriceSummary } from "../PriceSummary";
 import { QuantityPicker } from "../QuantityPicker";
 import ControlPanel from "./ControlPanel";
 import ProfileCanvas, { type ProfileCanvasHandle } from "./ProfileCanvas";
+import type { RealisticFlashingPreviewHandle } from "./RealisticFlashingPreview";
 
 const RealisticFlashingPreview = dynamic(
   () => import("./RealisticFlashingPreview"),
@@ -48,7 +49,7 @@ export type FlashingConfiguratorProps = {
 
 export default function FlashingConfigurator({
   title = "Flashing Configurator",
-  subtitle = "Configure folds, optional hems, and blank size (default 120 in length). Pricing updates automatically.",
+  subtitle = "Configure folds, optional hems, and blank size (max 10 in piece length). Pricing updates automatically.",
 }: FlashingConfiguratorProps) {
   const router = useRouter();
   const { addItem } = useCart();
@@ -64,7 +65,8 @@ export default function FlashingConfigurator({
   const [loading, setLoading] = useState(true);
   const [priceError, setPriceError] = useState<string | null>(null);
 
-  const previewRef = useRef<ProfileCanvasHandle | null>(null);
+  const drawingRef = useRef<ProfileCanvasHandle | null>(null);
+  const preview3dRef = useRef<RealisticFlashingPreviewHandle | null>(null);
 
   const fetchPrice = useCallback(async () => {
     setLoading(true);
@@ -111,7 +113,8 @@ export default function FlashingConfigurator({
     const boxTraySides = normalizeBoxTraySides(profileToBoxTraySides(profile));
     const trayBuildSpec =
       boxTraySides.length > 0 ? formatBoxTrayReproductionSpec(boxTraySides) : undefined;
-    const previewImageDataUrl = previewRef.current?.toSvgDataUrl();
+    const previewImageDataUrl =
+      preview3dRef.current?.toPngDataUrl() ?? drawingRef.current?.toSvgDataUrl();
 
     addItem({
       productKind: "flashing",
@@ -188,9 +191,9 @@ export default function FlashingConfigurator({
           <div className="flex flex-col gap-3 lg:gap-4">
             <section className="rounded-2xl border border-gray-200/80 bg-white p-3 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
               <p className="mb-2 px-1 text-[11px] font-medium uppercase tracking-wider text-gray-500">
-                Section view — {color.name}
+                Drawing view — {color.name}
               </p>
-              <ProfileCanvas canvasRef={previewRef} large />
+              <ProfileCanvas canvasRef={drawingRef} large />
             </section>
 
             <section className="rounded-2xl border border-gray-200/80 bg-white p-3 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
@@ -200,7 +203,11 @@ export default function FlashingConfigurator({
               <p className="mb-2 px-1 text-xs text-gray-500">
                 Drag to rotate. Updates with blank size, folds, and piece length.
               </p>
-              <RealisticFlashingPreview colorHex={color.swatchHex} colorName={color.name} />
+              <RealisticFlashingPreview
+                ref={preview3dRef}
+                colorHex={color.swatchHex}
+                colorName={color.name}
+              />
             </section>
 
             <PriceSummary pricing={pricing} loading={loading} error={priceError} compact />

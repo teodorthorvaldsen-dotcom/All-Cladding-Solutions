@@ -72,7 +72,6 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
         </div>
         {profile.segments.map((segment, index) => {
           const foldHem = profile.hems[index];
-          const hemActive = hemSelectValue(foldHem) !== "none";
 
           return (
             <div key={segment.id} className={foldCardClass}>
@@ -127,7 +126,6 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
                       updateHem(index, {
                         enabled: true,
                         type: value as HemType,
-                        length: foldHem?.length ?? 0.5,
                       });
                     }}
                     className={`${inputClass} mt-1`}
@@ -136,28 +134,6 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
                     <option value="closed">Closed hem</option>
                     <option value="open">Open hem</option>
                   </select>
-
-                  {hemActive ? (
-                    <div className="mt-3">
-                      <BlankDimensionInput
-                        label="Hem leg (in)"
-                        value={foldHem?.length ?? 0.5}
-                        onChange={(length) =>
-                          updateHem(index, {
-                            length,
-                            enabled: true,
-                            type: (foldHem?.type === "closed" || foldHem?.type === "open"
-                              ? foldHem.type
-                              : "open") as HemType,
-                          })
-                        }
-                        min={0}
-                        max={2}
-                        step={0.125}
-                        className={inputClass}
-                      />
-                    </div>
-                  ) : null}
                 </div>
               </div>
             </div>

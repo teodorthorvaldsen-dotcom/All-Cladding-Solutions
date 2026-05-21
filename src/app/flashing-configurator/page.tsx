@@ -4,7 +4,7 @@ export default function FlashingConfiguratorPage() {
   return (
     <FlashingConfigurator
       title="Flashing Configurator"
-      subtitle="Configure folds, optional hems, and blank size (default 120 in length). Pricing updates automatically."
+      subtitle="Configure folds, optional hems, and blank size (max 10 in piece length). Pricing updates automatically."
     />
   );
 }

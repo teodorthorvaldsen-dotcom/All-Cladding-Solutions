@@ -94,24 +94,6 @@ export default function ProfileCanvas({
           <g id="dimensions">
             <DimensionLayer dimensions={dimensions} />
           </g>
-
-          <g id="hems">
-            {geometry.hems.map((hem) => (
-              <text
-                key={`hem-${hem.segmentIndex}`}
-                x={hem.x}
-                y={hem.y}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fontSize={isLarge ? 15 : 13}
-                fontWeight={600}
-                fill="#111827"
-                className="select-none"
-              >
-                {hem.label}
-              </text>
-            ))}
-          </g>
         </svg>
       </div>
     </div>

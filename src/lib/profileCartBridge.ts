@@ -26,7 +26,6 @@ export function profileToBoxTraySides(profile: ProfileState): BoxTraySideRow[] {
       ...(hemEnabled
         ? {
             hemType: mapHemType(hem.type),
-            hemSizeIn: hem.length,
           }
         : {}),
     };

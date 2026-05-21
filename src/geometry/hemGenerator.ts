@@ -2,9 +2,7 @@ import { PIXELS_PER_INCH, type Point, vunit } from "./bendMath";
 
 export type HemType = "closed" | "open";
 
-/** Fixed canvas radius — ACM hems are visual details, not true-scale from material thickness. */
 const HEM_OPEN_RADIUS = 5;
-const HEM_CLOSED_RADIUS = 6;
 
 function inwardNormal(S: Point, f: Point): Point {
   let n = { x: -f.y, y: f.x };
@@ -52,35 +50,52 @@ function createOpenHemWorld(S: Point, prev: Point, legLength: number): string {
   return `M ${S.x} ${S.y} L ${p1x} ${p1y} Q ${qx} ${qy} ${p2x} ${p2y} L ${p3x} ${p3y}`;
 }
 
-function createClosedHemWorld(S: Point, prev: Point): string {
-  const f = vunit({ x: S.x - prev.x, y: S.y - prev.y });
-  const n = inwardNormal(S, f);
-  const r = HEM_CLOSED_RADIUS;
-  const closedGap = 1.5;
-  const mostlyVertical = Math.abs(f.y) > Math.abs(f.x);
+/** Closed hem — parallel top/return flanges with tight arc (local coords at flange tip). */
+function createClosedHemPath(
+  startX: number,
+  startY: number,
+  direction: "left" | "right",
+  thickness: number,
+  legLength: number
+): string {
+  const scale = PIXELS_PER_INCH;
+  const safeLegLength = Math.max(legLength, 0.375);
+  const t = thickness * scale;
+  const closedGap = Math.max(t * 0.12, 2);
+  const closedRadius = Math.max(t * 0.8, 5);
+  const returnInset = closedRadius * 1.6;
+  const returnLength = safeLegLength * scale;
+  const dir = direction === "right" ? 1 : -1;
 
-  if (mostlyVertical) {
-    const p1x = S.x + n.x * r * 1.25;
-    const p1y = S.y + n.y * r * 1.25;
-    const p2x = S.x + n.x * (r * 1.25 + r) + f.x * r * (S.x >= 0 ? -1 : 1);
-    const p2y = S.y + n.y * (r * 1.25 + r) + f.y * r * (S.x >= 0 ? -1 : 1);
-    const p3x = S.x + n.x * closedGap;
-    const p3y = p2y;
-    const qx = S.x + n.x * (r * 1.25 + r);
-    const qy = S.y + n.y * (r * 1.25 + r);
-    return `M ${S.x} ${S.y} L ${p1x} ${p1y} Q ${qx} ${qy} ${p2x} ${p2y} L ${p3x} ${p3y}`;
-  }
+  const outerX = startX + returnLength * dir;
+  const innerX = startX + returnInset * dir;
+  const topY = startY;
+  const bottomY = startY + closedRadius * 2;
+  const returnY = bottomY - closedGap;
 
-  const drop = r * 1.25;
-  const p1x = S.x;
-  const p1y = S.y + drop;
-  const p2x = S.x + n.x * r;
-  const p2y = S.y + drop + r;
-  const p3x = S.x + n.x * closedGap;
-  const p3y = p2y;
-  const qx = S.x;
-  const qy = S.y + drop + r;
-  return `M ${S.x} ${S.y} L ${p1x} ${p1y} Q ${qx} ${qy} ${p2x} ${p2y} L ${p3x} ${p3y}`;
+  return `
+    M ${startX} ${topY}
+    L ${outerX} ${topY}
+    A ${closedRadius} ${closedRadius} 0 0 ${dir === 1 ? 1 : 0} ${outerX} ${bottomY}
+    L ${innerX} ${bottomY}
+    L ${innerX} ${returnY}
+    L ${startX + closedRadius * 1.2 * dir} ${returnY}
+  `.trim();
+}
+
+function localClosedHemBounds(thickness: number, legLength: number) {
+  const scale = PIXELS_PER_INCH;
+  const safeLegLength = Math.max(legLength, 0.375);
+  const t = thickness * scale;
+  const closedRadius = Math.max(t * 0.8, 5);
+  const returnInset = closedRadius * 1.6;
+  const returnLength = safeLegLength * scale;
+  const bottomY = closedRadius * 2;
+  const returnY = bottomY - Math.max(t * 0.12, 2);
+  const endX = closedRadius * 1.2;
+  const minX = Math.min(0, returnLength, returnInset, endX, -returnLength, -returnInset, -endX);
+  const maxX = Math.max(0, returnLength, returnInset, endX, -returnLength, -returnInset, -endX);
+  return { minX, maxX, minY: 0, maxY: Math.max(bottomY, returnY) };
 }
 
 function openHemWorldPoints(S: Point, prev: Point, legLength: number): Point[] {
@@ -103,6 +118,16 @@ function openHemWorldPoints(S: Point, prev: Point, legLength: number): Point[] {
   return [S, { x: S.x, y: S.y + r }, { x: p2x, y: p2y }, { x: p2x + n.x * returnLeg, y: p2y }];
 }
 
+function transformPoint(p: Point, origin: Point, rotateDeg: number): Point {
+  const rad = (rotateDeg * Math.PI) / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+  return {
+    x: origin.x + p.x * cos - p.y * sin,
+    y: origin.y + p.x * sin + p.y * cos,
+  };
+}
+
 export function hemAttachTransform(
   S: Point,
   prevPt: Point
@@ -116,35 +141,44 @@ export function hemAttachTransform(
 export function hemWorldBounds(
   S: Point,
   prevPt: Point,
-  _thickness: number,
+  thickness: number,
   legLength: number,
   type: HemType
 ): Point[] {
   if (type === "open") {
     return openHemWorldPoints(S, prevPt, legLength);
   }
-  const f = vunit({ x: S.x - prevPt.x, y: S.y - prevPt.y });
-  const n = inwardNormal(S, f);
-  const r = HEM_CLOSED_RADIUS;
-  const xs = [S.x, S.x + n.x * r, S.x + n.x * 1.5];
-  const ys = [S.y, S.y + r * 2.5, S.y + r * 3];
-  return [
-    S,
-    { x: Math.min(...xs), y: Math.min(...ys) },
-    { x: Math.max(...xs), y: Math.max(...ys) },
+
+  const { rotate } = hemAttachTransform(S, prevPt);
+  const local = localClosedHemBounds(thickness, legLength);
+  const corners: Point[] = [
+    { x: local.minX, y: local.minY },
+    { x: local.maxX, y: local.minY },
+    { x: local.maxX, y: local.maxY },
+    { x: local.minX, y: local.maxY },
+    { x: 0, y: 0 },
   ];
+  return corners.map((p) => transformPoint(p, S, rotate));
 }
 
 export function buildHemSvgPath(
   S: Point,
   prevPt: Point,
-  _thickness: number,
+  thickness: number,
   legLength: number,
   type: HemType
 ): { pathD: string; x: number; y: number; rotate: number; type: HemType } {
-  const pathD =
-    type === "open"
-      ? createOpenHemWorld(S, prevPt, legLength)
-      : createClosedHemWorld(S, prevPt);
-  return { pathD, x: 0, y: 0, rotate: 0, type };
+  if (type === "open") {
+    return {
+      pathD: createOpenHemWorld(S, prevPt, legLength),
+      x: 0,
+      y: 0,
+      rotate: 0,
+      type,
+    };
+  }
+
+  const attach = hemAttachTransform(S, prevPt);
+  const pathD = createClosedHemPath(0, 0, attach.direction, thickness, legLength);
+  return { pathD, x: attach.x, y: attach.y, rotate: attach.rotate, type };
 }

@@ -1,6 +1,5 @@
-import type { Hem, ProfileState } from "@/types/profile";
+import type { ProfileState } from "@/types/profile";
 import { degToRad, PIXELS_PER_INCH, type Point } from "./bendMath";
-import type { HemType } from "./hemGenerator";
 
 export type GeneratedSegment = {
   index: number;
@@ -13,7 +12,7 @@ export type GeneratedSegment = {
 
 export type GeneratedHem = {
   segmentIndex: number;
-  type: HemType;
+  type: "open" | "closed";
   label: string;
   x: number;
   y: number;
@@ -41,13 +40,6 @@ function boundsFromPoints(pts: Point[]) {
     return { minX: -100, minY: -100, maxX: 100, maxY: 100 };
   }
   return { minX, minY, maxX, maxY };
-}
-
-function hemTypeFromHem(hem: Hem): HemType | null {
-  if (!hem.enabled || hem.type === "none") return null;
-  if (hem.type === "closed") return "closed";
-  if (hem.type === "open") return "open";
-  return null;
 }
 
 export function generateProfile(profile: ProfileState): ProfileGeometry {
@@ -89,26 +81,7 @@ export function generateProfile(profile: ProfileState): ProfileGeometry {
     current = next;
   });
 
-  const boundPts: Point[] = [...vertices];
-
-  for (const [key, hem] of Object.entries(profile.hems)) {
-    const segmentIndex = Number(key);
-    const type = hemTypeFromHem(hem);
-    if (type === null || segmentIndex < 0 || segmentIndex >= profile.segments.length) continue;
-
-    const foldSeg = segments.find((s) => s.index === segmentIndex);
-    if (!foldSeg) continue;
-
-    const S = foldSeg.end;
-    const labelOffset = 14;
-    const labelX = S.x + (S.x >= 0 ? -labelOffset : labelOffset);
-    const labelY = S.y + labelOffset;
-
-    hems.push({ segmentIndex, type, label: type, x: labelX, y: labelY });
-    boundPts.push(S, { x: labelX, y: labelY });
-  }
-
-  const bounds = boundsFromPoints(boundPts);
+  const bounds = boundsFromPoints(vertices);
 
   return { segments, hems, vertices, bounds };
 }

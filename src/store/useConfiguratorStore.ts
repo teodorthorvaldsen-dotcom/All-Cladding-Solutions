@@ -24,7 +24,7 @@ export const useConfiguratorStore = create<ConfiguratorStore>((set) => ({
   profile: {
     thickness: DEFAULT_THICKNESS_IN,
     baseWidth: 10,
-    pieceLength: 120,
+    pieceLength: 10,
     segments: [{ id: "a", length: 0.5, angle: 90, radius: 0.08 }],
     hems: {},
   },
@@ -94,6 +94,9 @@ export const useConfiguratorStore = create<ConfiguratorStore>((set) => ({
 
   setPieceLength: (value) =>
     set((state) => ({
-      profile: { ...state.profile, pieceLength: Math.max(0, Number.isFinite(value) ? value : 0) },
+      profile: {
+        ...state.profile,
+        pieceLength: Math.min(10, Math.max(0, Number.isFinite(value) ? value : 0)),
+      },
     })),
 }));
