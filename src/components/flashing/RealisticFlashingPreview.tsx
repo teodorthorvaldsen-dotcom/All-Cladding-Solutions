@@ -32,15 +32,20 @@ function appendHemToContour(
   const ny = tx;
   const drop = 0.14;
   const leg = 0.28;
-  const gap = Math.max(sheetThickness * 0.6, 0.03);
 
   if (hemType === "open") {
+    const hemGap = Math.max(sheetThickness * 0.6, 0.03);
     outer.push(new THREE.Vector2(last.x + nx * drop, last.y + ny * drop));
-    outer.push(new THREE.Vector2(last.x + nx * (drop + leg), last.y + ny * (drop + leg)));
     outer.push(
       new THREE.Vector2(
-        last.x + tx * leg * 0.45 + nx * (drop + leg),
-        last.y + ty * leg * 0.45 + ny * (drop + leg)
+        last.x + nx * (drop + leg),
+        last.y + ny * (drop + leg)
+      )
+    );
+    outer.push(
+      new THREE.Vector2(
+        last.x + tx * leg * 0.45 + nx * (drop + leg + hemGap),
+        last.y + ty * leg * 0.45 + ny * (drop + leg + hemGap)
       )
     );
     return;
