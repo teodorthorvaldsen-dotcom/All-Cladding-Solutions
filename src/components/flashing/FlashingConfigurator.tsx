@@ -191,7 +191,7 @@ export default function FlashingConfigurator({
           <div className="flex flex-col gap-3 lg:gap-4">
             <section className="rounded-2xl border border-gray-200/80 bg-white p-3 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
               <p className="mb-2 px-1 text-[11px] font-medium uppercase tracking-wider text-gray-500">
-                Drawing view — {color.name}
+                Drawing View — {color.name}
               </p>
               <ProfileCanvas canvasRef={drawingRef} large />
             </section>
