@@ -51,7 +51,7 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
             value={profile.pieceLength}
             onChange={setPieceLength}
             min={0}
-            max={120}
+            max={10}
             step={0.25}
             className={inputClass}
           />
@@ -88,30 +88,30 @@ export default function ControlPanel({ compact = false }: ControlPanelProps) {
                 ) : null}
               </div>
               <div className="space-y-3">
-                <label className="block text-sm font-medium text-gray-800">
-                  Return length (in)
-                  <input
-                    type="number"
-                    min={0.25}
-                    max={120}
-                    step={0.25}
-                    value={segment.length}
-                    onChange={(e) => updateSegment(index, { length: Number(e.target.value) })}
-                    className={inputClass}
-                  />
-                </label>
-                <label className="block text-sm font-medium text-gray-800">
-                  Bend angle (°)
-                  <input
-                    type="number"
-                    min={-180}
-                    max={180}
-                    step={1}
-                    value={segment.angle}
-                    onChange={(e) => updateSegment(index, { angle: Number(e.target.value) })}
-                    className={inputClass}
-                  />
-                </label>
+                <BlankDimensionInput
+                  label="Return length (in)"
+                  value={segment.length}
+                  onChange={(length) =>
+                    updateSegment(index, { length: Math.max(0.25, length) })
+                  }
+                  min={0.25}
+                  max={120}
+                  step={0.25}
+                  className={inputClass}
+                />
+                <BlankDimensionInput
+                  label="Bend angle (°)"
+                  value={segment.angle}
+                  onChange={(angle) =>
+                    updateSegment(index, {
+                      angle: Math.min(180, Math.max(-180, angle)),
+                    })
+                  }
+                  min={-180}
+                  max={180}
+                  step={1}
+                  className={inputClass}
+                />
 
                 <div className="border-t border-gray-100 pt-3">
                   <label className="text-sm font-medium text-gray-800">Hem</label>
