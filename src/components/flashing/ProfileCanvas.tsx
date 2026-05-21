@@ -97,23 +97,19 @@ export default function ProfileCanvas({
 
           <g id="hems">
             {geometry.hems.map((hem) => (
-              <g
+              <text
                 key={`hem-${hem.segmentIndex}`}
-                transform={
-                  hem.x !== 0 || hem.y !== 0 || hem.rotate !== 0
-                    ? `translate(${hem.x},${hem.y}) rotate(${hem.rotate})`
-                    : undefined
-                }
+                x={hem.x}
+                y={hem.y}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fontSize={isLarge ? 15 : 13}
+                fontWeight={600}
+                fill="#111827"
+                className="select-none"
               >
-                <path
-                  d={hem.pathD}
-                  fill="none"
-                  stroke="#111827"
-                  strokeWidth={3}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </g>
+                {hem.label}
+              </text>
             ))}
           </g>
         </svg>

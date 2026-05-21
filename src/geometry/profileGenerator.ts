@@ -1,6 +1,6 @@
 import type { Hem, ProfileState } from "@/types/profile";
 import { degToRad, PIXELS_PER_INCH, type Point } from "./bendMath";
-import { buildHemSvgPath, hemWorldBounds, type HemType } from "./hemGenerator";
+import type { HemType } from "./hemGenerator";
 
 export type GeneratedSegment = {
   index: number;
@@ -13,11 +13,10 @@ export type GeneratedSegment = {
 
 export type GeneratedHem = {
   segmentIndex: number;
-  pathD: string;
+  type: HemType;
+  label: string;
   x: number;
   y: number;
-  rotate: number;
-  type: HemType;
 };
 
 export type ProfileGeometry = {
@@ -101,18 +100,12 @@ export function generateProfile(profile: ProfileState): ProfileGeometry {
     if (!foldSeg) continue;
 
     const S = foldSeg.end;
-    const prevPt = foldSeg.start;
-    const legLength = Math.max(hem.length, 0.375);
+    const labelOffset = 14;
+    const labelX = S.x + (S.x >= 0 ? -labelOffset : labelOffset);
+    const labelY = S.y + labelOffset;
 
-    const { pathD, x, y, rotate, type: hemType } = buildHemSvgPath(
-      S,
-      prevPt,
-      profile.thickness,
-      legLength,
-      type
-    );
-    hems.push({ segmentIndex, pathD, x, y, rotate, type: hemType });
-    boundPts.push(...hemWorldBounds(S, prevPt, profile.thickness, legLength, type));
+    hems.push({ segmentIndex, type, label: type, x: labelX, y: labelY });
+    boundPts.push(S, { x: labelX, y: labelY });
   }
 
   const bounds = boundsFromPoints(boundPts);
