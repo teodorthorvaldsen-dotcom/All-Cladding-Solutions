@@ -1,4 +1,4 @@
-import type { Hem, ProfileState } from "@/types/profile";
+import type { BlankEdgeSide, Hem, ProfileState } from "@/types/profile";
 import { degToRad, PIXELS_PER_INCH, type Point } from "./bendMath";
 
 export type GeneratedSegment = {
@@ -12,6 +12,8 @@ export type GeneratedSegment = {
 
 export type GeneratedHem = {
   segmentIndex: number;
+  /** Set for left/right flat edge hems. */
+  edge?: BlankEdgeSide;
   type: "open" | "closed";
   label: string;
   x: number;
@@ -66,6 +68,23 @@ export function generateProfile(profile: ProfileState): ProfileGeometry {
     angleDeg: 0,
     isBase: true,
   });
+
+  const edgeLabelOffset = 22;
+  const addEdgeHemLabel = (point: Point, side: BlankEdgeSide, hemType: "open" | "closed") => {
+    hems.push({
+      segmentIndex: -1,
+      edge: side,
+      type: hemType,
+      label: hemType,
+      x: point.x,
+      y: point.y + edgeLabelOffset,
+    });
+  };
+
+  const startHemType = hemTypeFromHem(profile.edgeHems.start);
+  if (startHemType) addEdgeHemLabel(baseStart, "start", startHemType);
+  const endHemType = hemTypeFromHem(profile.edgeHems.end);
+  if (endHemType) addEdgeHemLabel(baseEnd, "end", endHemType);
 
   let current = baseEnd;
   let headingDeg = 0;

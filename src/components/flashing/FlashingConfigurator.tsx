@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { colors, finishes, type ColorId, type ThicknessId } from "@/data/acm";
 import type { PanelType } from "@/lib/pricing";
 import { formatBoxTrayReproductionSpec, normalizeBoxTraySides } from "@/lib/boxTray";
-import { profileToBoxTraySides } from "@/lib/profileCartBridge";
+import { formatProfileEdgeHemSpec, profileToBoxTraySides } from "@/lib/profileCartBridge";
 import { useCart } from "@/context/CartContext";
 import { useConfiguratorStore } from "@/store/useConfiguratorStore";
 import { ColorSwatches } from "../ColorSwatches";
@@ -49,7 +49,7 @@ export type FlashingConfiguratorProps = {
 
 export default function FlashingConfigurator({
   title = "Flashing Configurator",
-  subtitle = "Configure folds, optional hems, and blank size (max 10 in piece length). Pricing updates automatically.",
+  subtitle = "Set flat sheet width and length, optional edge hems, and add folds as needed (max 10 in length). Pricing updates automatically.",
 }: FlashingConfiguratorProps) {
   const router = useRouter();
   const { addItem } = useCart();
@@ -111,8 +111,11 @@ export default function FlashingConfigurator({
     const finish = finishes[0];
     const unitPrice = pricing.total / quantity;
     const boxTraySides = normalizeBoxTraySides(profileToBoxTraySides(profile));
+    const edgeHemLines = formatProfileEdgeHemSpec(profile);
+    const foldSpec =
+      boxTraySides.length > 0 ? formatBoxTrayReproductionSpec(boxTraySides) : "";
     const trayBuildSpec =
-      boxTraySides.length > 0 ? formatBoxTrayReproductionSpec(boxTraySides) : undefined;
+      [...edgeHemLines, foldSpec].filter(Boolean).join("\n") || undefined;
     const previewImageDataUrl =
       preview3dRef.current?.toPngDataUrl() ?? drawingRef.current?.toSvgDataUrl();
 
@@ -160,7 +163,7 @@ export default function FlashingConfigurator({
                 Configuration
               </h2>
               <p className="mt-0.5 text-sm text-gray-500">
-                Blank size, folds, optional hems, and color.
+                Flat sheet size, edge hems, optional folds, and color.
               </p>
             </div>
             <div className="divide-y divide-gray-100 px-5 py-5 md:px-6">

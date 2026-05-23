@@ -1,11 +1,28 @@
 import { create } from "zustand";
-import type { Hem, ProfileState, Segment } from "@/types/profile";
+import type { BlankEdgeSide, Hem, ProfileState, Segment } from "@/types/profile";
 
 const DEFAULT_THICKNESS_IN = 4 / 25.4;
 export const MAX_FLASHING_FOLDS = 16;
 
 function newSegmentId(): string {
   return `seg-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+}
+
+function defaultHem(thickness: number): Hem {
+  return {
+    enabled: false,
+    type: "none",
+    length: 0.5,
+    radius: thickness,
+    gap: thickness,
+  };
+}
+
+function defaultEdgeHems(thickness: number): ProfileState["edgeHems"] {
+  return {
+    start: defaultHem(thickness),
+    end: defaultHem(thickness),
+  };
 }
 
 interface ConfiguratorStore {
@@ -15,6 +32,7 @@ interface ConfiguratorStore {
   addSegment: () => void;
   removeSegment: (index: number) => void;
   updateHem: (index: number, data: Partial<Hem>) => void;
+  updateEdgeHem: (side: BlankEdgeSide, data: Partial<Hem>) => void;
   setThickness: (value: number) => void;
   setBaseWidth: (value: number) => void;
   setPieceLength: (value: number) => void;
@@ -25,7 +43,8 @@ export const useConfiguratorStore = create<ConfiguratorStore>((set) => ({
     thickness: DEFAULT_THICKNESS_IN,
     baseWidth: 10,
     pieceLength: 10,
-    segments: [{ id: "a", length: 0.5, angle: 90, radius: 0.08 }],
+    edgeHems: defaultEdgeHems(DEFAULT_THICKNESS_IN),
+    segments: [],
     hems: {},
   },
 
@@ -49,14 +68,14 @@ export const useConfiguratorStore = create<ConfiguratorStore>((set) => ({
       if (state.profile.segments.length >= MAX_FLASHING_FOLDS) return state;
       const segments = [
         ...state.profile.segments,
-        { id: newSegmentId(), length: 1, angle: 90, radius: state.profile.thickness },
+        { id: newSegmentId(), length: 0.5, angle: 90, radius: state.profile.thickness },
       ];
       return { profile: { ...state.profile, segments } };
     }),
 
   removeSegment: (index) =>
     set((state) => {
-      if (index === 0 || state.profile.segments.length <= 1) return state;
+      if (!state.profile.segments[index]) return state;
       const segments = state.profile.segments.filter((_, i) => i !== index);
       const hems = { ...state.profile.hems };
       delete hems[index];
@@ -71,13 +90,7 @@ export const useConfiguratorStore = create<ConfiguratorStore>((set) => ({
 
   updateHem: (index, data) =>
     set((state) => {
-      const existing = state.profile.hems[index] ?? {
-        enabled: false,
-        type: "none" as const,
-        length: 0.5,
-        radius: state.profile.thickness,
-        gap: state.profile.thickness,
-      };
+      const existing = state.profile.hems[index] ?? defaultHem(state.profile.thickness);
       return {
         profile: {
           ...state.profile,
@@ -88,6 +101,17 @@ export const useConfiguratorStore = create<ConfiguratorStore>((set) => ({
         },
       };
     }),
+
+  updateEdgeHem: (side, data) =>
+    set((state) => ({
+      profile: {
+        ...state.profile,
+        edgeHems: {
+          ...state.profile.edgeHems,
+          [side]: { ...state.profile.edgeHems[side], ...data },
+        },
+      },
+    })),
 
   setThickness: (value) =>
     set((state) => ({

@@ -12,6 +12,20 @@ function mapHemType(type: ProfileState["hems"][number]["type"]): HemType {
   }
 }
 
+/** Lines for flat edge hems in cart / shop drawings. */
+export function formatProfileEdgeHemSpec(profile: ProfileState): string[] {
+  const lines: string[] = [];
+  const start = profile.edgeHems.start;
+  const end = profile.edgeHems.end;
+  if (start?.enabled && start.type !== "none") {
+    lines.push(`Left edge hem: ${start.type}`);
+  }
+  if (end?.enabled && end.type !== "none") {
+    lines.push(`Right edge hem: ${end.type}`);
+  }
+  return lines;
+}
+
 /** Convert new profile model → legacy `boxTraySides` for cart / quote emails. */
 export function profileToBoxTraySides(profile: ProfileState): BoxTraySideRow[] {
   return profile.segments.map((seg, index) => {

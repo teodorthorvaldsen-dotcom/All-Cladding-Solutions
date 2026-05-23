@@ -15,13 +15,19 @@ export type Hem = {
   gap: number;
 };
 
+/** Left / right end of the flat blank (profile start / end). */
+export type BlankEdgeSide = "start" | "end";
+
 export type ProfileState = {
   /** Sheet metal thickness (in). */
   thickness: number;
-  /** Flat center width (in) — pricing blank width. */
+  /** Flat blank width (in) — pricing blank width. */
   baseWidth: number;
-  /** Piece length along the flat (in) — pricing blank length. */
+  /** Flat blank length (in) — pricing blank length. */
   pieceLength: number;
+  /** Hems on the left or right edge of the flat sheet. */
+  edgeHems: Record<BlankEdgeSide, Hem>;
   segments: Segment[];
+  /** Hems on fold return free edges (by fold index). */
   hems: Record<number, Hem>;
 };

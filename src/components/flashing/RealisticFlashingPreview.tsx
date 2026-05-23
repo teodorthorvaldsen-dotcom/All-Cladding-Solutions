@@ -27,8 +27,17 @@ function buildFlashingParts(profile: ProfileState): FlashingPart[] {
   const thickness = Math.max(0.02, profile.thickness);
   const parts: FlashingPart[] = [];
 
+  const baseWidth = Math.max(0, profile.baseWidth);
+  if (baseWidth > 0) {
+    parts.push({
+      position: [0, pieceLength / 2, 0],
+      rotation: [0, 0, 0],
+      args: [baseWidth, pieceLength, thickness],
+    });
+  }
+
   let headingDeg = 0;
-  let hingeX = 0;
+  let hingeX = baseWidth / 2;
   let hingeZ = 0;
 
   const addFlange = (length: number) => {
@@ -46,13 +55,10 @@ function buildFlashingParts(profile: ProfileState): FlashingPart[] {
     hingeZ += Math.sin(rad) * flangeLen;
   };
 
-  const walk = (seg: { length: number; angle: number }) => {
+  profile.segments.forEach((seg) => {
     headingDeg += seg.angle;
     addFlange(seg.length);
-  };
-
-  walk({ length: profile.baseWidth, angle: 0 });
-  profile.segments.forEach((seg) => walk(seg));
+  });
 
   return parts;
 }
@@ -130,7 +136,8 @@ const RealisticFlashingPreview = forwardRef<
     const hems = Object.entries(profile.hems)
       .map(([k, h]) => `${k}:${h.type}`)
       .join(",");
-    return `${profile.baseWidth}-${profile.pieceLength}-${segs}-${hems}`;
+    const edgeHems = `L${profile.edgeHems.start.type}-R${profile.edgeHems.end.type}`;
+    return `${profile.baseWidth}-${profile.pieceLength}-${segs}-${hems}-${edgeHems}`;
   }, [profile]);
 
   return (

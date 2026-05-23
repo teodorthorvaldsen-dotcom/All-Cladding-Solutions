@@ -98,7 +98,7 @@ export default function ProfileCanvas({
           <g id="hems">
             {geometry.hems.map((hem) => (
               <text
-                key={`hem-${hem.segmentIndex}`}
+                key={`hem-${hem.edge ?? hem.segmentIndex}`}
                 x={hem.x}
                 y={hem.y}
                 textAnchor="middle"
