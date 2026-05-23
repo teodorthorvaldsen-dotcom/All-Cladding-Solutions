@@ -114,7 +114,7 @@ export function Configurator({
   const [thicknessId, setThicknessId] = useState<ThicknessId>("4mm");
   const [quantity, setQuantity] = useState(1);
   const [panelType, setPanelType] = useState<PanelType>("basic");
-  const [clipsPerPanel, setClipsPerPanel] = useState(0);
+  const [clipsNeeded, setClipsNeeded] = useState(0);
 
   const [pricing, setPricing] = useState<PriceResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -182,10 +182,10 @@ export function Configurator({
   const previewDepthIn = Math.min(3, Math.max(0.5, metalThicknessIn * 1.45 + 0.4));
   const noun = variant === "flashing" ? "flashing" : "panels";
   const showClips = variant === "acm" && panelType === "basic";
-  const clipsNeeded = Math.max(0, Math.round(clipsPerPanel) * Math.max(1, quantity));
+  const clipsTotal = Math.max(0, Math.round(clipsNeeded));
 
   useEffect(() => {
-    if (!showClips) setClipsPerPanel(0);
+    if (!showClips) setClipsNeeded(0);
   }, [showClips]);
 
   const handleAddToCart = () => {
@@ -226,7 +226,7 @@ export function Configurator({
           areaFt2: pricing.areaFt2,
           panelType: pricing.panelType,
           panelTypeLabel: pricing.panelTypeLabel,
-          ...(showClips && clipsPerPanel > 0 ? { clipsPerPanel, clipsNeeded } : {}),
+          ...(showClips && clipsTotal > 0 ? { clipsNeeded: clipsTotal } : {}),
           ...(boxTraySides.length > 0 ? { boxTraySides } : {}),
           ...(trayBuildSpec ? { trayBuildSpec } : {}),
           ...(previewImageDataUrl ? { previewImageDataUrl } : {}),
@@ -284,7 +284,7 @@ export function Configurator({
       estimatedTotal: pricing.total,
       panelType: pricing.panelType,
       panelTypeLabel: pricing.panelTypeLabel,
-      ...(showClips && clipsPerPanel > 0 ? { clipsPerPanel, clipsNeeded } : {}),
+      ...(showClips && clipsTotal > 0 ? { clipsNeeded: clipsTotal } : {}),
       widthLabel,
       thicknessLabel: thickness?.label ?? thicknessId,
       colorName: color.name,
@@ -361,65 +361,6 @@ export function Configurator({
                   </div>
                 )}
               </div>
-              {showClips ? (
-                <div
-                  id="clips"
-                  className="py-6 scroll-mt-[200px] sm:scroll-mt-[220px] lg:scroll-mt-[300px]"
-                >
-                  <div>
-                    <label className="block text-sm font-medium text-gray-900">How many clips needed</label>
-                    <p className="mt-1 text-xs text-gray-500">
-                      Optional. Enter how many clips you want on each panel; we’ll total them for your order quantity.
-                    </p>
-                    <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                      <div>
-                        <p className="text-[12px] font-medium text-gray-700">Clips per panel</p>
-                        <div className="mt-2 flex items-center gap-3">
-                          <button
-                            type="button"
-                            onClick={() => setClipsPerPanel((n) => Math.max(0, Math.round(n) - 1))}
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-gray-200 bg-white text-xl font-semibold text-gray-900 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-                            aria-label="Decrease clips per panel"
-                          >
-                            −
-                          </button>
-                          <input
-                            type="number"
-                            inputMode="numeric"
-                            min={0}
-                            step={1}
-                            value={clipsPerPanel}
-                            onChange={(e) => {
-                              const v = Math.max(0, Math.floor(Number(e.target.value) || 0));
-                              setClipsPerPanel(v);
-                            }}
-                            className="h-11 w-28 rounded-xl border border-gray-200 px-3 text-[15px] font-medium tabular-nums text-gray-900 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-                            aria-label="Clips per panel"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setClipsPerPanel((n) => Math.min(9999, Math.round(n) + 1))}
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-gray-200 bg-white text-xl font-semibold text-gray-900 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-                            aria-label="Increase clips per panel"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-                        <p className="text-[12px] font-medium text-gray-700">Total clips</p>
-                        <p className="mt-1 text-[15px] font-semibold tabular-nums text-gray-900">
-                          {clipsNeeded}
-                        </p>
-                        <p className="mt-0.5 text-[11px] text-gray-500">
-                          {Math.max(1, quantity)} panel{quantity === 1 ? "" : "s"} × {Math.max(0, Math.round(clipsPerPanel))} clips
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : null}
               {!hideThickness ? (
                 <div
                   id="thickness"
@@ -438,6 +379,51 @@ export function Configurator({
                   unitLabel={variant === "flashing" ? "pieces" : "panels"}
                 />
               </div>
+              {showClips ? (
+                <div
+                  id="clips"
+                  className="py-6 scroll-mt-[200px] sm:scroll-mt-[220px] lg:scroll-mt-[300px]"
+                >
+                  <label htmlFor="clips-total-input" className="block text-sm font-medium text-gray-900">
+                    Clips needed
+                  </label>
+                  <p className="mt-0.5 text-xs text-gray-500">
+                    Optional. Enter the total number of clips for your order.
+                  </p>
+                  <div className="mt-3 flex items-center gap-3" role="group" aria-label="Total clips needed">
+                    <button
+                      type="button"
+                      onClick={() => setClipsNeeded((n) => Math.max(0, Math.round(n) - 1))}
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-gray-200 bg-white text-xl font-semibold text-gray-900 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                      aria-label="Decrease total clips"
+                    >
+                      −
+                    </button>
+                    <input
+                      id="clips-total-input"
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      step={1}
+                      value={clipsNeeded}
+                      onChange={(e) => {
+                        const v = Math.max(0, Math.floor(Number(e.target.value) || 0));
+                        setClipsNeeded(v);
+                      }}
+                      className="h-11 w-full max-w-[10rem] rounded-xl border border-gray-200 px-3 text-[15px] font-medium tabular-nums text-gray-900 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                      aria-label="Total clips needed"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setClipsNeeded((n) => Math.min(99999, Math.round(n) + 1))}
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-gray-200 bg-white text-xl font-semibold text-gray-900 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                      aria-label="Increase total clips"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              ) : null}
               <div
                 id="size"
                 className="py-6 scroll-mt-[200px] sm:scroll-mt-[220px] lg:scroll-mt-[300px]"
@@ -534,16 +520,12 @@ export function Configurator({
 
             <div className="shrink-0 space-y-3 lg:space-y-4">
               <PriceSummary pricing={pricing} loading={loading} error={error} compact />
-              {showClips && clipsPerPanel > 0 ? (
+              {showClips && clipsTotal > 0 ? (
                 <div className="rounded-xl border border-gray-200/80 bg-white px-4 py-3 text-[14px] text-gray-800 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
                   <div className="flex items-baseline justify-between gap-3">
-                    <span className="font-medium text-gray-700">Total clips</span>
-                    <span className="font-semibold tabular-nums text-gray-900">{clipsNeeded}</span>
+                    <span className="font-medium text-gray-700">Clips needed</span>
+                    <span className="font-semibold tabular-nums text-gray-900">{clipsTotal}</span>
                   </div>
-                  <p className="mt-1 text-[12px] text-gray-500">
-                    {Math.max(1, quantity)} panel{quantity === 1 ? "" : "s"} ×{" "}
-                    {Math.max(0, Math.round(clipsPerPanel))} clips/panel
-                  </p>
                 </div>
               ) : null}
               <button
